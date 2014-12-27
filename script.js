@@ -41,7 +41,7 @@ function getMore() {
 setInterval(function(){
     var bodyHeight = Math.max(document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight);
     if (window.scrollY + window.innerHeight >= bodyHeight) {
-        getMore()
+        getMore();
     }
 }, 100);
 
