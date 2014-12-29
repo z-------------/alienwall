@@ -2,41 +2,8 @@
 <html>
     <head>
         <title>Reddit Wall</title>
-        <meta charset="utf-8">
-        <base target="_blank">
-        
-        <link rel="stylesheet" href="style.css">
     </head>
     <body>
-        <header>
-            <h1>Reddit Wall</h1>
-            
-            <div id="filters">
-                <input type="text" placeholder="subreddit" id="subreddit-input">
-                <select id="sort-input">
-                    <option value="hot">Hot</option>
-                    <option value="new">New</option>
-                    <option value="rising">Rising</option>
-                    <option value="controversial">Controversial</option>
-                    <option value="top">Top</option>
-                    <option value="gilded">Gilded</option>
-                </select>
-                <select id="time-input">
-                    <option value="all">All time</option>
-                    <option value="hour">Past hour</option>
-                    <option value="day">Past day</option>
-                    <option value="week">Past week</option>
-                    <option value="month">Past month</option>
-                    <option value="year">Past year</option>
-                </select>
-                <button id="go-btn">Go</button>
-            </div>
-        </header>
-        
-        <div id="content">
-            <ol id="stream"></ol>
-        </div>
-        
-        <script src="script.js"></script>
+        <a href="https://www.reddit.com/api/v1/authorize?client_id=ntFDwUGcEC-X4A&response_type=code&state=testingtesting&redirect_uri=http://localhost:8000/py/auth_callback.py&duration=temporary&scope=identity" target="_self">Log in with Reddit</a>
     </body>
 </html>

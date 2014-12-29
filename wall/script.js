@@ -44,10 +44,12 @@ function getMore(params) {
         if (r && r.data.children && r.data.children.length !== 0) {
             var posts = r.data.children;
             posts.forEach(function(post){
+                console.log(post);
+                
                 var postElem = document.createElement("a");
 
                 var postElemHtml = "<li><h3>" + post.data.title + "</h3><a href='//www.reddit.com/u/" + post.data.author + "' rel='author'>" + post.data.author + "</a><a href='http://www.reddit.com" + post.data.permalink + "'>" + new Date(post.data.created_utc * 1000).toDateString() + "</a></li>";
-
+                
                 postElem.innerHTML = postElemHtml;
                 postElem.href = post.data.url;
 

@@ -1,11 +1,14 @@
-import BaseHTTPServer
-import CGIHTTPServer
-import cgitb; cgitb.enable()
-
-server = BaseHTTPServer.HTTPServer
-handler = CGIHTTPServer.CGIHTTPRequestHandler
-server_address = ("", 8000)
-handler.cgi_directories = ["py"]
-
-httpd = server(server_address, handler)
-httpd.serve_forever()
+import sys
+from http.server import CGIHTTPRequestHandler, HTTPServer
+ 
+port = 8000
+if len(sys.argv) > 1:
+    port = int(sys.argv[1])
+ 
+handler = CGIHTTPRequestHandler
+handler.cgi_directories = ["/py"] 
+server = HTTPServer(("", port), handler)
+ 
+print("Server running on port " + str(port))
+ 
+server.serve_forever()
