@@ -5,6 +5,7 @@ import urllib.parse
 import urllib.request
 import base64
 import json
+from http import cookies
 
 form = cgi.FieldStorage()
 
@@ -34,5 +35,11 @@ response = urllib.request.urlopen(req)
 response_json = json.loads(response.read().decode("utf-8"))
 token = response_json["access_token"]
 
-print("Set-Cookie: oat='" + token + "'\n")
-print("Location: wall\n")
+cookie = cookies.SimpleCookie()
+cookie["oat"] = token
+cookie["oat"]["max-age"] = response_json["expires_in"]
+cookie["oat"]["path"] = "/"
+
+print(str(cookie))
+print("Content-Type: text/html\n")
+print("<meta http-equiv='Refresh' content='0; url=/wall/' />")
