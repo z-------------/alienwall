@@ -15,6 +15,8 @@ var xhr = function(url, callback) {
 
 var subredditInput = document.querySelector("#subreddit-input");
 var sortInput = document.querySelector("#sort-input");
+var timeInput = document.querySelector("#time-input");
+var goBtn = document.querySelector("#go-btn");
 var streamElem = document.querySelector("#stream");
 
 var afterID = null;
@@ -26,9 +28,9 @@ var errorFunc = function(){
     streamElem.innerHTML = "<p>Couldn't load posts from /r/" + sub + "</p>";
 }
 
-function getMore(errorFunc) {
+function getMore(params) {
     var limit = 50;
-    var requestURL = "http://www.reddit.com/r/" + encodeURIComponent(sub) + "/" + encodeURIComponent(sortInput.value) + ".json?limit=" + limit.toString();
+    var requestURL = "http://www.reddit.com/r/" + encodeURIComponent(sub) + "/" + encodeURIComponent(sortInput.value) + ".json?limit=" + limit.toString() + (params ? params : "");
     
     if (afterID) {
         requestURL += "&after=" + encodeURIComponent(afterID);
@@ -67,11 +69,23 @@ function getMore(errorFunc) {
     });
 }
 
-subredditInput.addEventListener("keydown", function(e){
-    if (e.which === 13) {
-        sub = this.value;
-        afterID = null;
-        streamElem.innerHTML = "";
-        getMore(errorFunc);
+function prepareGetMore() {
+    sub = subredditInput.value;
+    afterID = null;
+    streamElem.innerHTML = "";
+}
+
+sortInput.addEventListener("change", function(){
+    if (this.value === "top" || this.value === "controversial") {
+        timeInput.classList.add("visible");
+    } else {
+        timeInput.classList.remove("visible");
     }
+});
+
+goBtn.addEventListener("click", function(){
+    var params = "&t=" + timeInput.value;
+    
+    prepareGetMore();
+    getMore(params);
 });

@@ -10,9 +10,7 @@
     <body>
         <header>
             <h1>Reddit Wall</h1>
-        </header>
-        
-        <div id="content">
+            
             <div id="filters">
                 <input type="text" placeholder="subreddit" id="subreddit-input">
                 <select id="sort-input">
@@ -23,8 +21,19 @@
                     <option value="top">Top</option>
                     <option value="gilded">Gilded</option>
                 </select>
+                <select id="time-input">
+                    <option value="all">All time</option>
+                    <option value="hour">Past hour</option>
+                    <option value="day">Past day</option>
+                    <option value="week">Past week</option>
+                    <option value="month">Past month</option>
+                    <option value="year">Past year</option>
+                </select>
+                <button id="go-btn">Go</button>
             </div>
-            
+        </header>
+        
+        <div id="content">
             <ol id="stream"></ol>
         </div>
         
