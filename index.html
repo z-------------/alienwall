@@ -3,11 +3,30 @@
     <head>
         <title>Reddit Wall</title>
         <meta charset="utf-8">
+        <base target="_blank">
         
         <link rel="stylesheet" href="style.css">
     </head>
     <body>
-        <ol id="stream"></ol>
+        <header>
+            <h1>Reddit Wall</h1>
+        </header>
+        
+        <div id="content">
+            <div id="filters">
+                <input type="text" placeholder="subreddit" id="subreddit-input">
+                <select id="sort-input">
+                    <option value="hot">Hot</option>
+                    <option value="new">New</option>
+                    <option value="rising">Rising</option>
+                    <option value="controversial">Controversial</option>
+                    <option value="top">Top</option>
+                    <option value="gilded">Gilded</option>
+                </select>
+            </div>
+            
+            <ol id="stream"></ol>
+        </div>
         
         <script src="script.js"></script>
     </body>
