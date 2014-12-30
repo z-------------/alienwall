@@ -12,7 +12,6 @@
             <h1>Reddit Wall</h1>
             
             <div id="filters">
-                <input type="text" placeholder="subreddit" id="subreddit-input">
                 <select id="sort-input">
                     <option value="hot">Hot</option>
                     <option value="new">New</option>
@@ -31,6 +30,11 @@
                 </select>
                 <button id="go-btn">Go</button>
             </div>
+            
+            <ol id="subreddit-list">
+                <li data-subreddit="*FRONT PAGE">front</li>
+                <li data-subreddit="all">all</li>
+            </ol>
         </header>
         
         <div id="content">

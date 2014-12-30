@@ -37,7 +37,7 @@ token = response_json["access_token"]
 
 cookie = cookies.SimpleCookie()
 cookie["oat"] = token
-cookie["oat"]["max-age"] = response_json["expires_in"]
+cookie["oat"]["expires"] = int(response_json["expires_in"])
 cookie["oat"]["path"] = "/"
 
 print(str(cookie))

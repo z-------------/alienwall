@@ -2,6 +2,22 @@
 <html>
     <head>
         <title>Reddit Wall</title>
+        <script>
+            function readCookie(name) {
+                var nameEQ = name + "=";
+                var ca = document.cookie.split(';');
+                for(var i=0;i < ca.length;i++) {
+                    var c = ca[i];
+                    while (c.charAt(0)==' ') c = c.substring(1,c.length);
+                    if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+                }
+                return null;
+            }
+            
+            if (readCookie("oat")) {
+                window.location = "/wall/";
+            }
+        </script>
     </head>
     <body>
         <a href="https://www.reddit.com/api/v1/authorize?client_id=ntFDwUGcEC-X4A&response_type=code&state=testingtesting&redirect_uri=http://localhost:8000/py/auth_callback.py&duration=temporary&scope=identity,mysubreddits" target="_self">Log in with Reddit</a>
