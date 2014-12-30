@@ -22,20 +22,35 @@ var xhr = function(url, callback, headers) {
     oXHR.send(null); 
 };
 
-var reddit = function(endpoint, params, token, callback) {
+var reddit = function(endpoint, params, token, callback, post) {
     var paramsStr = "?";
     
     var paramsArray = [];
     var paramsKeys = Object.keys(params);
     paramsKeys.forEach(function(paramsKey){
-        paramsArray.push(paramsKey + "=" + params[paramsKey]);
+        paramsArray.push(encodeURIComponent(paramsKey) + "=" + encodeURIComponent(params[paramsKey]));
     });
     paramsStr += paramsArray.join("&");
     
-    var headers = {};
-    if (token) headers.Authorization = "bearer " + token;
-    
-    xhr(endpoint + paramsStr, callback, headers);
+    if (post) {
+        var req = new XMLHttpRequest();
+        req.open("POST", endpoint, true);
+        
+        req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        if (token) req.setRequestHeader("Authorization", "bearer " + token);
+        
+        req.onreadystatechange = function() {
+            if (req.readyState == 4 && req.status == 200) {
+                callback(req.responseText);
+            }
+        };
+        
+        req.send(paramsStr.substring("1"));
+    } else {
+        var headers = {};
+        if (token) headers.Authorization = "bearer " + token;
+        xhr(endpoint + paramsStr, callback, headers);
+    }
 };
 
 var sortInput = document.querySelector("#sort-input");
@@ -83,10 +98,21 @@ function getMore() {
             posts.forEach(function(post){
                 var postElem = document.createElement("a");
 
-                var postElemHtml = "<li><h3>" + post.data.title + "</h3><a href='//www.reddit.com/u/" + post.data.author + "' rel='author'>" + post.data.author + "</a><a href='http://www.reddit.com" + post.data.permalink + "'>" + new Date(post.data.created_utc * 1000).toDateString() + "</a></li>";
+                var postElemHtml = "<li><h3>" + post.data.title + "</h3><a href='//www.reddit.com/u/" + post.data.author + "' rel='author'>" + post.data.author + "</a><a href='http://www.reddit.com" + post.data.permalink + "'>" + new Date(post.data.created_utc * 1000).toDateString() + "</a><button class='vote up'>Upvote</button></li>";
                 
                 postElem.innerHTML = postElemHtml;
                 postElem.href = post.data.url;
+                postElem.dataset.fullname = post.kind + "_" + post.data.id;
+                
+                postElem.querySelector(".vote.up").addEventListener("click", function(e){
+                    var oat = readCookie("oat");
+                    reddit("https://oauth.reddit.com/api/vote", {
+                        dir: 1,
+                        id: this.parentElement.parentElement.dataset.fullname
+                    }, oat, function(r){
+                        console.log(r);
+                    }, true);
+                });
 
                 streamElem.appendChild(postElem);
             });
@@ -162,39 +188,34 @@ function eraseCookie(name) {
 
 function getUserSubreddits(){
     var oat = readCookie("oat");
-    if (oat) {
-        reddit("https://oauth.reddit.com/subreddits/mine/subscriber", {
-            limit: "100"
-        }, oat, function(r){
-            r = JSON.parse(r);
-            
-            subs = r.data.children.sort(function(a, b){
-                var aName = a.data.display_name.toLowerCase();
-                var bName = b.data.display_name.toLowerCase();
-                if (aName > bName) return 1;
-                if (bName > aName) return -1;
-                return 0;
-            });
-            
-            subs.forEach(function(sub){
-                allSubs.push(sub.data.display_name);
-                
-                var subsListItem = document.createElement("li");
-                subsListItem.dataset.subreddit = sub.data.display_name;
-                subsListItem.textContent = sub.data.display_name;
-                subsListElem.appendChild(subsListItem);
-            });
-            
-            [].slice.call(subsListElem.querySelectorAll("li[data-subreddit]")).forEach(function(subsListItem){
-                subsListItem.addEventListener("click", function(){
-                    changeSubreddit(this);
-                });
+    reddit("https://oauth.reddit.com/subreddits/mine/subscriber", {
+        limit: "100"
+    }, oat, function(r){
+        r = JSON.parse(r);
+
+        subs = r.data.children.sort(function(a, b){
+            var aName = a.data.display_name.toLowerCase();
+            var bName = b.data.display_name.toLowerCase();
+            if (aName > bName) return 1;
+            if (bName > aName) return -1;
+            return 0;
+        });
+
+        subs.forEach(function(sub){
+            allSubs.push(sub.data.display_name);
+
+            var subsListItem = document.createElement("li");
+            subsListItem.dataset.subreddit = sub.data.display_name;
+            subsListItem.textContent = sub.data.display_name;
+            subsListElem.appendChild(subsListItem);
+        });
+
+        [].slice.call(subsListElem.querySelectorAll("li[data-subreddit]")).forEach(function(subsListItem){
+            subsListItem.addEventListener("click", function(){
+                changeSubreddit(this);
             });
         });
-    } else {
-        alert("Your session has expired. Please sign in again.");
-        window.location = "/";
-    }
+    });
 }
 
 function changeSubreddit(elem){
