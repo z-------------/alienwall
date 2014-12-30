@@ -105,7 +105,8 @@ function getMore() {
             var msnry = new Masonry(container, {
                 columnWidth: 400,
                 itemSelector: "li",
-                gutter: 40
+                gutter: 40,
+                isFitWidth: true
             });
         } else {
             errorFunc();
@@ -189,8 +190,6 @@ function getUserSubreddits(){
                     changeSubreddit(this);
                 });
             });
-            
-            getMore();
         });
     } else {
         alert("Your session has expired. Please sign in again.");
@@ -215,4 +214,5 @@ if (!readCookie("oat")) {
     window.location = "/";
 }
 
+getMore();
 getUserSubreddits();
