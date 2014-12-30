@@ -1,6 +1,7 @@
 var FRONT_PAGE = "*FRONT PAGE";
 
 var xhr = function(url, callback, headers) {
+    console.log("XHR request for " + url);
     var oXHR = new XMLHttpRequest();  
     oXHR.open("GET", url, true);  
     oXHR.onreadystatechange = function (oEvent) {  
@@ -47,6 +48,8 @@ var timeFilter;
 var afterID = null;
 var sub = subsListElem.querySelectorAll("li")[0].dataset.subreddit;
 
+var allSubs = [];
+
 var scrollLoadInterval;
 
 var errorFunc = function(){
@@ -61,11 +64,9 @@ function getMore() {
     
     var endpoint = "http://www.reddit.com/r/" + encodeURIComponent(sub) + "/hot.json";
     if (sub === FRONT_PAGE) {
-        endpoint = "http://www.reddit.com/hot.json";
+        endpoint = "https://oauth.reddit.com/hot.json";
         oat = readCookie("oat")
     }
-    
-    console.log(endpoint);
     
     var params = {
         limit: limit
@@ -103,9 +104,6 @@ function getMore() {
             errorFunc();
         }
     });
-    
-    var currentSubElem = document.querySelector("header #subreddit-list li[data-subreddit='" + sub + "']");
-    currentSubElem.classList.add("current");
 }
 
 function prepareGetMore() {
@@ -163,6 +161,8 @@ function getUserSubreddits(){
             r = JSON.parse(r);
             subs = r.data.children;
             subs.forEach(function(sub){
+                allSubs.push(sub.data.display_name);
+                
                 var subsListItem = document.createElement("li");
                 subsListItem.dataset.subreddit = sub.data.display_name;
                 subsListItem.textContent = sub.data.display_name;
@@ -174,6 +174,8 @@ function getUserSubreddits(){
                     changeSubreddit(this);
                 });
             });
+            
+            getMore();
         });
     } else {
         alert("Your session has expired. Please sign in again.");
@@ -186,11 +188,16 @@ function changeSubreddit(elem){
     sub = subName;
     prepareGetMore();
     getMore();
+    
+    [].slice.call(document.querySelectorAll("header #subreddit-list li[data-subreddit]")).forEach(function(subsListItem){
+        subsListItem.classList.remove("current");
+    });
+    var currentSubElem = document.querySelector("header #subreddit-list li[data-subreddit='" + sub + "']");
+    currentSubElem.classList.add("current");
 }
 
 if (!readCookie("oat")) {
     window.location = "/";
 }
 
-getMore();
 getUserSubreddits();
