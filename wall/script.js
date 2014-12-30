@@ -143,7 +143,9 @@ function eraseCookie(name) {
 function getUserSubreddits(){
     var oat = readCookie("oat");
     if (oat) {
-        reddit("https://oauth.reddit.com/subreddits/mine/subscriber", {}, oat, function(r){
+        reddit("https://oauth.reddit.com/subreddits/mine/subscriber", {
+            limit: "100"
+        }, oat, function(r){
             console.log(JSON.parse(r));
         });
     }
