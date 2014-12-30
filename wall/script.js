@@ -100,6 +100,13 @@ function getMore() {
                     getMore();
                 }
             }, 100);
+            
+            var container = document.querySelector("#stream");
+            var msnry = new Masonry(container, {
+                columnWidth: 400,
+                itemSelector: "li",
+                gutter: 40
+            });
         } else {
             errorFunc();
         }
@@ -159,7 +166,15 @@ function getUserSubreddits(){
             limit: "100"
         }, oat, function(r){
             r = JSON.parse(r);
-            subs = r.data.children;
+            
+            subs = r.data.children.sort(function(a, b){
+                var aName = a.data.display_name.toLowerCase();
+                var bName = b.data.display_name.toLowerCase();
+                if (aName > bName) return 1;
+                if (bName > aName) return -1;
+                return 0;
+            });
+            
             subs.forEach(function(sub){
                 allSubs.push(sub.data.display_name);
                 

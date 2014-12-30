@@ -73,11 +73,17 @@ select:focus option {
     color: #000;
 }
 
+#stream {
+    padding: 0 40px;
+}
+
 #stream li {
+    display: block;
     padding: 20px;
-    height: 300px;
+    padding-bottom: 100px;
+    width: 400px;
     background-color: #ddd;
-    margin: 20px;
+    margin: 20px 0;
 }
 
 #stream a:last-child li {
