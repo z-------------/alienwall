@@ -1,4 +1,4 @@
-var xhr = function(url, callback) {
+var xhr = function(url, callback, headers) {
     var oXHR = new XMLHttpRequest();  
     oXHR.open("GET", url, true);  
     oXHR.onreadystatechange = function (oEvent) {  
@@ -9,8 +9,29 @@ var xhr = function(url, callback) {
                 callback(false);
             }  
         }  
-    };  
+    };
+    if (headers) {
+        var headerKeys = Object.keys(headers);
+        headerKeys.forEach(function(headerKey){
+            oXHR.setRequestHeader(headerKey, headers[headerKey]);
+        });
+    }
     oXHR.send(null); 
+};
+
+var reddit = function(endpoint, params, token, callback) {
+    var paramsStr = "?";
+    
+    var paramsArray = [];
+    var paramsKeys = Object.keys(params);
+    paramsKeys.forEach(function(paramsKey){
+        paramsArray.push(paramsKey + "=" + params[paramsKey]);
+    });
+    paramsStr += paramsArray.join("&");
+    
+    xhr(endpoint + paramsStr, callback, {
+        Authorization: "bearer " + token
+    });
 };
 
 var subredditInput = document.querySelector("#subreddit-input");
@@ -91,3 +112,39 @@ goBtn.addEventListener("click", function(){
     prepareGetMore();
     getMore(params);
 });
+
+/* testing stuff */
+
+function createCookie(name,value,days) {
+	if (days) {
+		var date = new Date();
+		date.setTime(date.getTime()+(days*24*60*60*1000));
+		var expires = "; expires="+date.toGMTString();
+	}
+	else var expires = "";
+	document.cookie = name+"="+value+expires+"; path=/";
+}
+
+function readCookie(name) {
+	var nameEQ = name + "=";
+	var ca = document.cookie.split(';');
+	for(var i=0;i < ca.length;i++) {
+		var c = ca[i];
+		while (c.charAt(0)==' ') c = c.substring(1,c.length);
+		if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+	}
+	return null;
+}
+
+function eraseCookie(name) {
+	createCookie(name,"",-1);
+}
+
+function getUserSubreddits(){
+    var oat = readCookie("oat");
+    if (oat) {
+        reddit("https://oauth.reddit.com/subreddits/mine/subscriber", {}, oat, function(r){
+            console.log(JSON.parse(r));
+        });
+    }
+}
