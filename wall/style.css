@@ -17,6 +17,8 @@ body {
     overflow: none;
     font-family: "Helvetica Neue", sans-serif;
     box-sizing: border-box;
+    padding-top: 100px;
+    font-size: 17px;
 }
 
 header {
@@ -27,6 +29,22 @@ header {
     
     background-color: #333;
     color: #fff;
+    
+    padding: 10px;
+}
+
+header * {
+    vertical-align: middle;
+}
+
+h1 {
+    font-size: 2em;
+    float: left;
+}
+
+#filters {
+    float: right;
+    display: inline-block;
 }
 
 input, select, button {
@@ -34,6 +52,7 @@ input, select, button {
     border: none;
     border-radius: 4px;
     padding: 5px;
+    display: inline-block;
 }
 
 button {
