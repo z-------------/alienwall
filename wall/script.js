@@ -164,7 +164,7 @@ function getMore() {
 <a href='//www.reddit.com" + post.data.permalink + "'>" + timeString + "</a>\
 </div>\
 <div class='vote-container'>\
-<button class='vote up'></button><button class='vote down'></button>\
+<button class='vote up'></button><span class='post-score'>" + post.data.score + "</span><button class='vote down'></button>\
 </div>";
                 
                 postElem.innerHTML = postElemHtml;
@@ -184,12 +184,20 @@ function getMore() {
                     
                     var dir;
                     var cList = this.classList;
-                    if (cList.contains("up") && cList.contains("yes") || cList.contains("down") && cList.contains("yes")) {
+                    var scoreElem = this.parentElement.querySelector(".post-score");
+                    
+                    if (cList.contains("up") && cList.contains("yes")) {
                         dir = 0;
+                        scoreElem.textContent -= 1;
+                    } else if (cList.contains("down") && cList.contains("yes")) {
+                        dir = 0;
+                        scoreElem.textContent = parseInt(scoreElem.textContent) + 1;
                     } else if (cList.contains("up")) {
                         dir = 1;
+                        scoreElem.textContent = parseInt(scoreElem.textContent) + 1;
                     } else if (cList.contains("down")) {
                         dir = -1;
+                        scoreElem.textContent -= 1;
                     }
                     
                     this.classList.toggle("yes");
@@ -346,6 +354,8 @@ function changeSubreddit(subName){
         subsListItem.classList.remove("current");
     });
     document.querySelector("header #subreddit-list li[data-subreddit='" + sub + "']").classList.add("current");
+    
+    window.scrollTo(0, 0);
 }
 
 if (!readCookie("oat")) {

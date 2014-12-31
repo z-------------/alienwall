@@ -10,6 +10,9 @@
     
     transition-duration: .3s;
     transition-property: none;
+    
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 ::-webkit-scrollbar {
@@ -23,6 +26,10 @@
 
 ::-webkit-scrollbar-thumb:hover {
     background-color: #01ff70;
+}
+
+:focus {
+    outline: none;
 }
 
 html, body {
@@ -197,20 +204,29 @@ button.vote {
     
     background: transparent;
     font-size: 2em;
-    color: #01FF70;
     width: 30px;
     height: 30px;
+    
+    background-size: contain;
 }
 
-button.vote.yes {
-    background-color: #01FF70;
-    color: #000;
+button.vote.up {
+    background-image: url(/img/ui/uarr-hollow.png);
 }
 
-button.vote.up:after {
-    content: "\2191";
+button.vote.down {
+    background-image: url(/img/ui/darr-hollow.png);
 }
 
-button.vote.down:after {
-    content: "\2193";
+button.vote.up.yes {
+    background-image: url(/img/ui/uarr.png);
+}
+
+button.vote.down.yes {
+    background-image: url(/img/ui/darr.png);
+}
+
+.post-score {
+    padding: 7px 10px;
+    vertical-align: 4px;
 }
