@@ -228,6 +228,12 @@ function getMore() {
                     previewElem.innerHTML = "<img src='" + url + "' onload='" + onLoad + "'>";
                     postElem.dataset.preview = "image";
                 }
+                
+                if (post.data.is_self) {
+                    previewElem.classList.add("visible");
+                    previewElem.innerHTML = "<p>" + post.data.selftext.substring(0, 500) + "...</p>";
+                    postElem.dataset.preview = "self";
+                }
 
                 streamElem.appendChild(postElem);
                 
