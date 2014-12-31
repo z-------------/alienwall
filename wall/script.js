@@ -93,26 +93,53 @@ function getMore() {
     reddit(endpoint, params, oat, function(r){
         r = JSON.parse(r);
         
+        console.log(r);
+        
         if (r && r.data.children && r.data.children.length !== 0) {
             var posts = r.data.children;
             posts.forEach(function(post){
                 var postElem = document.createElement("a");
 
-                var postElemHtml = "<li><h3>" + post.data.title + "</h3><a href='//www.reddit.com/u/" + post.data.author + "' rel='author'>" + post.data.author + "</a><a href='http://www.reddit.com" + post.data.permalink + "'>" + new Date(post.data.created_utc * 1000).toDateString() + "</a><button class='vote up'>Upvote</button></li>";
+                var postElemHtml = "<li><h3>" + post.data.title + "</h3><a href='//www.reddit.com/u/" + post.data.author + "' rel='author'>" + post.data.author + "</a><a href='http://www.reddit.com" + post.data.permalink + "'>" + new Date(post.data.created_utc * 1000).toDateString() + "</a><button class='vote up'></button><button class='vote down'></button></li>";
                 
                 postElem.innerHTML = postElemHtml;
                 postElem.href = post.data.url;
                 postElem.dataset.fullname = post.kind + "_" + post.data.id;
                 
-                postElem.querySelector(".vote.up").addEventListener("click", function(e){
+                var likes = post.data.likes;
+                var upvoteBtn = postElem.querySelector(".vote.up");
+                var downvoteBtn = postElem.querySelector(".vote.down");
+                
+                if (likes === true) upvoteBtn.classList.add("yes");
+                if (likes === false) downvoteBtn.classList.add("yes");
+                
+                var voteListener = function(e){
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    var dir;
+                    var cList = this.classList;
+                    if (cList.contains("up") && cList.contains("yes") || cList.contains("down") && cList.contains("yes")) {
+                        dir = 0;
+                    } else if (cList.contains("up")) {
+                        dir = 1;
+                    } else if (cList.contains("down")) {
+                        dir = -1;
+                    }
+                    
+                    this.classList.toggle("yes");
+                    
                     var oat = readCookie("oat");
                     reddit("https://oauth.reddit.com/api/vote", {
-                        dir: 1,
+                        dir: dir,
                         id: this.parentElement.parentElement.dataset.fullname
                     }, oat, function(r){
                         console.log(r);
                     }, true);
-                });
+                };
+                
+                postElem.querySelector(".vote.up").addEventListener("click", voteListener);
+                postElem.querySelector(".vote.down").addEventListener("click", voteListener);
 
                 streamElem.appendChild(postElem);
             });
@@ -212,28 +239,34 @@ function getUserSubreddits(){
 
         [].slice.call(subsListElem.querySelectorAll("li[data-subreddit]")).forEach(function(subsListItem){
             subsListItem.addEventListener("click", function(){
-                changeSubreddit(this);
+                changeSubreddit(this.dataset.subreddit);
             });
         });
     });
 }
 
-function changeSubreddit(elem){
-    var subName = elem.dataset.subreddit;
+function changeSubreddit(subName){
     sub = subName;
+    
     prepareGetMore();
     getMore();
     
     [].slice.call(document.querySelectorAll("header #subreddit-list li[data-subreddit]")).forEach(function(subsListItem){
         subsListItem.classList.remove("current");
     });
-    var currentSubElem = document.querySelector("header #subreddit-list li[data-subreddit='" + sub + "']");
-    currentSubElem.classList.add("current");
+    document.querySelector("header #subreddit-list li[data-subreddit='" + sub + "']").classList.add("current");
 }
 
 if (!readCookie("oat")) {
     window.location = "/";
 }
 
-getMore();
+setInterval(function(){
+    if (!readCookie("oat")) {
+        alert("Your session has expired. Please sign in again.");
+        window.location = "/";
+    }
+}, 1000);
+
+changeSubreddit(FRONT_PAGE);
 getUserSubreddits();

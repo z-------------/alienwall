@@ -142,3 +142,19 @@ select:focus option {
     box-shadow: inset 0 -40px #01FF70;
     color: #000;
 }
+
+button.vote {
+    background: transparent;
+}
+
+button.vote.yes {
+    background-color: #01FF70;
+}
+
+button.vote.up:after {
+    content: "\2191";
+}
+
+button.vote.down:after {
+    content: "\2193";
+}
