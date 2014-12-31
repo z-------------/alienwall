@@ -4,9 +4,9 @@ var xhr = function(url, callback, headers) {
     console.log("XHR request for " + url);
     var oXHR = new XMLHttpRequest();  
     oXHR.open("GET", url, true);  
-    oXHR.onreadystatechange = function (oEvent) {  
+    oXHR.onreadystatechange = function (oEvent) {
         if (oXHR.readyState === 4) {  
-            if (oXHR.status === 200) {  
+            if (oXHR.status === 200) {
                 callback(oXHR.responseText)  
             } else {  
                 callback(false);
@@ -59,6 +59,8 @@ var goBtn = document.querySelector("#go-btn");
 var streamElem = document.querySelector("#stream");
 var subsListElem = document.querySelector("#subreddit-list");
 
+var streamMasonry;
+
 var timeFilter;
 var sortOrder;
 var afterID = null;
@@ -99,9 +101,19 @@ function getMore() {
         if (r && r.data.children && r.data.children.length !== 0) {
             var posts = r.data.children;
             posts.forEach(function(post){
-                var postElem = document.createElement("a");
+                var postElem = document.createElement("li");
 
-                var postElemHtml = "<li><h3>" + post.data.title + "</h3><a href='//www.reddit.com/u/" + post.data.author + "' rel='author'>" + post.data.author + "</a><a href='http://www.reddit.com" + post.data.permalink + "'>" + new Date(post.data.created_utc * 1000).toDateString() + "</a><button class='vote up'></button><button class='vote down'></button></li>";
+                var postElemHtml = 
+"<a href='" + post.data.url + "'><h3>" + post.data.title + "</h3></a>\
+<div class='preview'></div>\
+<div class='post-info'>\
+<a href='//www.reddit.com/u/" + post.data.author + "' rel='author'>" + post.data.author + "</a>\
+<a href='//www.reddit.com/r/" + post.data.subreddit + "'>" + post.data.subreddit + "</a>\
+<a href='//www.reddit.com" + post.data.permalink + "'>" + new Date(post.data.created_utc * 1000).toDateString() + "</a>\
+</div>\
+<div class='vote-container'>\
+<button class='vote up'></button><button class='vote down'></button>\
+</div>";
                 
                 postElem.innerHTML = postElemHtml;
                 postElem.href = post.data.url;
@@ -141,6 +153,12 @@ function getMore() {
                 
                 postElem.querySelector(".vote.up").addEventListener("click", voteListener);
                 postElem.querySelector(".vote.down").addEventListener("click", voteListener);
+                
+                if ((/.gif|.webm|.png|.jpg|.jpeg/gi).test(post.data.url)) {
+                    var previewElem = postElem.querySelector(".preview");
+                    previewElem.classList.add("visible");
+                    previewElem.innerHTML = "<img src='" + post.data.url + "' onload='streamMasonry.layout()'>";
+                }
 
                 streamElem.appendChild(postElem);
             });
@@ -155,8 +173,7 @@ function getMore() {
                 }
             }, 100);
             
-            var container = document.querySelector("#stream");
-            var msnry = new Masonry(container, {
+            streamMasonry = new Masonry(document.querySelector("#stream"), {
                 columnWidth: 400,
                 itemSelector: "li",
                 gutter: 40,
