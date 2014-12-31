@@ -53,6 +53,42 @@ var reddit = function(endpoint, params, token, callback, post) {
     }
 };
 
+var parseURL = function(url, target) {
+    var parser = document.createElement("a");
+    parser.href = url;
+    switch (target) {
+        case "protocol":
+            return parser.protocol; break;
+        case "hostname":
+            return parser.hostname; break;
+        case "port":
+            return parser.port; break;
+        case "path":
+            return parser.pathname; break;
+        case "patharray":
+            var _pathstring = parser.pathname.substring(1,this.length-1); // cut off leading and ending slashes (/)
+            return _pathstring.split("/"); break;
+        case "paramsstring":
+            return parser.search; break;
+        case "params":
+            var _urlparams = parser.search.substring(1,parser.search.length).split("&"); // ["foo=bar","bax=qux","waffles=pie"]
+            var _paramsobject = {};
+            for (i=0;i<_urlparams.length;i++) {
+                var _key = _urlparams[i].split("=")[0];
+                var _val = _urlparams[i].split("=")[1];
+                _paramsobject[_key] = _val;
+            };
+            return _paramsobject;
+            break;
+        case "hash":
+            return parser.hash; break;
+        case "host":
+            return parser.host; break;
+        default:
+            return parser.href; break;
+    }
+};
+
 var sortInput = document.querySelector("#sort-input");
 var timeInput = document.querySelector("#time-input");
 var goBtn = document.querySelector("#go-btn");
@@ -71,7 +107,20 @@ var allSubs = [];
 var scrollLoadInterval;
 
 var errorFunc = function(){
-    streamElem.innerHTML = "<p>Couldn't load posts from /r/" + sub + "</p>";
+    var errorLI = document.createElement("li");
+    errorLI.innerHTML = "<p>Couldn't load posts from /r/" + sub + "</p>";
+    streamElem.appendChild(errorLI);
+    layoutMasonry();
+}
+
+function layoutMasonry(){
+    streamMasonry = new Masonry(document.querySelector("#stream"), {
+        columnWidth: 480,
+        itemSelector: "li",
+        gutter: 40,
+        isFitWidth: true,
+        transitionDuration: 0
+    });
 }
 
 function getMore() {
@@ -102,6 +151,9 @@ function getMore() {
             var posts = r.data.children;
             posts.forEach(function(post){
                 var postElem = document.createElement("li");
+                
+                var hrTime = new HRTime(new Date(post.data.created_utc * 1000));
+                var timeString = hrTime.time + " " + hrTime.unit + ((Math.abs(hrTime.time) !== 1) ? "s" : "") + " ago";
 
                 var postElemHtml = 
 "<a href='" + post.data.url + "'><h3>" + post.data.title + "</h3></a>\
@@ -109,7 +161,7 @@ function getMore() {
 <div class='post-info'>\
 <a href='//www.reddit.com/u/" + post.data.author + "' rel='author'>" + post.data.author + "</a>\
 <a href='//www.reddit.com/r/" + post.data.subreddit + "'>" + post.data.subreddit + "</a>\
-<a href='//www.reddit.com" + post.data.permalink + "'>" + new Date(post.data.created_utc * 1000).toDateString() + "</a>\
+<a href='//www.reddit.com" + post.data.permalink + "'>" + timeString + "</a>\
 </div>\
 <div class='vote-container'>\
 <button class='vote up'></button><button class='vote down'></button>\
@@ -154,13 +206,32 @@ function getMore() {
                 postElem.querySelector(".vote.up").addEventListener("click", voteListener);
                 postElem.querySelector(".vote.down").addEventListener("click", voteListener);
                 
-                if ((/.gif|.webm|.png|.jpg|.jpeg/gi).test(post.data.url)) {
-                    var previewElem = postElem.querySelector(".preview");
+                var previewElem = postElem.querySelector(".preview");
+                var onLoad = "streamMasonry.layout()";
+                
+                if (parseURL(post.data.url, "hostname") === "gfycat.com" || parseURL(post.data.url, "hostname") === "www.gfycat.com") {
+                    var url = post.data.url;
+                    var path = parseURL(url, "path");
+                    var webmURL = "http://fat.gfycat.com" + path + ".webm";
+                    var mp4URL = "http://giant.gfycat.com" + path + ".mp4";
+                    
                     previewElem.classList.add("visible");
-                    previewElem.innerHTML = "<img src='" + post.data.url + "' onload='streamMasonry.layout()'>";
+                    previewElem.innerHTML = "<video autoplay loop muted onloadeddata='" + onLoad + "'><source src='" + webmURL + "' type='video/webm'><source src='" + mp4URL + "' type='video/mp4'></video>";
+                    postElem.dataset.preview = "gfycat";
+                }
+                
+                if ((new RegExp("(.gif|.gifv|.jpg|.jpeg|.webp|.png|.tiff)$", "gi")).test(post.data.url)) {
+                    var url = post.data.url;
+                    if ((new RegExp(".gifv$", "gi")).test(post.data.url)) url = url.substring(0, url.length - 1);
+                    
+                    previewElem.classList.add("visible");
+                    previewElem.innerHTML = "<img src='" + url + "' onload='" + onLoad + "'>";
+                    postElem.dataset.preview = "image";
                 }
 
                 streamElem.appendChild(postElem);
+                
+                layoutMasonry();
             });
 
             var lastPost = posts[posts.length - 1];
@@ -173,12 +244,7 @@ function getMore() {
                 }
             }, 100);
             
-            streamMasonry = new Masonry(document.querySelector("#stream"), {
-                columnWidth: 400,
-                itemSelector: "li",
-                gutter: 40,
-                isFitWidth: true
-            });
+            layoutMasonry();
         } else {
             errorFunc();
         }

@@ -98,8 +98,8 @@ select:focus option {
 #stream li {
     display: block;
     padding: 20px;
-    width: 400px;
-    margin: 20px 0;
+    margin: 10px 0;
+    width: 480px;
 }
 
 #stream li h3 {
@@ -133,7 +133,7 @@ select:focus option {
 }
 
 #stream .preview > * {
-    max-width: 100%;
+    width: 100%;
 }
 
 #stream li a:hover {
