@@ -1,3 +1,3 @@
-# reddit-wall
+![Reddit Wall logo](http://i.imgur.com/b4G1Jax.png)
 
-A simple Reddit web app
+### Coming soon.
