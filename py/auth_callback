@@ -15,10 +15,10 @@ url = "https://www.reddit.com/api/v1/access_token"
 values = {
     "grant_type": "authorization_code",
     "code": code,
-    "redirect_uri": "http://localhost:8000/py/auth_callback.py"
+    "redirect_uri": "http://localhost:8000/py/auth_callback"
 }
 
-password_str = base64.b64encode(b"ntFDwUGcEC-X4A:XWCtr0HSC-E2tKMrK5W5qgaGZqQ")
+password_str = base64.b64encode(b"ntFDwUGcEC-X4A:XWCtr0HSC-E2tKMrK5W5qgaGZqQ") #client_id:app_secret
 
 headers = {
     "Content-Type" : "application/x-www-form-urlencoded",
@@ -34,7 +34,6 @@ response = urllib.request.urlopen(req)
 
 response_json = json.loads(response.read().decode("utf-8"))
 token = response_json["access_token"]
-
 cookie = cookies.SimpleCookie()
 cookie["oat"] = token
 cookie["oat"]["expires"] = int(response_json["expires_in"])
@@ -43,3 +42,4 @@ cookie["oat"]["path"] = "/"
 print(str(cookie))
 print("Content-Type: text/html\n")
 print("<meta http-equiv='Refresh' content='0; url=/wall/' />")
+#print(response.read().decode("utf-8"))

@@ -60,6 +60,7 @@ var streamElem = document.querySelector("#stream");
 var subsListElem = document.querySelector("#subreddit-list");
 
 var timeFilter;
+var sortOrder;
 var afterID = null;
 var sub = subsListElem.querySelectorAll("li")[0].dataset.subreddit;
 
@@ -77,9 +78,9 @@ function getMore() {
     var limit = 50;
     var oat = null;
     
-    var endpoint = "http://www.reddit.com/r/" + encodeURIComponent(sub) + "/hot.json";
+    var endpoint = "http://www.reddit.com/r/" + encodeURIComponent(sub) + "/" + encodeURIComponent(sortOrder) + ".json";
     if (sub === FRONT_PAGE) {
-        endpoint = "https://oauth.reddit.com/hot.json";
+        endpoint = "https://oauth.reddit.com/" + encodeURIComponent(sortOrder) + ".json";
         oat = readCookie("oat")
     }
     
@@ -169,6 +170,7 @@ function getMore() {
 
 function prepareGetMore() {
     timeFilter = timeInput.value;
+    sortOrder = sortInput.value;
     afterID = null;
     streamElem.innerHTML = "";
 }
