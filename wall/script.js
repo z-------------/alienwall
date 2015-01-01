@@ -228,16 +228,27 @@ function getMore() {
                     postElem.dataset.preview = "gfycat";
                 }
                 
-                if ((new RegExp("(.gif|.gifv|.jpg|.jpeg|.webp|.png|.tiff)$", "gi")).test(post.data.url)) {
+                if (parseURL(post.data.url, "hostname") === "i.imgur.com" && (new RegExp("\\.gifv$", "gi")).test(post.data.url)) {
                     var url = post.data.url;
-                    if ((new RegExp(".gifv$", "gi")).test(post.data.url)) url = url.substring(0, url.length - 1);
+                    var path = parseURL(url, "path");
+                    var id = path.substring(0, path.lastIndexOf(".gifv"));
+                    var webmURL = "http://i.imgur.com" + id + ".webm";
+                    var mp4URL = "http://i.imgur.com" + id + ".mp4";
+                    
+                    previewElem.classList.add("visible");
+                    previewElem.innerHTML = "<video autoplay loop muted onloadeddata='" + onLoad + "'><source src='" + webmURL + "' type='video/webm'><source src='" + mp4URL + "' type='video/mp4'></video>";
+                    postElem.dataset.preview = "gifv";
+                }
+                
+                if ((new RegExp("(\\.gif|\\.jpg|\\.jpeg|\\.webp|\\.png|\\.tiff)$", "gi")).test(post.data.url)) {
+                    var url = post.data.url;
                     
                     previewElem.classList.add("visible");
                     previewElem.innerHTML = "<img src='" + url + "' onload='" + onLoad + "'>";
                     postElem.dataset.preview = "image";
                 }
                 
-                if (post.data.is_self) {
+                if (post.data.is_self && post.data.selftext) {
                     previewElem.classList.add("visible");
                     previewElem.innerHTML = "<p>" + post.data.selftext.substring(0, 500) + "...</p>";
                     postElem.dataset.preview = "self";

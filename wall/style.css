@@ -143,6 +143,10 @@ select:focus option {
     width: 100%;
 }
 
+#stream .preview p {
+    word-wrap: break-word;
+}
+
 #stream li a:hover {
     color: #fff;
 }
