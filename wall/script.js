@@ -287,6 +287,8 @@ function getSubredditInfo(subName) {
     var endpoint = "https://oauth.reddit.com/r/" + encodeURIComponent(subName) + "/about.json";
     var oat = readCookie("oat");
     
+    subInfoElem.classList.add("loading");
+    
     reddit(endpoint, {}, oat, function(r){
         var data = JSON.parse(r).data;
         
@@ -390,7 +392,6 @@ function changeSubreddit(subName){
     if (subName.toLowerCase() !== FRONT_PAGE.toLowerCase() && subName.toLowerCase() !== "all") {
         getSubredditInfo(subName);
         subInfoElem.classList.remove("hidden");
-        subInfoElem.classList.add("loading");
     } else {
         subInfoElem.classList.add("hidden");
     }
