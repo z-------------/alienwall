@@ -22,6 +22,12 @@ var xhr = function(url, callback, headers) {
     oXHR.send(null); 
 };
 
+var entity2unicode = function(entStr) {
+    var div = document.createElement("div");
+    div.innerHTML = entStr;
+    return div.textContent;
+};
+
 var reddit = function(endpoint, params, token, callback, post) {
     var paramsStr = "?";
     
@@ -94,6 +100,7 @@ var timeInput = document.querySelector("#time-input");
 var goBtn = document.querySelector("#go-btn");
 var streamElem = document.querySelector("#stream");
 var subsListElem = document.querySelector("#subreddit-list");
+var subInfoElem = document.querySelector("#subreddit-info");
 
 var streamMasonry;
 
@@ -276,6 +283,20 @@ function getMore() {
     });
 }
 
+function getSubredditInfo(subName) {
+    var endpoint = "https://oauth.reddit.com/r/" + encodeURIComponent(subName) + "/about.json";
+    var oat = readCookie("oat");
+    
+    reddit(endpoint, {}, oat, function(r){
+        var data = JSON.parse(r).data;
+        
+        var title = data.title;
+        
+        subInfoElem.innerHTML = "<h2>" + title + "</h2>";
+        subInfoElem.classList.remove("loading");
+    });
+}
+
 function prepareGetMore() {
     timeFilter = timeInput.value;
     sortOrder = sortInput.value;
@@ -365,6 +386,14 @@ function changeSubreddit(subName){
         subsListItem.classList.remove("current");
     });
     document.querySelector("header #subreddit-list li[data-subreddit='" + sub + "']").classList.add("current");
+    
+    if (subName.toLowerCase() !== FRONT_PAGE.toLowerCase() && subName.toLowerCase() !== "all") {
+        getSubredditInfo(subName);
+        subInfoElem.classList.remove("hidden");
+        subInfoElem.classList.add("loading");
+    } else {
+        subInfoElem.classList.add("hidden");
+    }
     
     window.scrollTo(0, 0);
 }

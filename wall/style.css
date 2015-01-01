@@ -234,3 +234,22 @@ button.vote.down.yes {
     padding: 7px 10px;
     vertical-align: 4px;
 }
+
+#subreddit-info {
+    padding: 30px;
+    background-color: #222;
+}
+
+#subreddit-info.loading * {
+    display: none;
+}
+
+#subreddit-info.hidden {
+    display: none;
+}
+
+#subreddit-info h2 {
+    font-size: 1.5em;
+    font-weight: 600;
+    text-align: center;
+}
