@@ -258,9 +258,9 @@ function getMore() {
                     postElem.dataset.preview = "image";
                 }
                 
-                if (post.data.is_self && post.data.selftext) {
+                if (post.data.is_self && post.data.selftext_html) {
                     previewElem.classList.add("visible");
-                    previewElem.innerHTML = "<p>" + post.data.selftext.substring(0, 500) + "...</p>";
+                    previewElem.innerHTML = "<p>" + entity2unicode(post.data.selftext_html).substring(0, 500) + "...</p>";
                     postElem.dataset.preview = "self";
                 }
 
@@ -303,7 +303,7 @@ function getSubredditInfo(subName) {
         
         subInfoElem.dataset.fullname = r.kind + "_" + data.id;
         
-        subInfoElem.querySelector("h2").textContent = title;
+        subInfoElem.querySelector("h2").innerHTML = title;
         
         var subscribeBtn = subInfoElem.querySelector("#subscribe-btn");
         if (data.user_is_subscriber === true || subName === FRONT_PAGE || subName.toLowerCase() === "all") {

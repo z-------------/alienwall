@@ -74,6 +74,15 @@ h1 span {
     font-weight: 200;
 }
 
+a {
+    color: #01ff70;
+    transition-property: color;
+}
+
+a:hover {
+    color: #00CC3D;
+}
+
 #filters {
     float: right;
     display: inline-block;
@@ -136,14 +145,7 @@ select:focus option {
 
 #stream li h3 {
     font-size: 1.5em;
-    color: #01FF70;
     display: inline;
-    
-    transition-property: color;
-}
-
-#stream li h3:hover {
-    color: #00CC3D;
 }
 
 #stream .vote-container, #stream .preview, #stream .post-info {
@@ -162,6 +164,11 @@ select:focus option {
 
 #stream .preview {
     display: none;
+    color: #fff;
+}
+
+#stream .preview h1, #stream .preview h2, #stream .preview h3, #stream .preview h4, #stream .preview h5, #stream .preview h6 {
+    font-size: 1em;
 }
 
 #stream .preview > * {
@@ -172,7 +179,11 @@ select:focus option {
     word-wrap: break-word;
 }
 
-#stream li a:hover {
+#stream .preview img {
+    background-color: #fff;
+}
+
+#stream .post-info a:hover {
     color: #fff;
 }
 
