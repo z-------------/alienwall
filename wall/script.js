@@ -277,10 +277,13 @@ function getMore() {
             }, 100);
             
             layoutMasonry();
+            streamElem.classList.remove("loading");
         } else {
             errorFunc();
         }
     });
+    
+    streamElem.classList.add("loading");
 }
 
 function getSubredditInfo(subName) {
@@ -301,8 +304,12 @@ function getSubredditInfo(subName) {
         
         var subscribeBtn = subInfoElem.querySelector("#subscribe-btn");
         if (data.user_is_subscriber === true) {
+            document.querySelector("#content").classList.remove("fixed-subreddit-info");
             subscribeBtn.classList.add("subscribed");
+        } else {
+            document.querySelector("#content").classList.add("fixed-subreddit-info");
         }
+        
         subscribeBtn.addEventListener("click", function(){
             var endpoint = "https://oauth.reddit.com/api/subscribe";
             var oat = readCookie("oat");
@@ -404,7 +411,11 @@ function getUserSubreddits(){
                 changeSubreddit(this.dataset.subreddit);
             });
         });
+        
+        subsListElem.classList.remove("loading");
     });
+    
+    subsListElem.classList.add("loading");
 }
 
 function changeSubreddit(subName){
@@ -420,12 +431,16 @@ function changeSubreddit(subName){
         subInfoElem.classList.add("hidden");
     }
     
-    window.scrollTo(0, 0);
-    
     [].slice.call(document.querySelectorAll("header #subreddit-list li[data-subreddit]")).forEach(function(subsListItem){
         subsListItem.classList.remove("current");
     });
-    document.querySelector("header #subreddit-list li[data-subreddit='" + sub + "']").classList.add("current");
+    
+    var currentSubListItem = document.querySelector("#subreddit-list li[data-subreddit='" + sub + "']");
+    if (currentSubListItem) {
+        currentSubListItem.classList.add("current");
+    }
+    
+    window.scrollTo(0, 0);
 }
 
 if (!readCookie("oat")) {

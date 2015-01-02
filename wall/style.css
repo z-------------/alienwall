@@ -56,10 +56,12 @@ header {
     height: 100px;
     
     background-color: #333;
-
-    box-shadow: 0 0 20px rgba(0, 0, 0, .3);
     
     padding: 10px;
+}
+
+header, .fixed-subreddit-info #subreddit-info {
+    box-shadow: 0 0 20px rgba(0, 0, 0, .3);
 }
 
 h1 {
@@ -96,9 +98,20 @@ select:focus option {
     color: #000;
 }
 
+.loading {
+    background-image: url(/img/ui/loading.svg);
+    background-size: 30px;
+}
+
 #stream {
     padding: 0 40px;
+    padding-bottom: 60px;
     margin: 0 auto;
+    margin-bottom: 30px;
+}
+
+#stream.loading {
+    background-position: bottom center;
 }
 
 #stream li {
@@ -176,6 +189,11 @@ select:focus option {
     white-space: nowrap;
 }
 
+#subreddit-list.loading {
+    background-size: 20px;
+    background-position: 115px center;
+}
+
 #subreddit-list li {
     display: inline-block;
     cursor: pointer;
@@ -235,6 +253,8 @@ button.vote.down.yes {
 }
 
 #subreddit-info {
+    width: 100%;
+    height: 93px;
     padding: 30px;
     background-color: #222;
     text-align: center;
@@ -249,9 +269,21 @@ button.vote.down.yes {
 }
 
 #subreddit-info h2 {
+    margin-left: 50px;
     font-size: 1.5em;
     font-weight: 600;
     display: inline-block;
+}
+
+.fixed-subreddit-info {
+    padding-top: 93px;
+}
+
+.fixed-subreddit-info #subreddit-info {
+    position: fixed;
+    top: 0;
+    margin-top: 100px;
+    z-index: 1;
 }
 
 #subscribe-btn {
