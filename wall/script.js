@@ -101,6 +101,7 @@ var goBtn = document.querySelector("#go-btn");
 var streamElem = document.querySelector("#stream");
 var subsListElem = document.querySelector("#subreddit-list");
 var subInfoElem = document.querySelector("#subreddit-info");
+var gotoSubInput = document.querySelector("#goto-subreddit");
 
 var streamMasonry;
 
@@ -161,7 +162,7 @@ function getMore() {
                 
                 var hrTime = new HRTime(new Date(post.data.created_utc * 1000));
                 var timeString = hrTime.time + " " + hrTime.unit + ((Math.abs(hrTime.time) !== 1) ? "s" : "") + " ago";
-
+                
                 var postElemHtml = 
 "<a href='" + post.data.url + "'><h3>" + post.data.title + "</h3></a>\
 <div class='preview'></div>\
@@ -177,6 +178,8 @@ function getMore() {
                 postElem.innerHTML = postElemHtml;
                 postElem.href = post.data.url;
                 postElem.dataset.fullname = post.kind + "_" + post.data.id;
+                
+                if (post.data.stickied === true) postElem.classList.add("stickied");
                 
                 var likes = post.data.likes;
                 var upvoteBtn = postElem.querySelector(".vote.up");
@@ -303,11 +306,12 @@ function getSubredditInfo(subName) {
         subInfoElem.querySelector("h2").textContent = title;
         
         var subscribeBtn = subInfoElem.querySelector("#subscribe-btn");
-        if (data.user_is_subscriber === true) {
+        if (data.user_is_subscriber === true || subName === FRONT_PAGE || subName.toLowerCase() === "all") {
             document.querySelector("#content").classList.remove("fixed-subreddit-info");
             subscribeBtn.classList.add("subscribed");
         } else {
             document.querySelector("#content").classList.add("fixed-subreddit-info");
+            subscribeBtn.classList.remove("subscribed");
         }
         
         subscribeBtn.addEventListener("click", function(){
@@ -328,7 +332,10 @@ function getSubredditInfo(subName) {
                 } else {
                     that.classList.remove("subscribed");
                 }
+                that.classList.remove("loading");
             }, true);
+            
+            this.classList.add("loading");
         });
         
         subInfoElem.classList.remove("loading");
@@ -401,7 +408,7 @@ function getUserSubreddits(){
             allSubs.push(sub.data.display_name);
 
             var subsListItem = document.createElement("li");
-            subsListItem.dataset.subreddit = sub.data.display_name;
+            subsListItem.dataset.subreddit = sub.data.display_name.toUpperCase();
             subsListItem.textContent = sub.data.display_name;
             subsListElem.appendChild(subsListItem);
         });
@@ -431,17 +438,30 @@ function changeSubreddit(subName){
         subInfoElem.classList.add("hidden");
     }
     
-    [].slice.call(document.querySelectorAll("header #subreddit-list li[data-subreddit]")).forEach(function(subsListItem){
+    [].slice.call(document.querySelectorAll("#subreddit-list li[data-subreddit]")).forEach(function(subsListItem){
         subsListItem.classList.remove("current");
     });
     
-    var currentSubListItem = document.querySelector("#subreddit-list li[data-subreddit='" + sub + "']");
+    var currentSubListItem = document.querySelector("#subreddit-list li[data-subreddit='" + sub.toUpperCase() + "']");
     if (currentSubListItem) {
         currentSubListItem.classList.add("current");
     }
     
     window.scrollTo(0, 0);
 }
+
+gotoSubInput.addEventListener("focus", function(){
+    this.select();
+});
+
+gotoSubInput.addEventListener("keydown", function(e){
+    if (e.which === 13) {
+        if (this.value) {
+            changeSubreddit(this.value);
+            this.blur();
+        }
+    }
+});
 
 if (!readCookie("oat")) {
     window.location = "/";
