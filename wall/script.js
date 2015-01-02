@@ -290,11 +290,40 @@ function getSubredditInfo(subName) {
     subInfoElem.classList.add("loading");
     
     reddit(endpoint, {}, oat, function(r){
-        var data = JSON.parse(r).data;
+        r = JSON.parse(r);
+        var data = r.data;
         
         var title = data.title;
         
-        subInfoElem.innerHTML = "<h2>" + title + "</h2>";
+        subInfoElem.dataset.fullname = r.kind + "_" + data.id;
+        
+        subInfoElem.querySelector("h2").textContent = title;
+        
+        var subscribeBtn = subInfoElem.querySelector("#subscribe-btn");
+        if (data.user_is_subscriber === true) {
+            subscribeBtn.classList.add("subscribed");
+        }
+        subscribeBtn.addEventListener("click", function(){
+            var endpoint = "https://oauth.reddit.com/api/subscribe";
+            var oat = readCookie("oat");
+            
+            var action = "sub";
+            if (this.classList.contains("subscribed")) action = "unsub";
+            
+            var that = this;
+            
+            reddit(endpoint, {
+                action: action,
+                sr: subInfoElem.dataset.fullname
+            }, oat, function(r){
+                if (action === "sub") {
+                    that.classList.add("subscribed");
+                } else {
+                    that.classList.remove("subscribed");
+                }
+            }, true);
+        });
+        
         subInfoElem.classList.remove("loading");
     });
 }
@@ -384,11 +413,6 @@ function changeSubreddit(subName){
     prepareGetMore();
     getMore();
     
-    [].slice.call(document.querySelectorAll("header #subreddit-list li[data-subreddit]")).forEach(function(subsListItem){
-        subsListItem.classList.remove("current");
-    });
-    document.querySelector("header #subreddit-list li[data-subreddit='" + sub + "']").classList.add("current");
-    
     if (subName.toLowerCase() !== FRONT_PAGE.toLowerCase() && subName.toLowerCase() !== "all") {
         getSubredditInfo(subName);
         subInfoElem.classList.remove("hidden");
@@ -397,6 +421,11 @@ function changeSubreddit(subName){
     }
     
     window.scrollTo(0, 0);
+    
+    [].slice.call(document.querySelectorAll("header #subreddit-list li[data-subreddit]")).forEach(function(subsListItem){
+        subsListItem.classList.remove("current");
+    });
+    document.querySelector("header #subreddit-list li[data-subreddit='" + sub + "']").classList.add("current");
 }
 
 if (!readCookie("oat")) {

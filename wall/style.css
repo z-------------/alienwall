@@ -84,7 +84,6 @@ ul, ol {
 input, select, button {
     background-color: rgba(255, 255, 255, .3);
     border: none;
-    border-radius: 4px;
     padding: 5px;
     display: inline-block;
 }
@@ -238,6 +237,7 @@ button.vote.down.yes {
 #subreddit-info {
     padding: 30px;
     background-color: #222;
+    text-align: center;
 }
 
 #subreddit-info.loading * {
@@ -251,5 +251,30 @@ button.vote.down.yes {
 #subreddit-info h2 {
     font-size: 1.5em;
     font-weight: 600;
+    display: inline-block;
+}
+
+#subscribe-btn {
+    display: inline-block;
+    margin: 0 10px;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
     text-align: center;
+}
+
+#subscribe-btn.subscribed:hover {
+    background-color: #FF4136;
+}
+
+#subscribe-btn:before {
+    content: "+";
+}
+
+#subscribe-btn.subscribed:before {
+    content: "\2713";
+}
+
+#subscribe-btn.subscribed:hover:before {
+    content: "\00D7";
 }
