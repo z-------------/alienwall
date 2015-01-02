@@ -83,6 +83,10 @@ a:hover {
     color: #00CC3D;
 }
 
+iframe {
+    border: none;
+}
+
 #filters {
     float: right;
     display: inline-block;

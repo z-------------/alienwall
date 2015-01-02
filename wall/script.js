@@ -227,7 +227,21 @@ function getMore() {
                 var previewElem = postElem.querySelector(".preview");
                 var onLoad = "streamMasonry.layout()";
                 
+                if (parseURL(post.data.url, "hostname") === "www.youtube.com" && parseURL(post.data.url, "path") === "/watch" && parseURL(post.data.url, "params").v) {
+                    /* youtube video */
+                    
+                    var id = parseURL(post.data.url, "params").v;
+                    var width = streamMasonry.columnWidth - streamMasonry.gutter;
+                    var height = width * 9/16;
+                    
+                    previewElem.classList.add("visible");
+                    previewElem.innerHTML = "<iframe type='text/html' width='" + width + "' height='" + height + "' src='http://www.youtube.com/embed/" + id + "' frameborder='0'/>";
+                    postElem.dataset.preview = "youtube";
+                }
+                
                 if (parseURL(post.data.url, "hostname") === "gfycat.com" || parseURL(post.data.url, "hostname") === "www.gfycat.com") {
+                    /* gfycat "gif" */
+                    
                     var url = post.data.url;
                     var path = parseURL(url, "path");
                     var webmURL = "http://fat.gfycat.com" + path + ".webm";
@@ -239,6 +253,8 @@ function getMore() {
                 }
                 
                 if (parseURL(post.data.url, "hostname") === "i.imgur.com" && (new RegExp("\\.gifv$", "gi")).test(post.data.url)) {
+                    /* imgur gifv */
+                    
                     var url = post.data.url;
                     var path = parseURL(url, "path");
                     var id = path.substring(0, path.lastIndexOf(".gifv"));
@@ -251,6 +267,8 @@ function getMore() {
                 }
                 
                 if ((new RegExp("(\\.gif|\\.jpg|\\.jpeg|\\.webp|\\.png|\\.tiff)$", "gi")).test(post.data.url)) {
+                    /* image */
+                    
                     var url = post.data.url;
                     
                     previewElem.classList.add("visible");
