@@ -67,6 +67,7 @@ header, .fixed-subreddit-info #subreddit-info {
 h1 {
     font-size: 2em;
     font-weight: 700;
+    line-height: 1;
     float: left;
 }
 
