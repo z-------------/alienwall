@@ -120,6 +120,7 @@ var errorFunc = function(){
     var errorLI = document.createElement("li");
     errorLI.innerHTML = "<p>Couldn't load posts from /r/" + sub + "</p>";
     streamElem.appendChild(errorLI);
+    streamElem.classList.remove("loading");
     layoutMasonry();
 }
 
@@ -164,7 +165,7 @@ function getMore() {
                 postElem.classList.add("post");
                 
                 var hrTime = new HRTime(new Date(post.data.created_utc * 1000));
-                var timeString = hrTime.time + " " + hrTime.unit + ((Math.abs(hrTime.time) !== 1) ? "s" : "") + " ago";
+                var timeString = hrTime.time + " " + hrTime.unit + ((Math.abs(hrTime.time) !== 1) ? "s" : "");
                 var fullname = post.kind + "_" + post.data.id;
                 
                 var postElemHtml = 
@@ -181,7 +182,8 @@ function getMore() {
 </div>\
 <div class='comments-container'>\
 <h4>Comments</h4>\
-</div>";
+</div>\
+<button class='close-post'></button>";
                 
                 postElem.innerHTML = postElemHtml;
                 postElem.href = post.data.url;
@@ -197,6 +199,7 @@ function getMore() {
                 var saveBtn = postElem.querySelector(".vote.save");
                 var commentsElem = postElem.querySelector(".comments-container");
                 var commentsBtn = postElem.querySelector(".post-info-comments");
+                var closeBtn = postElem.querySelector(".close-post");
                 
                 if (likes === true) upvoteBtn.classList.add("yes");
                 if (likes === false) downvoteBtn.classList.add("yes");
@@ -253,47 +256,12 @@ function getMore() {
                     this.classList.toggle("yes");
                 });
                 
-                function displayComments(node, elem, topLevel) {
-                    var comments = [];
-                    if (topLevel) {
-                        comments = node.data.children;
-                    } else if (node.kind === "t1" && node.data.replies.data && (node.data.replies.data.children.length !== 0)) {
-                        comments = node.data.replies.data.children;
-                    }
-                    
-                    comments.forEach(function(comment){
-                        var body = comment.data.body_html;
-                        if (body) {
-                            var author = comment.data.author;
-                            var score = comment.data.score;
-                            if (comment.data.score_hidden) {
-                                score = "[score hidden]";
-                            }
-                            
-                            var commentElem = document.createElement("li");
-                            commentElem.innerHTML = "<p>" + entity2unicode(body) + "</p><div class='comment-info'><a href='http://www.reddit.com/u/" + author + "'>" + author + "</a><span>" + score + "</span></div>";
-                            elem.appendChild(commentElem);
-                        }
-                        
-                        displayComments(comment, commentElem);
-                    });
-                }
-                
-                var oat = readCookie("oat");
                 commentsBtn.addEventListener("click", function(){
-                    var subreddit = this.parentElement.parentElement.querySelector(".post-info-subreddit").textContent;
-                    reddit("https://oauth.reddit.com/r/" + subreddit + "/comments/" + fullname.substring(fullname.indexOf("_") + 1) + ".json", {
-                        /*limit: 20*/
-                    }, oat, function(r){
-                        r = JSON.parse(r);
-                        displayComments(r[1], commentsElem, true);
-                        
-                        commentsElem.classList.remove("loading");
-                        layoutMasonry();
-                    });
-                    
-                    commentsElem.classList.add("loading");
-                    this.parentElement.parentElement.classList.add("expanded");
+                    expandPost(this.parentElement.parentElement);
+                });
+                
+                closeBtn.addEventListener("click", function(){
+                    unexpandPost(this.parentElement);
                 });
                 
                 var previewElem = postElem.querySelector(".preview");
@@ -361,6 +329,12 @@ function getMore() {
                     previewElem.innerHTML = "<p>" + entity2unicode(post.data.selftext_html).substring(0, 500) + "...</p>";
                     postElem.dataset.preview = "self";
                 }
+                
+                if (postElem.dataset.preview === "self" || postElem.dataset.preview === "image" || postElem.dataset.preview === "gifv" || postElem.dataset.preview === "gfycat") {
+                    previewElem.addEventListener("click", function(){
+                        expandPost(this.parentElement);
+                    });
+                }
 
                 streamElem.appendChild(postElem);
                 
@@ -385,6 +359,66 @@ function getMore() {
     });
     
     streamElem.classList.add("loading");
+}
+
+function displayComments(node, elem, topLevel) {
+    var comments = [];
+    if (topLevel) {
+        comments = node.data.children;
+    } else if (node.kind === "t1" && node.data.replies.data && (node.data.replies.data.children.length !== 0)) {
+        comments = node.data.replies.data.children;
+    }
+
+    comments.forEach(function(comment){
+        var body = comment.data.body_html;
+        if (body) {
+            var author = comment.data.author;
+            
+            var hrTime = new HRTime(new Date(comment.data.created_utc * 1000));
+            var timeString = hrTime.time + " " + hrTime.unit + ((Math.abs(hrTime.time) !== 1) ? "s" : "");
+            
+            var score = comment.data.score + " points";
+            if (comment.data.score_hidden) {
+                score = "[score hidden]";
+            }
+
+            var commentElem = document.createElement("li");
+            commentElem.innerHTML = "<p>" + entity2unicode(body) + "</p><div class='comment-info'><a href='http://www.reddit.com/u/" + author + "'>" + author + "</a><span>" + score + "</span><span>" + timeString + "</span></div>";
+            elem.appendChild(commentElem);
+        }
+
+        displayComments(comment, commentElem);
+    });
+}
+
+function expandPost(elem) {
+    var subreddit = elem.querySelector(".post-info-subreddit").textContent;
+    var commentsElem = elem.querySelector(".comments-container");
+    var fullname = elem.dataset.fullname;
+    
+    if (commentsElem.dataset.loaded !== "true") {
+        reddit("https://oauth.reddit.com/r/" + subreddit + "/comments/" + fullname.substring(fullname.indexOf("_") + 1) + ".json", {
+            /*limit: 20*/
+        }, readCookie("oat"), function(r){
+            r = JSON.parse(r);
+            displayComments(r[1], commentsElem, true);
+            commentsElem.dataset.loaded = "true";
+
+            commentsElem.classList.remove("loading");
+            layoutMasonry();
+        });
+
+        commentsElem.classList.add("loading");
+    }
+    
+    document.body.classList.add("scroll-locked");
+    elem.classList.add("expanded");
+}
+
+function unexpandPost(elem) {
+    document.body.classList.remove("scroll-locked");
+    elem.classList.remove("expanded");
+    layoutMasonry();
 }
 
 function getSubredditInfo(subName) {
@@ -548,7 +582,7 @@ function changeSubreddit(subName){
     }
     
     document.title = initialTitle;
-    
+    document.body.classList.remove("scroll-locked");
     window.scrollTo(0, 0);
 }
 

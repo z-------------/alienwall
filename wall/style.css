@@ -132,6 +132,10 @@ select:focus option {
     background-size: 30px;
 }
 
+.scroll-locked {
+    overflow: hidden;
+}
+
 #stream {
     padding: 0 40px;
     padding-bottom: 60px;
@@ -151,14 +155,14 @@ select:focus option {
     background-color: #111;
 }
 
-#stream .post.stickied:before {
+#stream .post.stickied h3:before {
     content: "";
     position: absolute;
     display: block;
-    left: -20px;
-    margin: 6px 0 0 10px;
     width: 20px;
     height: 20px;
+    margin-left: -27px;
+    margin-top: 7px;
     
     background-size: contain;
     background-image: url(/img/ui/pin.png);
@@ -179,6 +183,7 @@ select:focus option {
 #stream .post h3 {
     font-size: 1.5em;
     display: inline;
+    position: relative;
 }
 
 #stream .vote-container, #stream .preview, #stream .post-info {
@@ -190,7 +195,7 @@ select:focus option {
     color: rgba(255, 255, 255, .8);
 }
 
-#stream .post-info a, #stream .comment-info a {
+#stream .post-info a, #stream .comment-info a, #stream .comment-info span {
     display: inline-block;
     margin-right: 10px;
     color: inherit;
@@ -450,5 +455,26 @@ button.vote.save.yes {
 }
 
 .comments-container li p {
-    margin: 10px 0;
+    margin: 8px 0;
+}
+
+.close-post {
+    display: none;
+    position: fixed;
+    right: 0;
+    top: 100px;
+    margin: 10px;
+    width: 30px;
+    height: 30px;
+    line-height: 0.5;
+    cursor: pointer;
+}
+
+.close-post:before {
+    content: "\00D7";
+    font-size: 1.5em;
+}
+
+.expanded .close-post {
+    display: block;
 }
