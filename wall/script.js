@@ -124,7 +124,7 @@ var errorFunc = function(){
 function layoutMasonry(){
     streamMasonry = new Masonry(document.querySelector("#stream"), {
         columnWidth: 480,
-        itemSelector: "li",
+        itemSelector: ".post",
         gutter: 40,
         isFitWidth: true,
         transitionDuration: 0
@@ -159,6 +159,7 @@ function getMore() {
             var posts = r.data.children;
             posts.forEach(function(post){
                 var postElem = document.createElement("li");
+                postElem.classList.add("post");
                 
                 var hrTime = new HRTime(new Date(post.data.created_utc * 1000));
                 var timeString = hrTime.time + " " + hrTime.unit + ((Math.abs(hrTime.time) !== 1) ? "s" : "") + " ago";
@@ -172,7 +173,7 @@ function getMore() {
 <a href='//www.reddit.com" + post.data.permalink + "'>" + timeString + "</a>\
 </div>\
 <div class='vote-container'>\
-<button class='vote up'></button><span class='post-score'>" + post.data.score + "</span><button class='vote down'></button>\
+<button class='vote up'></button><span class='post-score'>" + post.data.score + "</span><button class='vote down'></button><button class='vote save'></button>\
 </div>";
                 
                 postElem.innerHTML = postElemHtml;
@@ -182,11 +183,15 @@ function getMore() {
                 if (post.data.stickied === true) postElem.classList.add("stickied");
                 
                 var likes = post.data.likes;
+                var saved = post.data.saved;
+                
                 var upvoteBtn = postElem.querySelector(".vote.up");
                 var downvoteBtn = postElem.querySelector(".vote.down");
+                var saveBtn = postElem.querySelector(".vote.save");
                 
                 if (likes === true) upvoteBtn.classList.add("yes");
                 if (likes === false) downvoteBtn.classList.add("yes");
+                if (saved === true) saveBtn.classList.add("yes");
                 
                 var voteListener = function(e){
                     e.preventDefault();
@@ -210,8 +215,6 @@ function getMore() {
                         scoreElem.textContent -= 1;
                     }
                     
-                    this.classList.toggle("yes");
-                    
                     var oat = readCookie("oat");
                     reddit("https://oauth.reddit.com/api/vote", {
                         dir: dir,
@@ -219,10 +222,27 @@ function getMore() {
                     }, oat, function(r){
                         console.log(r);
                     }, true);
+                    
+                    this.classList.toggle("yes");
                 };
                 
-                postElem.querySelector(".vote.up").addEventListener("click", voteListener);
-                postElem.querySelector(".vote.down").addEventListener("click", voteListener);
+                upvoteBtn.addEventListener("click", voteListener);
+                downvoteBtn.addEventListener("click", voteListener);
+                
+                saveBtn.addEventListener("click", function(){
+                    var endpoint = "https://oauth.reddit.com/api/save";
+                    if (this.classList.contains("yes")) endpoint = "https://oauth.reddit.com/api/unsave";
+                    
+                    var oat = readCookie("oat");
+                    reddit(endpoint, {
+                        category: "redditwall",
+                        id: this.parentElement.parentElement.dataset.fullname
+                    }, oat, function(r){
+                        console.log(r);
+                    }, true);
+                    
+                    this.classList.toggle("yes");
+                });
                 
                 var previewElem = postElem.querySelector(".preview");
                 var onLoad = "streamMasonry.layout()";

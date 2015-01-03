@@ -84,6 +84,10 @@ a:hover {
     color: #00CC3D;
 }
 
+del {
+    text-decoration: line-through;
+}
+
 iframe {
     border: none;
 }
@@ -128,19 +132,19 @@ select:focus option {
     background-position: bottom center;
 }
 
-#stream li {
+#stream .post {
     display: block;
     padding: 20px;
     margin: 10px 0;
     width: 480px;
 }
 
-#stream li.stickied:before {
+#stream .post.stickied:before {
     content: "";
     position: absolute;
     display: block;
     left: -20px;
-    margin: 8px;
+    margin: 6px 0 0 10px;
     width: 20px;
     height: 20px;
     
@@ -148,7 +152,7 @@ select:focus option {
     background-image: url(/img/ui/pin.png);
 }
 
-#stream li h3 {
+#stream .post h3 {
     font-size: 1.5em;
     display: inline;
 }
@@ -169,6 +173,7 @@ select:focus option {
 
 #stream .preview {
     display: none;
+    overflow: hidden;
     color: #fff;
 }
 
@@ -253,12 +258,16 @@ select:focus option {
 button.vote {
     display: inline-block;
     
-    background: transparent;
+    background-color: transparent;
     font-size: 2em;
     width: 30px;
     height: 30px;
     
     background-size: contain;
+}
+
+button.vote, .post-score {
+    margin: 0 5px;
 }
 
 button.vote.up {
@@ -277,8 +286,25 @@ button.vote.down.yes {
     background-image: url(/img/ui/darr.png);
 }
 
+button.vote.save {
+    background-image: url(/img/ui/star-hollow.png);
+    background-size: 20px;
+    opacity: 0;
+    
+    transition-property: opacity;
+}
+
+button.vote.save.yes {
+    background-image: url(/img/ui/star.png);
+    opacity: 1;
+}
+
+#stream .post:hover button.vote.save {
+    opacity: 1;
+}
+
 .post-score {
-    padding: 7px 10px;
+    padding: 7px 0;
     vertical-align: 4px;
 }
 
