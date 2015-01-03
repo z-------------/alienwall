@@ -80,9 +80,15 @@ h1 span {
     font-weight: 200;
 }
 
+h4 {
+    font-size: 1.2em;
+    color: #01ff70;
+}
+
 a {
     color: #01ff70;
     transition-property: color;
+    cursor: pointer;
 }
 
 a:hover {
@@ -142,6 +148,7 @@ select:focus option {
     padding: 20px;
     margin: 10px 0;
     width: 480px;
+    background-color: #111;
 }
 
 #stream .post.stickied:before {
@@ -157,6 +164,18 @@ select:focus option {
     background-image: url(/img/ui/pin.png);
 }
 
+#stream .post.expanded {
+    position: fixed !important;
+    z-index: 2;
+    left: 0 !important;
+    top: 0 !important;
+    margin-top: 100px;
+    width: 100% !important;
+    height: calc(100% - 100px) !important;
+    overflow: auto;
+    padding: 50px;
+}
+
 #stream .post h3 {
     font-size: 1.5em;
     display: inline;
@@ -166,14 +185,21 @@ select:focus option {
     margin: 10px 0;
 }
 
-#stream .post-info a {
-    display: inline-block;
-    margin-right: 10px;
-    
+#stream .post-info, #stream .comment-info {
     font-weight: 300;
     color: rgba(255, 255, 255, .8);
+}
+
+#stream .post-info a, #stream .comment-info a {
+    display: inline-block;
+    margin-right: 10px;
+    color: inherit;
     
     transition-property: color;
+}
+
+#stream .post-info a:hover, #stream .comment-info a:hover {
+    color: #fff;
 }
 
 #stream .preview {
@@ -196,10 +222,6 @@ select:focus option {
 
 #stream .preview img {
     background-color: #fff;
-}
-
-#stream .post-info a:hover {
-    color: #fff;
 }
 
 #stream .preview.visible {
@@ -402,4 +424,31 @@ button.vote.save.yes {
 
 #goto-subreddit:focus::-webkit-input-placeholder {
     color: rgba(255, 255, 255, .5);
+}
+
+.comments-container {
+    margin-top: 30px;
+    display: none;
+}
+
+.expanded .comments-container {
+    display: block;
+}
+
+.comments-container.loading {
+    padding-bottom: 40px;
+    background-position: left bottom;
+}
+
+.comments-container li {
+    margin: 10px 0;
+}
+
+.comments-container li li {
+    padding-left: 10px;
+    border-left: 3px solid rgba(1, 255, 112, .5);
+}
+
+.comments-container li p {
+    margin: 10px 0;
 }

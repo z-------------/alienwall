@@ -165,23 +165,27 @@ function getMore() {
                 
                 var hrTime = new HRTime(new Date(post.data.created_utc * 1000));
                 var timeString = hrTime.time + " " + hrTime.unit + ((Math.abs(hrTime.time) !== 1) ? "s" : "") + " ago";
+                var fullname = post.kind + "_" + post.data.id;
                 
                 var postElemHtml = 
 "<a href='" + post.data.url + "'><h3>" + post.data.title + "</h3></a>\
 <div class='preview'></div>\
 <div class='post-info'>\
 <a href='//www.reddit.com/u/" + post.data.author + "' rel='author'>" + post.data.author + "</a>\
-<a href='//www.reddit.com/r/" + post.data.subreddit + "'>" + post.data.subreddit + "</a>\
+<a class='post-info-subreddit' href='//www.reddit.com/r/" + post.data.subreddit + "'>" + post.data.subreddit + "</a>\
 <a href='//www.reddit.com" + post.data.permalink + "'>" + timeString + "</a>\
-<a href='//www.reddit.com" + post.data.permalink + "'>" + post.data.num_comments + " comments</a>\
+<a class='post-info-comments'>" + post.data.num_comments + " comments</a>\
 </div>\
 <div class='vote-container'>\
 <button class='vote up'></button><span class='post-score'>" + post.data.score + "</span><button class='vote down'></button><button class='vote save'></button>\
+</div>\
+<div class='comments-container'>\
+<h4>Comments</h4>\
 </div>";
                 
                 postElem.innerHTML = postElemHtml;
                 postElem.href = post.data.url;
-                postElem.dataset.fullname = post.kind + "_" + post.data.id;
+                postElem.dataset.fullname = fullname;
                 
                 if (post.data.stickied === true) postElem.classList.add("stickied");
                 
@@ -191,6 +195,8 @@ function getMore() {
                 var upvoteBtn = postElem.querySelector(".vote.up");
                 var downvoteBtn = postElem.querySelector(".vote.down");
                 var saveBtn = postElem.querySelector(".vote.save");
+                var commentsElem = postElem.querySelector(".comments-container");
+                var commentsBtn = postElem.querySelector(".post-info-comments");
                 
                 if (likes === true) upvoteBtn.classList.add("yes");
                 if (likes === false) downvoteBtn.classList.add("yes");
@@ -245,6 +251,49 @@ function getMore() {
                     }, true);
                     
                     this.classList.toggle("yes");
+                });
+                
+                function displayComments(node, elem, topLevel) {
+                    var comments = [];
+                    if (topLevel) {
+                        comments = node.data.children;
+                    } else if (node.kind === "t1" && node.data.replies.data && (node.data.replies.data.children.length !== 0)) {
+                        comments = node.data.replies.data.children;
+                    }
+                    
+                    comments.forEach(function(comment){
+                        var body = comment.data.body_html;
+                        if (body) {
+                            var author = comment.data.author;
+                            var score = comment.data.score;
+                            if (comment.data.score_hidden) {
+                                score = "[score hidden]";
+                            }
+                            
+                            var commentElem = document.createElement("li");
+                            commentElem.innerHTML = "<p>" + entity2unicode(body) + "</p><div class='comment-info'><a href='http://www.reddit.com/u/" + author + "'>" + author + "</a><span>" + score + "</span></div>";
+                            elem.appendChild(commentElem);
+                        }
+                        
+                        displayComments(comment, commentElem);
+                    });
+                }
+                
+                var oat = readCookie("oat");
+                commentsBtn.addEventListener("click", function(){
+                    var subreddit = this.parentElement.parentElement.querySelector(".post-info-subreddit").textContent;
+                    reddit("https://oauth.reddit.com/r/" + subreddit + "/comments/" + fullname.substring(fullname.indexOf("_") + 1) + ".json", {
+                        /*limit: 20*/
+                    }, oat, function(r){
+                        r = JSON.parse(r);
+                        displayComments(r[1], commentsElem, true);
+                        
+                        commentsElem.classList.remove("loading");
+                        layoutMasonry();
+                    });
+                    
+                    commentsElem.classList.add("loading");
+                    this.parentElement.parentElement.classList.add("expanded");
                 });
                 
                 var previewElem = postElem.querySelector(".preview");
