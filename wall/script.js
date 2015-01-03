@@ -263,12 +263,20 @@ function getMore() {
                     /* gfycat "gif" */
                     
                     var url = post.data.url;
-                    var path = parseURL(url, "path");
-                    var webmURL = "http://fat.gfycat.com" + path + ".webm";
-                    var mp4URL = "http://giant.gfycat.com" + path + ".mp4";
+                    var id = parseURL(url, "path").substring(1);
+                    
+                    var prefixes = ["giant", "fat", "zippy"];
+                    var fileTypes = ["webm", "mp4"];
+                    
+                    var sourcesHTML = "";
+                    prefixes.forEach(function(prefix){
+                        fileTypes.forEach(function(fileType){
+                            sourcesHTML += "<source type='video/" + fileType + "' src='http://" + prefix + ".gfycat.com/" + id + "." + fileType + "'>";
+                        });
+                    });
                     
                     previewElem.classList.add("visible");
-                    previewElem.innerHTML = "<video autoplay loop muted onloadeddata='" + onLoad + "'><source src='" + webmURL + "' type='video/webm'><source src='" + mp4URL + "' type='video/mp4'></video>";
+                    previewElem.innerHTML = "<video autoplay loop muted onloadeddata='" + onLoad + "'>" + sourcesHTML + "</video>";
                     postElem.dataset.preview = "gfycat";
                 }
                 
