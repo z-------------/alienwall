@@ -103,6 +103,8 @@ var subsListElem = document.querySelector("#subreddit-list");
 var subInfoElem = document.querySelector("#subreddit-info");
 var gotoSubInput = document.querySelector("#goto-subreddit");
 
+var initialTitle = document.head.querySelector("title").textContent;
+
 var streamMasonry;
 
 var timeFilter;
@@ -171,6 +173,7 @@ function getMore() {
 <a href='//www.reddit.com/u/" + post.data.author + "' rel='author'>" + post.data.author + "</a>\
 <a href='//www.reddit.com/r/" + post.data.subreddit + "'>" + post.data.subreddit + "</a>\
 <a href='//www.reddit.com" + post.data.permalink + "'>" + timeString + "</a>\
+<a href='//www.reddit.com" + post.data.permalink + "'>" + post.data.num_comments + " comments</a>\
 </div>\
 <div class='vote-container'>\
 <button class='vote up'></button><span class='post-score'>" + post.data.score + "</span><button class='vote down'></button><button class='vote save'></button>\
@@ -346,10 +349,12 @@ function getSubredditInfo(subName) {
         var data = r.data;
         
         var title = data.title;
+        var displayName = data.display_name;
         
         subInfoElem.dataset.fullname = r.kind + "_" + data.id;
-        
         subInfoElem.querySelector("h2").innerHTML = title;
+        
+        document.title = title + " (" + displayName + ") - " + initialTitle;
         
         var subscribeBtn = subInfoElem.querySelector("#subscribe-btn");
         if (data.user_is_subscriber === true || subName === FRONT_PAGE || subName.toLowerCase() === "all") {
@@ -492,6 +497,8 @@ function changeSubreddit(subName){
     if (currentSubListItem) {
         currentSubListItem.classList.add("current");
     }
+    
+    document.title = initialTitle;
     
     window.scrollTo(0, 0);
 }

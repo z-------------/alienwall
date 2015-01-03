@@ -28,6 +28,11 @@
     background-color: #01ff70;
 }
 
+::selection {
+    background-color: #01ff70;
+    color: black;
+}
+
 :focus {
     outline: none;
 }
