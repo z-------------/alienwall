@@ -370,24 +370,58 @@ function displayComments(node, elem, topLevel) {
     }
 
     comments.forEach(function(comment){
-        var body = comment.data.body_html;
-        if (body) {
+        var commentElem = document.createElement("li");
+        
+        if (comment.kind === "t1") {
+            var body = comment.data.body_html;
             var author = comment.data.author;
-            
+
             var hrTime = new HRTime(new Date(comment.data.created_utc * 1000));
             var timeString = hrTime.time + " " + hrTime.unit + ((Math.abs(hrTime.time) !== 1) ? "s" : "");
-            
+
             var score = comment.data.score + " points";
             if (comment.data.score_hidden) {
                 score = "[score hidden]";
             }
 
-            var commentElem = document.createElement("li");
             commentElem.innerHTML = "<p>" + entity2unicode(body) + "</p><div class='comment-info'><a href='http://www.reddit.com/u/" + author + "'>" + author + "</a><span>" + score + "</span><span>" + timeString + "</span></div>";
-            elem.appendChild(commentElem);
-        }
 
-        displayComments(comment, commentElem);
+            displayComments(comment, commentElem);
+        } else if (comment.kind === "more") {
+            var parentId = comment.data.id;
+            
+            var expandedPostElem = document.querySelector("#stream .post.expanded");
+            
+            commentElem.innerHTML = "<a>continue this thread...</a>";
+            
+            commentElem.dataset.parentId = parentId;
+            commentElem.dataset.subreddit = expandedPostElem.querySelector(".post-info-subreddit").textContent;
+            commentElem.dataset.linkId = expandedPostElem.dataset.fullname;
+            
+            commentElem.addEventListener("click", function(){
+                var subreddit = this.dataset.subreddit;
+                var fullname = this.dataset.linkId;
+                var parentId = this.dataset.parentId;
+                
+                var that = this;
+                
+                reddit("https://oauth.reddit.com/r/" + subreddit + "/comments/" + fullname.substring(fullname.indexOf("_") + 1) + ".json", {
+                    comment: parentId
+                }, readCookie("oat"), function(r){
+                    r = JSON.parse(r);
+                    displayComments(r[1], that.parentElement, true);
+                    
+                    that.classList.remove("loading");
+                    that.style.display = "none";
+                    
+                    layoutMasonry();
+                });
+                
+                this.classList.add("loading");
+            });
+        }
+        
+        elem.appendChild(commentElem);
     });
 }
 
@@ -398,7 +432,7 @@ function expandPost(elem) {
     
     if (commentsElem.dataset.loaded !== "true") {
         reddit("https://oauth.reddit.com/r/" + subreddit + "/comments/" + fullname.substring(fullname.indexOf("_") + 1) + ".json", {
-            /*limit: 20*/
+            limit: 20
         }, readCookie("oat"), function(r){
             r = JSON.parse(r);
             displayComments(r[1], commentsElem, true);
@@ -437,7 +471,7 @@ function getSubredditInfo(subName) {
         subInfoElem.dataset.fullname = r.kind + "_" + data.id;
         subInfoElem.querySelector("h2").innerHTML = title;
         
-        document.title = title + " (" + displayName + ") - " + initialTitle;
+        document.title = title + " (/r/" + displayName + ") - " + initialTitle;
         
         var subscribeBtn = subInfoElem.querySelector("#subscribe-btn");
         if (data.user_is_subscriber === true || subName === FRONT_PAGE || subName.toLowerCase() === "all") {
