@@ -325,8 +325,18 @@ function getMore() {
                 }
                 
                 if (post.data.is_self && post.data.selftext_html) {
+                    /* self */
+                    
                     previewElem.classList.add("visible");
-                    previewElem.innerHTML = "<p>" + entity2unicode(post.data.selftext_html).substring(0, 500) + "...</p>";
+                    previewElem.innerHTML = "<div class='selftext-container'>" + entity2unicode(post.data.selftext_html) + "</div>";
+                    
+                    var containerElem = previewElem.querySelector(".selftext-container");
+                    var mdElem = previewElem.querySelector(".md");
+                    
+                    setTimeout(function(){
+                        if (mdElem.offsetHeight > containerElem.offsetHeight) containerElem.classList.add("overflow");
+                    });
+                    
                     postElem.dataset.preview = "self";
                 }
                 
