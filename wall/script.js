@@ -315,7 +315,7 @@ function getMore() {
                     postElem.dataset.preview = "gifv";
                 }
                 
-                if (parseURL(postURL, "hostname") === "imgur.com" && parseURL(postURL, "path").substring(1).length === 7) {
+                if (parseURL(postURL, "hostname") === "imgur.com" && parseURL(postURL, "path").substring(1).length === 7 && new RegExp("^[a-z0-9]+$", "i").test(parseURL(postURL, "path").substring(1))) {
                     /* imgur */
                     
                     var id = parseURL(postURL, "path").substring(1);
@@ -345,7 +345,7 @@ function getMore() {
                     postElem.dataset.preview = "self";
                 }
                 
-                if (postElem.dataset.preview === "self" || postElem.dataset.preview === "image" || postElem.dataset.preview === "gifv" || postElem.dataset.preview === "gfycat") {
+                if (postElem.dataset.preview === "self" || postElem.dataset.preview === "image" || postElem.dataset.preview === "imgur" || postElem.dataset.preview === "gifv" || postElem.dataset.preview === "gfycat") {
                     previewElem.addEventListener("click", function(){
                         expandPost(this.parentElement);
                     });
