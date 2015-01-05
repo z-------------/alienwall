@@ -60,7 +60,7 @@ header {
     width: 100%;
     height: 100px;
     
-    background-color: #333;
+    background-color: rgba(51, 51, 51, .9);
     
     padding: 10px;
 }
@@ -120,12 +120,23 @@ input, select, button {
     display: inline-block;
 }
 
+input::-webkit-calendar-picker-indicator { /* hide datalist dropdown arrow */
+    display: none;
+}
+
 button {
     cursor: pointer;
 }
 
 select:focus option {
     color: #000;
+}
+
+hr {
+    margin: 10px 0;
+    border: none;
+    height: 1px;
+    background-color: rgba(255, 255, 255, .3);
 }
 
 .loading {
@@ -179,11 +190,12 @@ select:focus option {
     z-index: 2;
     left: 0 !important;
     top: 0 !important;
-    margin-top: 100px;
+    margin-top: 0;
     width: 100% !important;
-    height: calc(100% - 100px) !important;
+    height: 100% !important;
     overflow: auto;
     padding: 50px;
+    padding-top: 150px;
 }
 
 #stream .post h3 {
@@ -193,6 +205,10 @@ select:focus option {
 }
 
 #stream .vote-container, #stream .preview, #stream .post-info {
+    margin: 10px 0;
+}
+
+#stream .preview img, #stream .preview video, #stream .preview iframe {
     margin: 10px 0;
 }
 
@@ -478,26 +494,26 @@ button.vote.save.yes {
     background-position: left bottom;
 }
 
-.comments-container li {
+.comment-container {
     margin: 10px 0;
 }
 
-.comments-container li.loading {
+.comment-container.loading {
     width: 50px;
     height: 30px;
     background-size: 20px;
 }
 
-.comments-container li.loading * {
+.comment-container.loading * {
     display: none;
 }
 
-.comments-container li li {
-    padding-left: 10px;
-    border-left: 3px solid rgba(1, 255, 112, .5);
+.comment-container .comment-container {
+    padding-left: 20px;
+    border-left: 2px solid rgba(1, 255, 112, .5);
 }
 
-.comments-container li p, .selftext-container p {
+.comment-body-container p, .selftext-container p {
     margin: 8px 0;
 }
 
@@ -507,10 +523,13 @@ button.vote.save.yes {
     right: 0;
     top: 100px;
     margin: 10px;
-    width: 30px;
-    height: 30px;
+    padding: 0;
+    width: 20px;
+    height: 20px;
     line-height: 0.5;
     cursor: pointer;
+    background-color: transparent;
+    font-size: 1.5em;
 }
 
 .close-post:before {

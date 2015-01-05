@@ -102,6 +102,7 @@ var streamElem = document.querySelector("#stream");
 var subsListElem = document.querySelector("#subreddit-list");
 var subInfoElem = document.querySelector("#subreddit-info");
 var gotoSubInput = document.querySelector("#goto-subreddit");
+var subsDatalist = document.querySelector("#subreddits-datalist");
 
 var initialTitle = document.head.querySelector("title").textContent;
 
@@ -165,7 +166,7 @@ function getMore() {
                 postElem.classList.add("post");
                 
                 var hrTime = new HRTime(new Date(post.data.created_utc * 1000));
-                var timeString = hrTime.time + " " + hrTime.unit + ((Math.abs(hrTime.time) !== 1) ? "s" : "");
+                var timeString = hrTime.time + " " + hrTime.unit + ((Math.abs(hrTime.time) !== 1) ? "s" : "") + " ago";
                 var fullname = post.kind + "_" + post.data.id;
                 
                 var postElemHtml = 
@@ -257,7 +258,9 @@ function getMore() {
                 });
                 
                 commentsBtn.addEventListener("click", function(){
-                    expandPost(this.parentElement.parentElement);
+                    var parentElem = this.parentElement.parentElement
+                    expandPost(parentElem);
+                    parentElem.scrollTop = parentElem.querySelector(".comments-container").offsetTop + document.querySelector("header").offsetHeight;
                 });
                 
                 closeBtn.addEventListener("click", function(){
@@ -296,7 +299,7 @@ function getMore() {
                     });
                     
                     previewElem.classList.add("visible");
-                    previewElem.innerHTML = "<video autoplay loop muted onloadeddata='" + onLoad + "'>" + sourcesHTML + "</video>";
+                    previewElem.innerHTML = "<video controls loop muted onloadeddata='" + onLoad + "'>" + sourcesHTML + "</video>";
                     postElem.dataset.preview = "gfycat";
                 }
                 
@@ -310,7 +313,7 @@ function getMore() {
                     var mp4URL = "http://i.imgur.com" + id + ".mp4";
                     
                     previewElem.classList.add("visible");
-                    previewElem.innerHTML = "<video autoplay loop muted onloadeddata='" + onLoad + "'><source src='" + webmURL + "' type='video/webm'><source src='" + mp4URL + "' type='video/mp4'></video>";
+                    previewElem.innerHTML = "<video controls loop muted onloadeddata='" + onLoad + "'><source src='" + webmURL + "' type='video/webm'><source src='" + mp4URL + "' type='video/mp4'></video>";
                     postElem.dataset.preview = "gifv";
                 }
                 
@@ -330,13 +333,6 @@ function getMore() {
                     previewElem.classList.add("visible");
                     previewElem.innerHTML = "<div class='selftext-container'>" + entity2unicode(post.data.selftext_html) + "</div>";
                     
-                    var containerElem = previewElem.querySelector(".selftext-container");
-                    var mdElem = previewElem.querySelector(".md");
-                    
-                    setTimeout(function(){
-                        if (mdElem.offsetHeight > containerElem.offsetHeight) containerElem.classList.add("overflow");
-                    });
-                    
                     postElem.dataset.preview = "self";
                 }
                 
@@ -348,6 +344,9 @@ function getMore() {
 
                 streamElem.appendChild(postElem);
                 
+                if (postElem.dataset.preview === "self" && previewElem.querySelector(".md").offsetHeight > previewElem.querySelector(".selftext-container").offsetHeight) {
+                    document.querySelector(".selftext-container").classList.add("overflow");
+                }
                 layoutMasonry();
             });
 
@@ -380,7 +379,8 @@ function displayComments(node, elem, topLevel) {
     }
 
     comments.forEach(function(comment){
-        var commentElem = document.createElement("li");
+        var commentElem = document.createElement("div");
+        commentElem.classList.add("comment-container");
         
         if (comment.kind === "t1") {
             var body = comment.data.body_html;
@@ -394,7 +394,7 @@ function displayComments(node, elem, topLevel) {
                 score = "[score hidden]";
             }
 
-            commentElem.innerHTML = "<p>" + entity2unicode(body) + "</p><div class='comment-info'><a href='http://www.reddit.com/u/" + author + "'>" + author + "</a><span>" + score + "</span><span>" + timeString + "</span></div>";
+            commentElem.innerHTML = "<div class='comment-body-container'><div class='comment-body'>" + entity2unicode(body) + "</div><div class='comment-info'><a href='http://www.reddit.com/u/" + author + "'>" + author + "</a><span>" + score + "</span><span>" + timeString + "</span></div></div>";
 
             displayComments(comment, commentElem);
         } else if (comment.kind === "more") {
@@ -589,6 +589,10 @@ function getUserSubreddits(){
             subsListItem.dataset.subreddit = sub.data.display_name.toUpperCase();
             subsListItem.textContent = sub.data.display_name;
             subsListElem.appendChild(subsListItem);
+            
+            var datalistItem = document.createElement("option");
+            datalistItem.textContent = sub.data.display_name;
+            subsDatalist.appendChild(datalistItem);
         });
 
         [].slice.call(subsListElem.querySelectorAll("li[data-subreddit]")).forEach(function(subsListItem){
