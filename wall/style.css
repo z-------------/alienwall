@@ -52,23 +52,6 @@ body {
     color: #fff;
 }
 
-header {
-    position: fixed;
-    z-index: 3;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100px;
-    
-    background-color: rgba(51, 51, 51, .9);
-    
-    padding: 10px;
-}
-
-header, .fixed-subreddit-info #subreddit-info {
-    box-shadow: 0 0 20px rgba(0, 0, 0, .5);
-}
-
 h1 {
     font-size: 2em;
     font-weight: 700;
@@ -148,9 +131,41 @@ hr {
     overflow: hidden;
 }
 
-#filters {
+header {
+    position: fixed;
+    z-index: 3;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100px;
+    
+    background-color: rgba(51, 51, 51, .9);
+    
+    padding: 10px;
+}
+
+header, .fixed-subreddit-info #subreddit-info {
+    box-shadow: 0 0 20px rgba(0, 0, 0, .5);
+}
+
+header button, header input, header select, #filters {
     float: right;
     display: inline-block;
+}
+
+header button {
+    width: 35px;
+    height: 35px;
+    background-color: transparent;
+    background-size: 30px;
+}
+
+#filters, header button {
+    margin-left: 20px;
+}
+
+#refresh {
+    background-image: url(/img/ui/refresh.svg);
 }
 
 #stream {
@@ -208,10 +223,6 @@ hr {
     margin: 10px 0;
 }
 
-#stream .preview img, #stream .preview video, #stream .preview iframe {
-    margin: 10px 0;
-}
-
 #stream .post-info, #stream .comment-info {
     font-weight: 300;
     color: rgba(255, 255, 255, .8);
@@ -254,6 +265,10 @@ hr {
 
 #stream .preview img {
     background-color: #fff;
+}
+
+#stream .preview img, #stream .preview video, #stream .preview iframe {
+    margin-top: 5px;
 }
 
 #stream .preview ul, #stream .preview ol {

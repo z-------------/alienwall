@@ -103,6 +103,7 @@ var subsListElem = document.querySelector("#subreddit-list");
 var subInfoElem = document.querySelector("#subreddit-info");
 var gotoSubInput = document.querySelector("#goto-subreddit");
 var subsDatalist = document.querySelector("#subreddits-datalist");
+var refreshBtn = document.querySelector("#refresh");
 
 var initialTitle = document.head.querySelector("title").textContent;
 
@@ -168,9 +169,12 @@ function getMore() {
                 var hrTime = new HRTime(new Date(post.data.created_utc * 1000));
                 var timeString = hrTime.time + " " + hrTime.unit + ((Math.abs(hrTime.time) !== 1) ? "s" : "") + " ago";
                 var fullname = post.kind + "_" + post.data.id;
+                var postURL = post.data.url;
+                var likes = post.data.likes;
+                var saved = post.data.saved;
                 
                 var postElemHtml = 
-"<a href='" + post.data.url + "'><h3>" + post.data.title + "</h3></a>\
+"<a href='" + postURL + "'><h3>" + post.data.title + "</h3></a>\
 <div class='preview'></div>\
 <div class='post-info'>\
 <a href='//www.reddit.com/u/" + post.data.author + "' rel='author'>" + post.data.author + "</a>\
@@ -187,13 +191,10 @@ function getMore() {
 <button class='close-post'></button>";
                 
                 postElem.innerHTML = postElemHtml;
-                postElem.href = post.data.url;
+                postElem.href = postURL;
                 postElem.dataset.fullname = fullname;
                 
                 if (post.data.stickied === true) postElem.classList.add("stickied");
-                
-                var likes = post.data.likes;
-                var saved = post.data.saved;
                 
                 var upvoteBtn = postElem.querySelector(".vote.up");
                 var downvoteBtn = postElem.querySelector(".vote.down");
@@ -270,10 +271,10 @@ function getMore() {
                 var previewElem = postElem.querySelector(".preview");
                 var onLoad = "streamMasonry.layout()";
                 
-                if (parseURL(post.data.url, "hostname") === "www.youtube.com" && parseURL(post.data.url, "path") === "/watch" && parseURL(post.data.url, "params").v) {
+                if (parseURL(postURL, "hostname") === "www.youtube.com" && parseURL(postURL, "path") === "/watch" && parseURL(postURL, "params").v) {
                     /* youtube video */
                     
-                    var id = parseURL(post.data.url, "params").v;
+                    var id = parseURL(postURL, "params").v;
                     var width = streamMasonry.columnWidth - streamMasonry.gutter;
                     var height = width * 9/16;
                     
@@ -282,11 +283,9 @@ function getMore() {
                     postElem.dataset.preview = "youtube";
                 }
                 
-                if (parseURL(post.data.url, "hostname") === "gfycat.com" || parseURL(post.data.url, "hostname") === "www.gfycat.com") {
+                if (parseURL(postURL, "hostname") === "gfycat.com" || parseURL(postURL, "hostname") === "www.gfycat.com") {
                     /* gfycat "gif" */
-                    
-                    var url = post.data.url;
-                    var id = parseURL(url, "path").substring(1);
+                    var id = parseURL(postURL, "path").substring(1);
                     
                     var prefixes = ["giant", "fat", "zippy"];
                     var fileTypes = ["webm", "mp4"];
@@ -303,11 +302,10 @@ function getMore() {
                     postElem.dataset.preview = "gfycat";
                 }
                 
-                if (parseURL(post.data.url, "hostname") === "i.imgur.com" && (new RegExp("\\.gifv$", "gi")).test(post.data.url)) {
+                if (parseURL(postURL, "hostname") === "i.imgur.com" && (new RegExp("\\.gifv$", "gi")).test(postURL)) {
                     /* imgur gifv */
-                    
-                    var url = post.data.url;
-                    var path = parseURL(url, "path");
+
+                    var path = parseURL(postURL, "path");
                     var id = path.substring(0, path.lastIndexOf(".gifv"));
                     var webmURL = "http://i.imgur.com" + id + ".webm";
                     var mp4URL = "http://i.imgur.com" + id + ".mp4";
@@ -317,10 +315,21 @@ function getMore() {
                     postElem.dataset.preview = "gifv";
                 }
                 
-                if ((new RegExp("(\\.gif|\\.jpg|\\.jpeg|\\.webp|\\.png|\\.tiff)$", "gi")).test(post.data.url)) {
+                if (parseURL(postURL, "hostname") === "imgur.com" && parseURL(postURL, "path").substring(1).length === 7) {
+                    /* imgur */
+                    
+                    var id = parseURL(postURL, "path").substring(1);
+                    var imgURL = "http://i.imgur.com/" + id + ".jpg";
+                    
+                    previewElem.classList.add("visible");
+                    previewElem.innerHTML = "<img src='" + imgURL + "' onload='" + onLoad + "'>";
+                    postElem.dataset.preview = "imgur";
+                }
+                
+                if ((new RegExp("(\\.gif|\\.jpg|\\.jpeg|\\.webp|\\.png|\\.tiff)$", "gi")).test(postURL)) {
                     /* image */
                     
-                    var url = post.data.url;
+                    var url = postURL;
                     
                     previewElem.classList.add("visible");
                     previewElem.innerHTML = "<img src='" + url + "' onload='" + onLoad + "'>";
@@ -645,6 +654,10 @@ gotoSubInput.addEventListener("keydown", function(e){
             this.blur();
         }
     }
+});
+
+refreshBtn.addEventListener("click", function(){
+    changeSubreddit(sub);
 });
 
 if (!readCookie("oat")) {
