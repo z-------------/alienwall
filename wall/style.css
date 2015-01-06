@@ -87,9 +87,13 @@ iframe {
 }
 
 blockquote {
-    color: rgba(255,255,255,.8);
-    border-left: 3px solid rgba(255,255,255,.3);
+    color: rgba(255, 255, 255, .8);
+    border-left: 3px solid rgba(255, 255, 255, .3);
     padding-left: 5px;
+}
+
+blockquote p {
+    color: inherit !important;
 }
 
 ul, ol {
@@ -230,10 +234,14 @@ header button {
 
 #stream .post-info a, #stream .comment-info a, #stream .comment-info span {
     display: inline-block;
-    margin-right: 10px;
+    margin: 0 5px;
     color: inherit;
     
     transition-property: color;
+}
+
+#stream .post-info a:first-child, #stream .comment-info a:first-child, #stream .comment-info span:first-child {
+    margin-left: 0;
 }
 
 #stream .post-info a:hover, #stream .comment-info a:hover {
@@ -347,7 +355,7 @@ header button {
     color: #000;
 }
 
-button.vote {
+.post .vote {
     display: inline-block;
     
     background-color: transparent;
@@ -358,27 +366,27 @@ button.vote {
     background-size: contain;
 }
 
-button.vote, .post-score {
+.post .vote, .post-score {
     margin: 0 5px;
 }
 
-button.vote.up {
+.vote.up {
     background-image: url(/img/ui/uarr-hollow.png);
 }
 
-button.vote.down {
+.vote.down {
     background-image: url(/img/ui/darr-hollow.png);
 }
 
-button.vote.up.yes {
+.vote.up.yes {
     background-image: url(/img/ui/uarr.png);
 }
 
-button.vote.down.yes {
+.vote.down.yes {
     background-image: url(/img/ui/darr.png);
 }
 
-button.vote.save {
+.post .vote.save {
     background-image: url(/img/ui/star-hollow.png);
     background-size: 20px;
     opacity: 0;
@@ -386,7 +394,7 @@ button.vote.save {
     transition-property: opacity;
 }
 
-button.vote.save.yes {
+.post .vote.save.yes {
     background-image: url(/img/ui/star.png);
     opacity: 1;
 }
@@ -514,8 +522,9 @@ button.vote.save.yes {
 }
 
 .comment-container.loading {
-    width: 50px;
+    width: 30px;
     height: 30px;
+    margin-left: 20px;
     background-size: 20px;
 }
 
@@ -528,8 +537,18 @@ button.vote.save.yes {
     border-left: 2px solid rgba(1, 255, 112, .5);
 }
 
+.comment-body-container {
+    margin: 15px 0;
+}
+
 .comment-body-container p, .selftext-container p {
     margin: 8px 0;
+    color: rgba(255, 255, 255, .9);
+}
+
+.comment-container .vote {
+    width: 20px;
+    height: 20px;
 }
 
 .close-post {

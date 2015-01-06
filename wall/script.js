@@ -31,6 +31,8 @@ var entity2unicode = function(entStr) {
 var reddit = function(endpoint, params, token, callback, post) {
     var paramsStr = "?";
     
+    var userAgent = "RedditWall/0.1 by thedonkeypie";
+    
     var paramsArray = [];
     var paramsKeys = Object.keys(params);
     paramsKeys.forEach(function(paramsKey){
@@ -43,6 +45,7 @@ var reddit = function(endpoint, params, token, callback, post) {
         req.open("POST", endpoint, true);
         
         req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        req.setRequestHeader("User-Agent", userAgent);
         if (token) req.setRequestHeader("Authorization", "bearer " + token);
         
         req.onreadystatechange = function() {
@@ -53,7 +56,9 @@ var reddit = function(endpoint, params, token, callback, post) {
         
         req.send(paramsStr.substring("1"));
     } else {
-        var headers = {};
+        var headers = {
+            "User-Agent": userAgent
+        };
         if (token) headers.Authorization = "bearer " + token;
         xhr(endpoint + paramsStr, callback, headers);
     }
@@ -139,13 +144,12 @@ function layoutMasonry(){
 function getMore() {
     clearInterval(scrollLoadInterval);
     
-    var limit = 50;
-    var oat = null;
+    var limit = 25;
+    var oat = readCookie("oat");
     
-    var endpoint = "http://www.reddit.com/r/" + encodeURIComponent(sub) + "/" + encodeURIComponent(sortOrder) + ".json";
+    var endpoint = "https://oauth.reddit.com/r/" + encodeURIComponent(sub) + "/" + encodeURIComponent(sortOrder) + ".json";
     if (sub === FRONT_PAGE) {
         endpoint = "https://oauth.reddit.com/" + encodeURIComponent(sortOrder) + ".json";
-        oat = readCookie("oat")
     }
     
     var params = {
@@ -271,6 +275,8 @@ function getMore() {
                 var previewElem = postElem.querySelector(".preview");
                 var onLoad = "streamMasonry.layout()";
                 
+                /* make media previews */
+                
                 if (parseURL(postURL, "hostname") === "www.youtube.com" && parseURL(postURL, "path") === "/watch" && parseURL(postURL, "params").v) {
                     /* youtube video */
                     
@@ -386,6 +392,41 @@ function displayComments(node, elem, topLevel) {
     } else if (node.kind === "t1" && node.data.replies.data && (node.data.replies.data.children.length !== 0)) {
         comments = node.data.replies.data.children;
     }
+    
+    var voteListener = function(e){
+        e.preventDefault();
+        e.stopPropagation();
+
+        var dir;
+        var cList = this.classList;
+        var scoreElem = this.parentElement.querySelector(".comment-score");
+        
+        var scoreUnit = " points";
+
+        if (cList.contains("up") && cList.contains("yes")) {
+            dir = 0;
+            scoreElem.textContent = parseInt(scoreElem.textContent) - 1 + scoreUnit;
+        } else if (cList.contains("down") && cList.contains("yes")) {
+            dir = 0;
+            scoreElem.textContent = parseInt(scoreElem.textContent) + 1 + scoreUnit;
+        } else if (cList.contains("up")) {
+            dir = 1;
+            scoreElem.textContent = parseInt(scoreElem.textContent) + 1 + scoreUnit;
+        } else if (cList.contains("down")) {
+            dir = -1;
+            scoreElem.textContent = parseInt(scoreElem.textContent) - 1 + scoreUnit;
+        }
+
+        var oat = readCookie("oat");
+        reddit("https://oauth.reddit.com/api/vote", {
+            dir: dir,
+            id: this.parentElement.parentElement.parentElement.dataset.fullname
+        }, oat, function(r){
+            console.log(r);
+        }, true);
+
+        this.classList.toggle("yes");
+    };
 
     comments.forEach(function(comment){
         var commentElem = document.createElement("div");
@@ -394,16 +435,33 @@ function displayComments(node, elem, topLevel) {
         if (comment.kind === "t1") {
             var body = comment.data.body_html;
             var author = comment.data.author;
+            var fullname = "t1_" + comment.data.id;
 
             var hrTime = new HRTime(new Date(comment.data.created_utc * 1000));
             var timeString = hrTime.time + " " + hrTime.unit + ((Math.abs(hrTime.time) !== 1) ? "s" : "");
+            var likes = comment.data.likes;
+            var score = (comment.data.score_hidden ? "[score hidden]" : comment.data.score + " points");
 
-            var score = comment.data.score + " points";
-            if (comment.data.score_hidden) {
-                score = "[score hidden]";
-            }
-
-            commentElem.innerHTML = "<div class='comment-body-container'><div class='comment-body'>" + entity2unicode(body) + "</div><div class='comment-info'><a href='http://www.reddit.com/u/" + author + "'>" + author + "</a><span>" + score + "</span><span>" + timeString + "</span></div></div>";
+            commentElem.innerHTML = "<div class='comment-body-container'>\
+<div class='comment-body'>" + entity2unicode(body) + "</div>\
+<div class='comment-info'>\
+<a href='http://www.reddit.com/u/" + author + "'>" + author + "</a>\
+<button class='vote up'></button>\
+<span class='comment-score'>" + score + "</span>\
+<button class='vote down'></button>\
+<span>" + timeString + "</span>\
+</div>\
+</div>";
+            commentElem.dataset.fullname = fullname;
+            
+            var upvoteBtn = commentElem.querySelector(".vote.up");
+            var downvoteBtn = commentElem.querySelector(".vote.down");
+            
+            upvoteBtn.addEventListener("click", voteListener);
+            downvoteBtn.addEventListener("click", voteListener);
+            
+            if (likes === true) upvoteBtn.classList.add("yes");
+            if (likes === false) downvoteBtn.classList.add("yes");
 
             displayComments(comment, commentElem);
         } else if (comment.kind === "more") {
@@ -451,7 +509,7 @@ function expandPost(elem) {
     
     if (commentsElem.dataset.loaded !== "true") {
         reddit("https://oauth.reddit.com/r/" + subreddit + "/comments/" + fullname.substring(fullname.indexOf("_") + 1) + ".json", {
-            limit: 20
+            limit: 50
         }, readCookie("oat"), function(r){
             r = JSON.parse(r);
             displayComments(r[1], commentsElem, true);
@@ -579,7 +637,7 @@ function eraseCookie(name) {
 function getUserSubreddits(){
     var oat = readCookie("oat");
     reddit("https://oauth.reddit.com/subreddits/mine/subscriber", {
-        limit: "100"
+        limit: 100
     }, oat, function(r){
         r = JSON.parse(r);
 
