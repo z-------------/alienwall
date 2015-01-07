@@ -522,9 +522,8 @@ header button {
 }
 
 .comment-container.loading {
-    width: 30px;
-    height: 30px;
-    margin-left: 20px;
+    width: 60px;
+    height: 20px;
     background-size: 20px;
 }
 

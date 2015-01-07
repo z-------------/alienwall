@@ -265,7 +265,7 @@ function getMore() {
                 commentsBtn.addEventListener("click", function(){
                     var parentElem = this.parentElement.parentElement
                     expandPost(parentElem);
-                    parentElem.scrollTop = parentElem.querySelector(".comments-container").offsetTop + document.querySelector("header").offsetHeight;
+                    parentElem.scrollTop = parentElem.querySelector(".comments-container").offsetTop - document.querySelector("header").offsetHeight;
                 });
                 
                 closeBtn.addEventListener("click", function(){
