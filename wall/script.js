@@ -1,3 +1,7 @@
+var ONE_SECOND = 1000;
+var TEN_MINUTES = 600000;
+var ONE_HOUR = 3600000;
+
 var FRONT_PAGE = "*FRONT PAGE";
 
 var xhr = function(url, callback, headers) {
@@ -29,7 +33,7 @@ var entity2unicode = function(entStr) {
 };
 
 var reddit = function(endpoint, params, callback, post) {
-    var token = readCookie("oat");
+    var token = readCookie("access_token");
     if (token) {
         endpoint = "https://oauth.reddit.com/" + endpoint;
         
@@ -182,7 +186,7 @@ function getMore() {
 "<a href='" + postURL + "'><h3>" + post.data.title + "</h3></a>\
 <div class='preview'></div>\
 <div class='post-info'>\
-<a href='//www.reddit.com/u/" + post.data.author + "' rel='author'>" + post.data.author + "</a>\
+<a class='post-info-author' href='//www.reddit.com/u/" + post.data.author + "' rel='author'>" + post.data.author + "</a>\
 <a class='post-info-subreddit' href='//www.reddit.com/r/" + post.data.subreddit + "'>" + post.data.subreddit + "</a>\
 <a href='//www.reddit.com" + post.data.permalink + "'>" + timeString + "</a>\
 <a class='post-info-comments'>" + post.data.num_comments + " comments</a>\
@@ -392,6 +396,9 @@ function displayComments(node, elem, topLevel) {
         comments = node.data.replies.data.children;
     }
     
+    var expandedPostElem = document.querySelector("#stream .post.expanded");
+    var op = expandedPostElem.querySelector(".post-info-author").textContent;
+    
     var voteListener = function(e){
         e.preventDefault();
         e.stopPropagation();
@@ -443,10 +450,10 @@ function displayComments(node, elem, topLevel) {
             commentElem.innerHTML = "<div class='comment-body-container'>\
 <div class='comment-body'>" + entity2unicode(body) + "</div>\
 <div class='comment-info'>\
-<a href='http://www.reddit.com/u/" + author + "'>" + author + "</a>\
+<a class='comment-info-author " + (author == op ? "op" : "") + "' href='http://www.reddit.com/u/" + author + "'>" + author + "</a>\
 <button class='vote up'></button>\
-<span class='comment-score'>" + score + "</span>\
 <button class='vote down'></button>\
+<span class='comment-score'>" + score + "</span>\
 <span>" + timeString + "</span>\
 </div>\
 </div>";
@@ -464,8 +471,6 @@ function displayComments(node, elem, topLevel) {
             displayComments(comment, commentElem);
         } else if (comment.kind === "more") {
             var parentId = comment.data.id;
-            
-            var expandedPostElem = document.querySelector("#stream .post.expanded");
             
             commentElem.innerHTML = "<a>continue this thread...</a>";
             
@@ -713,14 +718,32 @@ refreshBtn.addEventListener("click", function(){
     changeSubreddit(sub);
 });
 
-if (!readCookie("oat")) {
+if (!readCookie("access_token")) {
     window.location = "/";
 }
 
+var alreadyRequestedNewAccessToken = false;
+
 setInterval(function(){
-    if (!readCookie("oat")) {
+    if (!readCookie("access_token")) {
         alert("Your session has expired. Please sign in again.");
         window.location = "/";
+    }
+    
+    /* check if we need to refresh the access token */
+    var expiryDate = new Date(Number(readCookie("authdate")) + (ONE_HOUR));
+    var nowDate = new Date();
+    var delta = expiryDate - nowDate;
+    
+    if (delta < TEN_MINUTES && !alreadyRequestedNewAccessToken) {
+        xhr("/py/refresh_auth?refresh_token=" + readCookie("refresh_token"), function(r){
+            console.log(r);
+        });
+        
+        alreadyRequestedNewAccessToken = true;
+        setTimeout(function(){
+            alreadyRequestedNewAccessToken = false;
+        }, TEN_MINUTES);
     }
 }, 1000);
 

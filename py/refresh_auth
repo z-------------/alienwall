@@ -10,13 +10,12 @@ from http import cookies
 
 form = cgi.FieldStorage()
 
-code = form["code"].value
+refresh_token = form["refresh_token"].value
 
 url = "https://www.reddit.com/api/v1/access_token"
 values = {
-    "grant_type": "authorization_code",
-    "code": code,
-    "redirect_uri": "http://localhost:8000/py/auth_callback"
+    "grant_type": "refresh_token",
+    "refresh_token": refresh_token
 }
 
 password_str = base64.b64encode(b"ntFDwUGcEC-X4A:XWCtr0HSC-E2tKMrK5W5qgaGZqQ") #client_id:app_secret
@@ -36,7 +35,6 @@ response = urllib.request.urlopen(req)
 
 response_json = json.loads(response.read().decode("utf-8"))
 access_token = response_json["access_token"]
-refresh_token = response_json["refresh_token"]
 
 forever_date = 315569260 #10 years
 
@@ -46,15 +44,11 @@ cookie["access_token"] = access_token
 cookie["access_token"]["expires"] = int(response_json["expires_in"])
 cookie["access_token"]["path"] = "/"
 
-cookie["refresh_token"] = refresh_token
-cookie["refresh_token"]["expires"] = forever_date
-cookie["refresh_token"]["path"] = "/"
-
 cookie["authdate"] = int(time.time()) * 1000
 cookie["authdate"]["expires"] = forever_date
 cookie["authdate"]["path"] = "/"
 
 print(str(cookie))
-print("Content-Type: text/html\n")
-print("<meta http-equiv='Refresh' content='0; url=/wall/' />")
+print("Content-Type: text/plain\n")
+print("OK")
 #print(response.read().decode("utf-8"))
