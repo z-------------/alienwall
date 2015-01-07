@@ -28,39 +28,41 @@ var entity2unicode = function(entStr) {
     return div.textContent;
 };
 
-var reddit = function(endpoint, params, token, callback, post) {
-    var paramsStr = "?";
-    
-    var userAgent = "RedditWall/0.1 by thedonkeypie";
-    
-    var paramsArray = [];
-    var paramsKeys = Object.keys(params);
-    paramsKeys.forEach(function(paramsKey){
-        paramsArray.push(encodeURIComponent(paramsKey) + "=" + encodeURIComponent(params[paramsKey]));
-    });
-    paramsStr += paramsArray.join("&");
-    
-    if (post) {
-        var req = new XMLHttpRequest();
-        req.open("POST", endpoint, true);
+var reddit = function(endpoint, params, callback, post) {
+    var token = readCookie("oat");
+    if (token) {
+        endpoint = "https://oauth.reddit.com/" + endpoint;
         
-        req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        req.setRequestHeader("User-Agent", userAgent);
-        if (token) req.setRequestHeader("Authorization", "bearer " + token);
-        
-        req.onreadystatechange = function() {
-            if (req.readyState == 4 && req.status == 200) {
-                callback(req.responseText);
-            }
-        };
-        
-        req.send(paramsStr.substring("1"));
+        var paramsStr = "?";
+        var paramsArray = [];
+        var paramsKeys = Object.keys(params);
+        paramsKeys.forEach(function(paramsKey){
+            paramsArray.push(encodeURIComponent(paramsKey) + "=" + encodeURIComponent(params[paramsKey]));
+        });
+        paramsStr += paramsArray.join("&");
+
+        if (post) {
+            var req = new XMLHttpRequest();
+            req.open("POST", endpoint, true);
+
+            req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            req.setRequestHeader("Authorization", "bearer " + token);
+
+            req.onreadystatechange = function() {
+                if (req.readyState == 4 && req.status == 200) {
+                    callback(req.responseText);
+                }
+            };
+
+            req.send(paramsStr.substring("1"));
+        } else {
+            var headers = {
+                "Authorization": "bearer " + token
+            };
+            xhr(endpoint + paramsStr, callback, headers);
+        }
     } else {
-        var headers = {
-            "User-Agent": userAgent
-        };
-        if (token) headers.Authorization = "bearer " + token;
-        xhr(endpoint + paramsStr, callback, headers);
+        return false;
     }
 };
 
@@ -145,11 +147,10 @@ function getMore() {
     clearInterval(scrollLoadInterval);
     
     var limit = 25;
-    var oat = readCookie("oat");
     
-    var endpoint = "https://oauth.reddit.com/r/" + encodeURIComponent(sub) + "/" + encodeURIComponent(sortOrder) + ".json";
+    var endpoint = "r/" + encodeURIComponent(sub) + "/" + encodeURIComponent(sortOrder) + ".json";
     if (sub === FRONT_PAGE) {
-        endpoint = "https://oauth.reddit.com/" + encodeURIComponent(sortOrder) + ".json";
+        endpoint = encodeURIComponent(sortOrder) + ".json";
     }
     
     var params = {
@@ -159,7 +160,7 @@ function getMore() {
     if (afterID) params.after = afterID;
     if (timeFilter) params.t = timeFilter;
     
-    reddit(endpoint, params, oat, function(r){
+    reddit(endpoint, params, function(r){
         r = JSON.parse(r);
         
         console.log(r);
@@ -233,11 +234,10 @@ function getMore() {
                         scoreElem.textContent -= 1;
                     }
                     
-                    var oat = readCookie("oat");
-                    reddit("https://oauth.reddit.com/api/vote", {
+                    reddit("api/vote", {
                         dir: dir,
                         id: this.parentElement.parentElement.dataset.fullname
-                    }, oat, function(r){
+                    }, function(r){
                         console.log(r);
                     }, true);
                     
@@ -248,14 +248,13 @@ function getMore() {
                 downvoteBtn.addEventListener("click", voteListener);
                 
                 saveBtn.addEventListener("click", function(){
-                    var endpoint = "https://oauth.reddit.com/api/save";
-                    if (this.classList.contains("yes")) endpoint = "https://oauth.reddit.com/api/unsave";
+                    var endpoint = "api/save";
+                    if (this.classList.contains("yes")) endpoint = "api/unsave";
                     
-                    var oat = readCookie("oat");
                     reddit(endpoint, {
                         category: "redditwall",
                         id: this.parentElement.parentElement.dataset.fullname
-                    }, oat, function(r){
+                    }, function(r){
                         console.log(r);
                     }, true);
                     
@@ -417,11 +416,10 @@ function displayComments(node, elem, topLevel) {
             scoreElem.textContent = parseInt(scoreElem.textContent) - 1 + scoreUnit;
         }
 
-        var oat = readCookie("oat");
-        reddit("https://oauth.reddit.com/api/vote", {
+        reddit("api/vote", {
             dir: dir,
             id: this.parentElement.parentElement.parentElement.dataset.fullname
-        }, oat, function(r){
+        }, function(r){
             console.log(r);
         }, true);
 
@@ -482,9 +480,9 @@ function displayComments(node, elem, topLevel) {
                 
                 var that = this;
                 
-                reddit("https://oauth.reddit.com/r/" + subreddit + "/comments/" + fullname.substring(fullname.indexOf("_") + 1) + ".json", {
+                reddit("r/" + subreddit + "/comments/" + fullname.substring(fullname.indexOf("_") + 1) + ".json", {
                     comment: parentId
-                }, readCookie("oat"), function(r){
+                }, function(r){
                     r = JSON.parse(r);
                     displayComments(r[1], that.parentElement, true);
                     
@@ -508,9 +506,9 @@ function expandPost(elem) {
     var fullname = elem.dataset.fullname;
     
     if (commentsElem.dataset.loaded !== "true") {
-        reddit("https://oauth.reddit.com/r/" + subreddit + "/comments/" + fullname.substring(fullname.indexOf("_") + 1) + ".json", {
+        reddit("r/" + subreddit + "/comments/" + fullname.substring(fullname.indexOf("_") + 1) + ".json", {
             limit: 50
-        }, readCookie("oat"), function(r){
+        }, function(r){
             r = JSON.parse(r);
             displayComments(r[1], commentsElem, true);
             commentsElem.dataset.loaded = "true";
@@ -533,12 +531,11 @@ function unexpandPost(elem) {
 }
 
 function getSubredditInfo(subName) {
-    var endpoint = "https://oauth.reddit.com/r/" + encodeURIComponent(subName) + "/about.json";
-    var oat = readCookie("oat");
+    var endpoint = "r/" + encodeURIComponent(subName) + "/about.json";
     
     subInfoElem.classList.add("loading");
     
-    reddit(endpoint, {}, oat, function(r){
+    reddit(endpoint, {}, function(r){
         r = JSON.parse(r);
         var data = r.data;
         
@@ -560,8 +557,7 @@ function getSubredditInfo(subName) {
         }
         
         subscribeBtn.addEventListener("click", function(){
-            var endpoint = "https://oauth.reddit.com/api/subscribe";
-            var oat = readCookie("oat");
+            var endpoint = "api/subscribe";
             
             var action = "sub";
             if (this.classList.contains("subscribed")) action = "unsub";
@@ -571,7 +567,7 @@ function getSubredditInfo(subName) {
             reddit(endpoint, {
                 action: action,
                 sr: subInfoElem.dataset.fullname
-            }, oat, function(r){
+            }, function(r){
                 if (action === "sub") {
                     that.classList.add("subscribed");
                 } else {
@@ -635,10 +631,9 @@ function eraseCookie(name) {
 }
 
 function getUserSubreddits(){
-    var oat = readCookie("oat");
-    reddit("https://oauth.reddit.com/subreddits/mine/subscriber", {
+    reddit("subreddits/mine/subscriber", {
         limit: 100
-    }, oat, function(r){
+    }, function(r){
         r = JSON.parse(r);
 
         subs = r.data.children.sort(function(a, b){
