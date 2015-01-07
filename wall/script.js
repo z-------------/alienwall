@@ -4,6 +4,12 @@ var ONE_HOUR = 3600000;
 
 var FRONT_PAGE = "*FRONT PAGE";
 
+NodeList.prototype.addEventListener = HTMLCollection.prototype.addEventListener = function(event, listener, bool) {
+    [].slice.call(this).forEach(function(elem){
+        elem.addEventListener(event, listener, bool);
+    });
+};
+
 var xhr = function(url, callback, headers) {
     console.log("XHR request for " + url);
     var oXHR = new XMLHttpRequest();  
@@ -114,7 +120,7 @@ var subsListElem = document.querySelector("#subreddit-list");
 var subInfoElem = document.querySelector("#subreddit-info");
 var gotoSubInput = document.querySelector("#goto-subreddit");
 var subsDatalist = document.querySelector("#subreddits-datalist");
-var refreshBtn = document.querySelector("#refresh");
+var refreshBtns = document.querySelectorAll(".refresh");
 
 var initialTitle = document.head.querySelector("title").textContent;
 
@@ -143,7 +149,8 @@ function layoutMasonry(){
         itemSelector: ".post",
         gutter: 40,
         isFitWidth: true,
-        transitionDuration: 0
+        transitionDuration: 0,
+        isResizeBound: false
     });
 }
 
@@ -188,7 +195,7 @@ function getMore() {
 <div class='post-info'>\
 <a class='post-info-author' href='//www.reddit.com/u/" + post.data.author + "' rel='author'>" + post.data.author + "</a>\
 <a class='post-info-subreddit' href='//www.reddit.com/r/" + post.data.subreddit + "'>" + post.data.subreddit + "</a>\
-<a href='//www.reddit.com" + post.data.permalink + "'>" + timeString + "</a>\
+<a class='post-info-permalink post-info-date' title='permalink' href='//www.reddit.com" + post.data.permalink + "'>" + timeString + "</a>\
 <a class='post-info-comments'>" + post.data.num_comments + " comments</a>\
 </div>\
 <div class='vote-container'>\
@@ -287,13 +294,15 @@ function getMore() {
                     var width = streamMasonry.columnWidth - streamMasonry.gutter;
                     var height = width * 9/16;
                     
-                    previewElem.classList.add("visible");
                     previewElem.innerHTML = "<iframe type='text/html' width='" + width + "' height='" + height + "' src='http://www.youtube.com/embed/" + id + "' frameborder='0'/>";
+                    
                     postElem.dataset.preview = "youtube";
+                    previewElem.classList.add("visible");
                 }
                 
                 if (parseURL(postURL, "hostname") === "gfycat.com" || parseURL(postURL, "hostname") === "www.gfycat.com") {
-                    /* gfycat "gif" */
+                    /* gfycat gfy */
+                    
                     var id = parseURL(postURL, "path").substring(1);
                     
                     var prefixes = ["giant", "fat", "zippy"];
@@ -306,9 +315,10 @@ function getMore() {
                         });
                     });
                     
-                    previewElem.classList.add("visible");
                     previewElem.innerHTML = "<video controls loop muted onloadeddata='" + onLoad + "'>" + sourcesHTML + "</video>";
+                    
                     postElem.dataset.preview = "gfycat";
+                    previewElem.classList.add("visible");
                 }
                 
                 if (parseURL(postURL, "hostname") === "i.imgur.com" && (new RegExp("\\.gifv$", "gi")).test(postURL)) {
@@ -319,39 +329,40 @@ function getMore() {
                     var webmURL = "http://i.imgur.com" + id + ".webm";
                     var mp4URL = "http://i.imgur.com" + id + ".mp4";
                     
-                    previewElem.classList.add("visible");
                     previewElem.innerHTML = "<video controls loop muted onloadeddata='" + onLoad + "'><source src='" + webmURL + "' type='video/webm'><source src='" + mp4URL + "' type='video/mp4'></video>";
+                    
                     postElem.dataset.preview = "gifv";
+                    previewElem.classList.add("visible");
                 }
                 
-                if (parseURL(postURL, "hostname") === "imgur.com" && parseURL(postURL, "path").substring(1).length === 7 && new RegExp("^[a-z0-9]+$", "i").test(parseURL(postURL, "path").substring(1))) {
+                if ((parseURL(postURL, "hostname") === "imgur.com" || parseURL(postURL, "hostname") === "m.imgur.com") && parseURL(postURL, "path").substring(1).length === 7 && new RegExp("^[a-z0-9]+$", "i").test(parseURL(postURL, "path").substring(1))) {
                     /* imgur */
                     
                     var id = parseURL(postURL, "path").substring(1);
                     var imgURL = "http://i.imgur.com/" + id + ".jpg";
                     
-                    previewElem.classList.add("visible");
                     previewElem.innerHTML = "<img src='" + imgURL + "' onload='" + onLoad + "'>";
+                    
                     postElem.dataset.preview = "imgur";
+                    previewElem.classList.add("visible");
                 }
                 
-                if ((new RegExp("(\\.gif|\\.jpg|\\.jpeg|\\.webp|\\.png|\\.tiff)$", "gi")).test(postURL)) {
+                if ((new RegExp("(\\.gif|\\.jpg|\\.jpeg|\\.webp|\\.png|\\.tiff)$", "gi")).test(parseURL(postURL, "path").substring(1))) {
                     /* image */
                     
-                    var url = postURL;
+                    previewElem.innerHTML = "<img src='" + postURL + "' onload='" + onLoad + "'>";
                     
-                    previewElem.classList.add("visible");
-                    previewElem.innerHTML = "<img src='" + url + "' onload='" + onLoad + "'>";
                     postElem.dataset.preview = "image";
+                    previewElem.classList.add("visible");
                 }
                 
                 if (post.data.is_self && post.data.selftext_html) {
                     /* self */
                     
-                    previewElem.classList.add("visible");
                     previewElem.innerHTML = "<div class='selftext-container'>" + entity2unicode(post.data.selftext_html) + "</div>";
                     
                     postElem.dataset.preview = "self";
+                    previewElem.classList.add("visible");
                 }
                 
                 if (postElem.dataset.preview === "self" || postElem.dataset.preview === "image" || postElem.dataset.preview === "imgur" || postElem.dataset.preview === "gifv" || postElem.dataset.preview === "gfycat") {
@@ -714,7 +725,7 @@ gotoSubInput.addEventListener("keydown", function(e){
     }
 });
 
-refreshBtn.addEventListener("click", function(){
+refreshBtns.addEventListener("click", function(){
     changeSubreddit(sub);
 });
 
@@ -731,7 +742,7 @@ setInterval(function(){
     }
     
     /* check if we need to refresh the access token */
-    var expiryDate = new Date(Number(readCookie("authdate")) + (ONE_HOUR));
+    var expiryDate = new Date(Number(readCookie("authdate")) + ONE_HOUR);
     var nowDate = new Date();
     var delta = expiryDate - nowDate;
     
@@ -746,6 +757,8 @@ setInterval(function(){
         }, TEN_MINUTES);
     }
 }, 1000);
+
+window.addEventListener("resize", layoutMasonry);
 
 changeSubreddit(FRONT_PAGE);
 getUserSubreddits();

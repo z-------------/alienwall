@@ -169,7 +169,7 @@ header button {
     margin-left: 20px;
 }
 
-#refresh {
+.refresh {
     background-image: url(/img/ui/refresh.svg);
 }
 
@@ -184,7 +184,7 @@ header button {
     background-position: bottom center;
 }
 
-#stream .post {
+.post {
     display: block;
     padding: 20px;
     margin: 10px 0;
@@ -192,7 +192,7 @@ header button {
     background-color: #111;
 }
 
-#stream .post.stickied h3:before {
+.post.stickied h3:before {
     content: "";
     position: absolute;
     display: block;
@@ -205,7 +205,7 @@ header button {
     background-image: url(/img/ui/pin.png);
 }
 
-#stream .post.expanded {
+.post.expanded {
     position: fixed !important;
     z-index: 2;
     left: 0 !important;
@@ -218,23 +218,23 @@ header button {
     padding-top: 150px;
 }
 
-#stream .post h3 {
+.post h3 {
     font-size: 1.5em;
     font-weight: 600;
     display: inline;
     position: relative;
 }
 
-#stream .vote-container, #stream .preview, #stream .post-info {
+.vote-container, .preview, .post-info {
     margin: 10px 0;
 }
 
-#stream .post-info, #stream .comment-info {
+.post-info, .comment-info {
     font-weight: 300;
     color: rgba(255, 255, 255, .8);
 }
 
-#stream .post-info a, #stream .comment-info a, #stream .comment-info span {
+.post-info a, .comment-info a, .comment-info span {
     display: inline-block;
     margin: 0 5px;
     color: inherit;
@@ -242,62 +242,58 @@ header button {
     transition-property: color;
 }
 
-#stream .post-info a:first-child, #stream .comment-info a:first-child, #stream .comment-info span:first-child {
-    margin-left: 0;
-}
-
-#stream .post-info a:hover, #stream .comment-info a:hover {
+.post-info a:hover, .comment-info a:hover {
     color: #fff;
 }
 
-#stream .preview {
+.preview {
     display: none;
     overflow: hidden;
     cursor: pointer;
 }
 
-#stream .expanded .preview {
+.post.expanded .preview {
     cursor: auto;
 }
 
-#stream .preview h1, #stream .preview h2, #stream .preview h3, #stream .preview h4, #stream .preview h5, #stream .preview h6 {
+.preview h1, .preview h2, .preview h3, .preview h4, .preview h5, .preview h6 {
     font-size: 1em;
 }
 
-#stream .preview > * {
+.preview > * {
     width: 100%;
 }
 
-#stream .preview p {
+.preview p {
     word-wrap: break-word;
 }
 
-#stream .preview img {
+.preview img {
     background-color: #fff;
 }
 
-#stream .preview img, #stream .preview video, #stream .preview iframe {
+.preview img, .preview video, .preview iframe {
     margin-top: 5px;
 }
 
-#stream .preview ul, #stream .preview ol {
+.preview ul, .preview ol {
     margin-left: 20px;
     list-style: disc;
 }
 
-#stream .preview .selftext-container {
+.preview .selftext-container {
     max-height: 300px;
 }
 
-#stream .preview .selftext-container.overflow {
+.preview .selftext-container.overflow {
     -webkit-mask-image: linear-gradient(black calc(100% - 20px), transparent);
 }
 
-#stream .preview.visible {
+.preview.visible {
     display: block;
 }
 
-#stream .expanded .preview .selftext-container {
+.expanded .preview .selftext-container {
     max-height: none;
     -webkit-mask-image: none;
 }
@@ -356,57 +352,78 @@ header button {
     color: #000;
 }
 
-.post .vote {
-    display: inline-block;
-    
-    background-color: transparent;
-    font-size: 2em;
-    width: 30px;
-    height: 30px;
-    
-    background-size: contain;
+.vote {
+    transition-property: opacity;
+}
+
+.vote.up, .vote.down {
+    opacity: .5;
+}
+
+.vote.up:hover, .vote.down:hover, .vote.save:hover {
+    opacity: .7 !important;
+}
+
+.vote.up.yes, .vote.down.yes, .vote.save.yes {
+    opacity: 1 !important;
+}
+
+.vote.up {
+    background-image: url(/img/ui/upvote.svg);
+}
+
+.vote.down {
+    background-image: url(/img/ui/downvote.svg);
+}
+
+.vote.up.yes {
+    background-image: url(/img/ui/upvote-active.svg);
+}
+
+.vote.down.yes {
+    background-image: url(/img/ui/downvote-active.svg);
+}
+
+.vote.save {
+    background-image: url(/img/ui/star.svg);
+}
+
+.vote.save.yes {
+    background-image: url(/img/ui/star-active.svg);
 }
 
 .post .vote, .post-score {
     margin: 0 5px;
 }
 
-.vote.up {
-    background-image: url(/img/ui/uarr-hollow.png);
+.post .vote {
+    display: inline-block;
+    
+    background-color: transparent;
+    font-size: 2em;
+    width: 25px;
+    height: 25px;
+    margin: 5px 10px;
+    
+    background-size: contain;
 }
 
-.vote.down {
-    background-image: url(/img/ui/darr-hollow.png);
-}
-
-.vote.up.yes {
-    background-image: url(/img/ui/uarr.png);
-}
-
-.vote.down.yes {
-    background-image: url(/img/ui/darr.png);
+.post-info :first-child, .vote-container :first-child, .comment-info :first-child {
+    margin-left: 0;
 }
 
 .post .vote.save {
-    background-image: url(/img/ui/star-hollow.png);
     background-size: 20px;
     opacity: 0;
-    
-    transition-property: opacity;
 }
 
-.post .vote.save.yes {
-    background-image: url(/img/ui/star.png);
-    opacity: 1;
-}
-
-#stream .post:hover button.vote.save {
-    opacity: 1;
+.post:hover .vote.save {
+    opacity: .5;
 }
 
 .post-score {
     padding: 7px 0;
-    vertical-align: 4px;
+    vertical-align: 2px;
 }
 
 #subreddit-info {
@@ -415,6 +432,7 @@ header button {
     padding: 30px;
     background-color: #222;
     text-align: center;
+    color: #fff;
 }
 
 #subreddit-info.loading * {
