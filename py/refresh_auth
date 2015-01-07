@@ -18,7 +18,7 @@ values = {
     "refresh_token": refresh_token
 }
 
-password_str = base64.b64encode(b"ntFDwUGcEC-X4A:XWCtr0HSC-E2tKMrK5W5qgaGZqQ") #client_id:app_secret
+password_str = base64.b64encode(str.encode(open("clientinfo").read()))
 
 headers = {
     "Content-Type" : "application/x-www-form-urlencoded",

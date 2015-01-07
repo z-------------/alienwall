@@ -16,10 +16,10 @@ url = "https://www.reddit.com/api/v1/access_token"
 values = {
     "grant_type": "authorization_code",
     "code": code,
-    "redirect_uri": "http://localhost:8000/py/auth_callback"
+    "redirect_uri": "http://123.203.189.150:8000/py/auth_callback"
 }
 
-password_str = base64.b64encode(b"ntFDwUGcEC-X4A:XWCtr0HSC-E2tKMrK5W5qgaGZqQ") #client_id:app_secret
+password_str = base64.b64encode(str.encode(open("clientinfo").read()))
 
 headers = {
     "Content-Type" : "application/x-www-form-urlencoded",
