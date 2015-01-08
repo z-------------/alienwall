@@ -300,7 +300,7 @@ function getMore() {
                     var width = streamMasonry.columnWidth - streamMasonry.gutter;
                     var height = width * 9/16;
                     
-                    previewElem.innerHTML = "<iframe type='text/html' width='" + width + "' height='" + height + "' src='https://www.youtube.com/embed/" + id + "?fs=1' frameborder='0'/>";
+                    previewElem.innerHTML = "<iframe type='text/html' width='" + width + "' height='" + height + "' src='https://www.youtube.com/embed/" + id + "' frameborder='0'/>";
                     
                     postElem.dataset.preview = "youtube";
                     previewElem.classList.add("visible");
@@ -679,7 +679,7 @@ function getUserSubreddits(){
             subsDatalist.appendChild(datalistItem);
         });
 
-        [].slice.call(subsListElem.querySelectorAll("li[data-subreddit]")).forEach(function(subsListItem){
+        [].slice.call(subsListElem.querySelectorAll("[data-subreddit]")).forEach(function(subsListItem){
             subsListItem.addEventListener("click", function(){
                 changeSubreddit(this.dataset.subreddit);
             });
@@ -704,13 +704,17 @@ function changeSubreddit(subName){
         subInfoElem.classList.add("hidden");
     }
     
-    [].slice.call(document.querySelectorAll("#subreddit-list li[data-subreddit]")).forEach(function(subsListItem){
+    [].slice.call(subsListElem.querySelectorAll("[data-subreddit]")).forEach(function(subsListItem){
         subsListItem.classList.remove("current");
     });
     
-    var currentSubListItem = document.querySelector("#subreddit-list li[data-subreddit='" + sub.toUpperCase() + "']");
+    var currentSubListItem = subsListElem.querySelector("[data-subreddit='" + sub.toUpperCase() + "']");
+    var subsListContainer = subsListElem.parentElement;
     if (currentSubListItem) {
         currentSubListItem.classList.add("current");
+        if (currentSubListItem.offsetLeft < subsListContainer.scrollLeft || currentSubListItem.offsetLeft > subsListContainer.scrollLeft + subsListContainer.offsetWidth) {
+            subsListElem.parentElement.scrollLeft = currentSubListItem.offsetLeft - 100;
+        }
     }
     
     document.title = initialTitle;
