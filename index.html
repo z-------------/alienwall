@@ -3,6 +3,38 @@
     <head>
         <title>Reddit Wall</title>
         <script>
+            var xhr = function(url, callback, headers) {
+                console.log("XHR request for " + url);
+                var oXHR = new XMLHttpRequest();  
+                oXHR.open("GET", url, true);  
+                oXHR.onreadystatechange = function (oEvent) {
+                    if (oXHR.readyState === 4) {  
+                        if (oXHR.status === 200) {
+                            callback(oXHR.responseText)  
+                        } else {  
+                            callback(false);
+                        }  
+                    }  
+                };
+                if (headers) {
+                    var headerKeys = Object.keys(headers);
+                    headerKeys.forEach(function(headerKey){
+                        oXHR.setRequestHeader(headerKey, headers[headerKey]);
+                    });
+                }
+                oXHR.send(null); 
+            };
+            
+            function createCookie(name, value, days) {
+                if (days) {
+                    var date = new Date();
+                    date.setTime(date.getTime()+(days*24*60*60*1000));
+                    var expires = "; expires="+date.toGMTString();
+                }
+                else var expires = "";
+                document.cookie = name+"="+value+expires+"; path=/";
+            }
+
             function readCookie(name) {
                 var nameEQ = name + "=";
                 var ca = document.cookie.split(';');
@@ -13,8 +45,21 @@
                 }
                 return null;
             }
+
+            function eraseCookie(name) {
+                createCookie(name,"",-1);
+            }
             
-            if (readCookie("oat")) {
+            /* request an access token if we have a refresh token */
+            if (readCookie("refresh_token")) {
+                xhr("/py/refresh_auth?refresh_token=" + readCookie("refresh_token"), function(r){
+                    r = r.replace(/[^A-Z]/ig, "");
+                    if (r === "OK") window.location = "/wall/";
+                });
+            }
+            
+            /* redirect to /wall/ if access token not expired */
+            if (readCookie("access_token")) {
                 window.location = "/wall/";
             }
         </script>
