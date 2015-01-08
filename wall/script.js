@@ -287,14 +287,20 @@ function getMore() {
                 
                 /* make media previews */
                 
-                if (parseURL(postURL, "hostname") === "www.youtube.com" && parseURL(postURL, "path") === "/watch" && parseURL(postURL, "params").v) {
+                if ((parseURL(postURL, "hostname") === "www.youtube.com" && parseURL(postURL, "path") === "/watch" && parseURL(postURL, "params").v) || (parseURL(postURL, "hostname") === "youtu.be" && parseURL(postURL, "path").length > 1)) {
                     /* youtube video */
                     
-                    var id = parseURL(postURL, "params").v;
+                    var id;
+                    if (parseURL(postURL, "hostname") === "www.youtube.com") {
+                        id = parseURL(postURL, "params").v;
+                    } else if ((parseURL(postURL, "hostname") === "youtu.be")) {
+                        id = parseURL(postURL, "path").substring(1);
+                    }
+                    
                     var width = streamMasonry.columnWidth - streamMasonry.gutter;
                     var height = width * 9/16;
                     
-                    previewElem.innerHTML = "<iframe type='text/html' width='" + width + "' height='" + height + "' src='http://www.youtube.com/embed/" + id + "' frameborder='0'/>";
+                    previewElem.innerHTML = "<iframe type='text/html' width='" + width + "' height='" + height + "' src='https://www.youtube.com/embed/" + id + "?fs=1' frameborder='0'/>";
                     
                     postElem.dataset.preview = "youtube";
                     previewElem.classList.add("visible");
