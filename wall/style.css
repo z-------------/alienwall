@@ -210,6 +210,7 @@ header {
 }
 
 #stream {
+    width: 100%;
     padding: 20px 40px;
     padding-bottom: 60px;
     margin: 0 auto;
@@ -221,6 +222,11 @@ header {
     background-position: bottom center;
 }
 
+.post, #subreddit-info {
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .12), 0 1px 2px rgba(0, 0, 0, .24);
+}
+
 .post {
     display: block;
     overflow: hidden;
@@ -228,8 +234,6 @@ header {
     margin: 25px 0;
     width: 480px;
     background-color: #FFF;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, .12), 0 1px 2px rgba(0, 0, 0, .24);
     
     transition-property: box-shadow;
 }
@@ -482,13 +486,14 @@ header {
 }
 
 #subreddit-info {
-    width: 100%;
+    width: 1010px;
+    margin: 0 auto;
+    margin-top: 50px;
     min-height: 93px;
     padding: 30px;
     background-color: #FFF;
     text-align: center;
     color: #333;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, .12), 0 1px 2px rgba(0, 0, 0, .24);
 }
 
 #subreddit-info.loading * {
@@ -513,8 +518,13 @@ header {
 .fixed-subreddit-info #subreddit-info {
     position: fixed;
     top: 0;
+    left: 50%;
+    margin-left: -505px;
     margin-top: 100px;
     z-index: 1;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, .16), 0 3px 6px rgba(0, 0, 0, .23);
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
 }
 
 #subscribe-btn {
@@ -564,7 +574,7 @@ header {
 
 #goto-subreddit:focus {
     width: 200px;
-    background-color: rgba(0, 0, 0, .5);
+    background-color: #B25C12;
     background-image: none;
     color: #fff;
     cursor: text;
@@ -681,7 +691,7 @@ header {
 
 @media only screen and (max-width: 720px) {
     #stream {
-        padding: 0 20px;
+        padding: 0 10px;
         width: 100% !important;
     }
     
@@ -690,13 +700,15 @@ header {
         position: relative !important;
         left: auto !important;
         top: auto !important;
-        padding: 0;
+        padding: 10px 15px;
         padding-bottom: 20px;
+        margin: 10px 0;
     }
     
     .post.expanded {
         padding-left: 20px;
         padding-right: 20px;
+        padding-top: 120px;
     }
     
     .post h3 {
@@ -705,11 +717,16 @@ header {
     
     #subreddit-info {
         white-space: nowrap;
+        margin-top: 0;
+        width: 100%;
         padding: 10px;
         overflow-x: auto;
         min-height: 56px;
         position: relative;
         text-align: left;
+        
+        margin-left: 0 !important;
+        left: 0 !important;
     }
     
     #subreddit-info h2 {
@@ -720,5 +737,9 @@ header {
         position: absolute;
         left: 0;
         margin-left: 15px;
+    }
+    
+    .fixed-subreddit-info {
+        padding-top: 60px;
     }
 }

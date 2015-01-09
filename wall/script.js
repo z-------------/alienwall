@@ -43,9 +43,11 @@ var reddit = function(endpoint, params, callback, post) {
     if (token) {
         endpoint = "https://oauth.reddit.com/" + endpoint;
         
-        var paramsStr = "?";
+        var paramsStr = "";
         var paramsArray = [];
         var paramsKeys = Object.keys(params);
+        if (paramsKeys.length > 0) paramsStr = "?";
+        
         paramsKeys.forEach(function(paramsKey){
             paramsArray.push(encodeURIComponent(paramsKey) + "=" + encodeURIComponent(params[paramsKey]));
         });
@@ -687,6 +689,9 @@ function getUserSubreddits(){
             });
         });
         
+        var alreadySelectedElem = document.querySelector("[data-subreddit='" + sub + "']");
+        if (alreadySelectedElem) alreadySelectedElem.classList.add("current");
+        
         subsListElem.classList.remove("loading");
     });
     
@@ -731,7 +736,7 @@ gotoSubInput.addEventListener("focus", function(){
 gotoSubInput.addEventListener("keydown", function(e){
     if (e.which === 13) {
         if (this.value) {
-            changeSubreddit(this.value);
+            window.location.hash = "#!/r/" + this.value.toLowerCase();
             this.blur();
         }
     }
@@ -806,6 +811,8 @@ var handleHash = function(){
     if (hashPath[0] === "r") {
         changeSubreddit(hashPath[1]);
         if (hashPath[1] === FRONT_PAGE) window.location.hash = "#";
+    } else {
+        changeSubreddit(FRONT_PAGE);
     }
 };
 
