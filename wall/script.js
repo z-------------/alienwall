@@ -2,7 +2,7 @@ var ONE_SECOND = 1000;
 var TEN_MINUTES = 600000;
 var ONE_HOUR = 3600000;
 
-var FRONT_PAGE = "*FRONT PAGE";
+var FRONT_PAGE = "*front page";
 
 NodeList.prototype.addEventListener = HTMLCollection.prototype.addEventListener = function(event, listener, bool) {
     [].slice.call(this).forEach(function(elem){
@@ -194,7 +194,7 @@ function getMore() {
 <div class='preview'></div>\
 <div class='post-info'>\
 <a class='post-info-author' href='//www.reddit.com/u/" + post.data.author + "' rel='author'>" + post.data.author + "</a>\
-<a class='post-info-subreddit' href='//www.reddit.com/r/" + post.data.subreddit + "'>" + post.data.subreddit + "</a>\
+<a class='post-info-subreddit' href='#!/r/" + post.data.subreddit + "'>" + post.data.subreddit + "</a>\
 <a class='post-info-permalink post-info-date' title='permalink' href='//www.reddit.com" + post.data.permalink + "'>" + timeString + "</a>\
 <a class='post-info-comments'>" + post.data.num_comments + " comments</a>\
 </div>\
@@ -671,18 +671,19 @@ function getUserSubreddits(){
             allSubs.push(sub.data.display_name);
 
             var subsListItem = document.createElement("li");
-            subsListItem.dataset.subreddit = sub.data.display_name.toUpperCase();
+            subsListItem.dataset.subreddit = sub.data.display_name.toLowerCase();
             subsListItem.textContent = sub.data.display_name;
+            
             subsListElem.appendChild(subsListItem);
             
             var datalistItem = document.createElement("option");
             datalistItem.textContent = sub.data.display_name;
             subsDatalist.appendChild(datalistItem);
         });
-
+        
         [].slice.call(subsListElem.querySelectorAll("[data-subreddit]")).forEach(function(subsListItem){
             subsListItem.addEventListener("click", function(){
-                changeSubreddit(this.dataset.subreddit);
+                window.location.hash = "#!/r/" + this.dataset.subreddit;
             });
         });
         
@@ -709,7 +710,7 @@ function changeSubreddit(subName){
         subsListItem.classList.remove("current");
     });
     
-    var currentSubListItem = subsListElem.querySelector("[data-subreddit='" + sub.toUpperCase() + "']");
+    var currentSubListItem = subsListElem.querySelector("[data-subreddit='" + sub.toLowerCase() + "']");
     var subsListContainer = subsListElem.parentElement;
     if (currentSubListItem) {
         currentSubListItem.classList.add("current");
@@ -798,7 +799,19 @@ setInterval(function(){
     });
 })();
 
+/* hashbang navigation */
+var handleHash = function(){
+    var hashPath = window.location.hash.substring(3).split("/");
+    
+    if (hashPath[0] === "r") {
+        changeSubreddit(hashPath[1]);
+        if (hashPath[1] === FRONT_PAGE) window.location.hash = "#";
+    }
+};
+
+window.addEventListener("hashchange", handleHash);
+
 window.addEventListener("resize", layoutMasonry);
 
-changeSubreddit(FRONT_PAGE);
 getUserSubreddits();
+handleHash();

@@ -553,14 +553,14 @@ header {
 
 #goto-subreddit:focus {
     width: 200px;
-    background-color: #444;
+    background-color: rgba(0, 0, 0, .5);
     background-image: none;
     color: #fff;
     cursor: text;
 }
 
 #goto-subreddit:focus::-webkit-input-placeholder {
-    color: rgba(0, 0, 0, .5);
+    color: rgba(255, 255, 255, .7);
 }
 
 .comments-container {
