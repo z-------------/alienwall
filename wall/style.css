@@ -281,8 +281,7 @@ header {
 .post h3 {
     font-size: 1.5em;
     font-weight: 400;
-    display: inline;
-    position: relative;
+    padding-right: 30px;
     
     transition-property: color;
 }
