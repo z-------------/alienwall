@@ -4,10 +4,21 @@ var ONE_HOUR = 3600000;
 
 var FRONT_PAGE = "*front page";
 
-NodeList.prototype.addEventListener = HTMLCollection.prototype.addEventListener = function(event, listener, bool) {
+NodeList.prototype.addEventListener = HTMLCollection.prototype.addEventListener = function(event, listener, bool){
     [].slice.call(this).forEach(function(elem){
         elem.addEventListener(event, listener, bool);
     });
+};
+
+HTMLElement.prototype.prependChild = function(child){
+    return this.insertBefore(child, this.children[0]);
+};
+
+HTMLElement.prototype.insertAfter = function(newElt, afterElem){
+    var children = [].slice.call(this.children);
+    var beforeElem = children[children.indexOf(afterElem + 1)];
+    
+    return this.insertBefore(newElt, beforeElem);
 };
 
 var xhr = function(url, callback, headers) {
@@ -229,38 +240,6 @@ function getMore() {
                 if (likes === false) downvoteBtn.classList.add("yes");
                 if (saved === true) saveBtn.classList.add("yes");
                 
-                var voteListener = function(e){
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    var dir;
-                    var cList = this.classList;
-                    var scoreElem = this.parentElement.querySelector(".post-score");
-                    
-                    if (cList.contains("up") && cList.contains("yes")) {
-                        dir = 0;
-                        scoreElem.textContent -= 1;
-                    } else if (cList.contains("down") && cList.contains("yes")) {
-                        dir = 0;
-                        scoreElem.textContent = parseInt(scoreElem.textContent) + 1;
-                    } else if (cList.contains("up")) {
-                        dir = 1;
-                        scoreElem.textContent = parseInt(scoreElem.textContent) + 1;
-                    } else if (cList.contains("down")) {
-                        dir = -1;
-                        scoreElem.textContent -= 1;
-                    }
-                    
-                    reddit("api/vote", {
-                        dir: dir,
-                        id: this.parentElement.parentElement.dataset.fullname
-                    }, function(r){
-                        console.log(r);
-                    }, true);
-                    
-                    this.classList.toggle("yes");
-                };
-                
                 upvoteBtn.addEventListener("click", voteListener);
                 downvoteBtn.addEventListener("click", voteListener);
                 
@@ -288,20 +267,7 @@ function getMore() {
                     unexpandPost(this.parentElement);
                 });
                 
-                commentBtn.addEventListener("click", function(){
-                    var fullname = this.parentElement.dataset.fullname;
-                    var commentText = this.parentElement.querySelector(".comment-compose").value.split("\n").join("\n\n");
-                    
-                    if (commentText.length > 0) {
-                        reddit("api/comment", {
-                            api_type: "json",
-                            text: commentText,
-                            thing_id: fullname
-                        }, function(r){
-                            console.log(r);
-                        }, true);
-                    }
-                });
+                commentBtn.addEventListener("click", commentListener);
                 
                 var previewElem = postElem.querySelector(".preview");
                 var onLoad = "streamMasonry.layout()";
@@ -498,12 +464,16 @@ function displayComments(node, elem, topLevel) {
 <span>" + timeString + "</span>\
 <span class='comment-reply-button'>reply</span>\
 </div>\
+</div>\
+<div class='comment-compose-container' data-fullname='" + fullname + "'>\
+<textarea class='comment-compose' placeholder='Write a reply'></textarea><button class='comment-submit'></button>\
 </div>";
             commentElem.dataset.fullname = fullname;
             
             var upvoteBtn = commentElem.querySelector(".vote.up");
             var downvoteBtn = commentElem.querySelector(".vote.down");
             var replyBtn = commentElem.querySelector(".comment-reply-button");
+            var commentBtn = commentElem.querySelector(".comment-submit");
             
             upvoteBtn.addEventListener("click", voteListener);
             downvoteBtn.addEventListener("click", voteListener);
@@ -511,30 +481,10 @@ function displayComments(node, elem, topLevel) {
             if (likes === true) upvoteBtn.classList.add("yes");
             if (likes === false) downvoteBtn.classList.add("yes");
             
+            commentBtn.addEventListener("click", commentListener);
+            
             replyBtn.addEventListener("click", function(){
-                var commentComposeContainerElem = document.createElement("div");
-                
-                commentComposeContainerElem.classList.add("comment-compose-container");
-                commentComposeContainerElem.innerHTML = "<textarea class='comment-compose' placeholder='Write a comment'></textarea><button class='comment-submit'></button>";
-                commentComposeContainerElem.dataset.fullname = fullname;
-                
-                var commentBtn = commentComposeContainerElem.querySelector(".comment-submit");
-                commentBtn.addEventListener("click", function(){
-                    var fullname = this.parentElement.dataset.fullname;
-                    var commentText = this.parentElement.querySelector(".comment-compose").value.split("\n").join("\n\n");
-                    
-                    if (commentText.length > 0) {
-                        reddit("api/comment", {
-                            api_type: "json",
-                            text: commentText,
-                            thing_id: fullname
-                        }, function(r){
-                            console.log(r);
-                        }, true);
-                    }
-                });
-                
-                commentElem.querySelector(".comment-body-container").appendChild(commentComposeContainerElem);
+                commentElem.querySelector(".comment-compose-container").classList.toggle("visible");
             });
 
             displayComments(comment, commentElem);
@@ -776,6 +726,121 @@ function changeSubreddit(subName){
     document.title = initialTitle;
     document.body.classList.remove("scroll-locked");
     window.scrollTo(0, 0);
+}
+
+function voteListener(e){
+    e.preventDefault();
+    e.stopPropagation();
+
+    var dir;
+    var cList = this.classList;
+    var scoreElem = this.parentElement.querySelector(".post-score");
+
+    if (cList.contains("up") && cList.contains("yes")) {
+        dir = 0;
+        scoreElem.textContent -= 1;
+    } else if (cList.contains("down") && cList.contains("yes")) {
+        dir = 0;
+        scoreElem.textContent = parseInt(scoreElem.textContent) + 1;
+    } else if (cList.contains("up")) {
+        dir = 1;
+        scoreElem.textContent = parseInt(scoreElem.textContent) + 1;
+    } else if (cList.contains("down")) {
+        dir = -1;
+        scoreElem.textContent -= 1;
+    }
+
+    reddit("api/vote", {
+        dir: dir,
+        id: this.parentElement.parentElement.dataset.fullname
+    }, function(r){
+        console.log(r);
+    }, true);
+
+    this.classList.toggle("yes");
+}
+                
+
+function commentListener(){
+    var fullname = this.parentElement.dataset.fullname;
+
+    var that = this;
+    var textarea = this.parentElement.querySelector(".comment-compose");
+    var commentText = textarea.value.split("\n").join("\n\n");
+
+    if (commentText.length > 0) {
+        reddit("api/comment", {
+            api_type: "json",
+            text: commentText,
+            thing_id: fullname
+        }, function(r){
+            r = JSON.parse(r);
+            console.log(r);
+            var comment = r.json.data.things[0];
+            
+            textarea.value = "";
+            textarea.classList.remove("loading");
+            that.parentElement.classList.remove("visible");
+            
+            var commentElem = document.createElement("div");
+            commentElem.classList.add("comment-container");
+            
+            var expandedPostElem = document.querySelector("#stream .post.expanded");
+            var op = expandedPostElem.querySelector(".post-info-author").textContent;
+            
+            var body = comment.data.body_html;
+            var author = comment.data.author;
+            var fullname = "t1_" + comment.data.id;
+
+            var hrTime = new HRTime(new Date(comment.data.created_utc * 1000));
+            var timeString = hrTime.time + " " + hrTime.unit + ((Math.abs(hrTime.time) !== 1) ? "s" : "");
+            var likes = comment.data.likes;
+            var score = (comment.data.score_hidden ? "[score hidden]" : comment.data.score + " points");
+
+            commentElem.innerHTML = "<div class='comment-body-container'>\
+<div class='comment-body'>" + entity2unicode(body) + "</div>\
+<div class='comment-info'>\
+<a class='comment-info-author " + (author == op ? "op" : "") + "' href='http://www.reddit.com/u/" + author + "'>" + author + "</a>\
+<button class='vote up'></button>\
+<button class='vote down'></button>\
+<span class='comment-score'>" + score + "</span>\
+<span>" + timeString + "</span>\
+<span class='comment-reply-button'>reply</span>\
+</div>\
+</div>\
+<div class='comment-compose-container' data-fullname='" + fullname + "'>\
+<textarea class='comment-compose' placeholder='Write a reply'></textarea><button class='comment-submit'></button>\
+</div>";
+            commentElem.dataset.fullname = fullname;
+            
+            var upvoteBtn = commentElem.querySelector(".vote.up");
+            var downvoteBtn = commentElem.querySelector(".vote.down");
+            var replyBtn = commentElem.querySelector(".comment-reply-button");
+            var commentBtn = commentElem.querySelector(".comment-submit");
+            
+            upvoteBtn.addEventListener("click", voteListener);
+            downvoteBtn.addEventListener("click", voteListener);
+            
+            if (likes === true) upvoteBtn.classList.add("yes");
+            if (likes === false) downvoteBtn.classList.add("yes");
+            
+            commentBtn.addEventListener("click", commentListener);
+            
+            replyBtn.addEventListener("click", function(){
+                commentElem.querySelector(".comment-compose-container").classList.toggle("visible");
+            });
+            
+            var parentElem = document.querySelector(".comment-container[data-fullname='" + comment.data.parent_id + "']");
+            if (parentElem) { // reply
+                parentElem.insertAfter(commentElem, parentElem.querySelector(".comment-body-container"));
+            } else { // top level comment
+                var commentsContainerElem = expandedPostElem.querySelector(".comments-container");
+                commentsContainerElem.insertBefore(commentElem, expandedPostElem.querySelector(".comment-container"));
+            }
+        }, true);
+
+        textarea.classList.add("loading");
+    }
 }
 
 gotoSubInput.addEventListener("focus", function(){

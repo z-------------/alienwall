@@ -616,7 +616,7 @@ header {
     display: none;
 }
 
-.comment-container .comment-container {
+.comment-container .comment-container, .comment-container .comment-compose-container {
     padding-left: 20px;
     border-left: 2px solid rgba(255, 133, 27, .5);
 }
@@ -636,6 +636,14 @@ header {
 .comment-container .vote {
     width: 20px;
     height: 20px;
+}
+
+.comment-container .comment-compose-container {
+    display: none;
+}
+
+.comment-container .comment-compose-container.visible {
+    display: block;
 }
 
 .comment-info-author.op {
