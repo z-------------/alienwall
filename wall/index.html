@@ -2,7 +2,9 @@
 <html>
     <head>
         <title>Reddit Wall</title>
+        
         <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
         <base target="_blank">
         
         <link rel="stylesheet" href="style.css">
@@ -14,7 +16,7 @@
         <header>
             <h1>Reddit<span>Wall</span></h1>
             
-            <div id="filters">
+            <div class="dropdown" id="sort-container">
                 <select id="sort-input">
                     <option value="hot">Hot</option>
                     <option value="new">New</option>
@@ -31,7 +33,8 @@
                 </select>
             </div>
             
-            <button class="refresh"></button>
+            <button class="header-btn sort" data-dropdown="sort-container"></button>
+            <button class="header-btn refresh"></button>
             
             <div id="subreddit-list-container">
                 <ol id="subreddit-list">

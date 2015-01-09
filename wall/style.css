@@ -1,3 +1,13 @@
+/* 
+    COLOR PALETTE
+    
+    accent orange: #FF851B rgb(255, 133, 27)
+
+    background: #DDD rgb(221, 221, 221)
+    darker background: #CCC rgb(204, 204, 204)
+    header: #BBB rgb(187, 187, 187)
+*/
+
 *, :before, :after {
     box-sizing: inherit;
     font-family: inherit;
@@ -18,19 +28,16 @@
 ::-webkit-scrollbar {
     width: 3px;
     height: 3px;
+    background-color: #fff;
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: rgba(1, 255, 112, .5);
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background-color: #01ff70;
+    background-color: #FF851B;
 }
 
 ::selection {
-    background-color: #01ff70;
-    color: black;
+    background-color: #FF851B;
+    color: #fff;
 }
 
 :focus {
@@ -48,8 +55,8 @@ body {
     box-sizing: border-box;
     padding-top: 100px;
     font-size: 17px;
-    background-color: #111;
-    color: rgba(255, 255, 255, .9);
+    background-color: #DDD;
+    color: rgba(0, 0, 0, .9);
 }
 
 h1 {
@@ -66,17 +73,17 @@ h1 span {
 
 h4 {
     font-size: 1.2em;
-    color: #01ff70;
+    color: #FF851B;
 }
 
 a {
-    color: #01ff70;
+    color: #CC5F00;
     transition-property: color;
     cursor: pointer;
 }
 
-a:hover {
-    color: #00CC3D;
+a:hover, .post:hover h3 {
+    color: #FF851B;
 }
 
 del {
@@ -87,9 +94,13 @@ iframe {
     border: none;
 }
 
+sup {
+    font-size: smaller;
+}
+
 blockquote {
-    color: rgba(255, 255, 255, .8);
-    border-left: 3px solid rgba(255, 255, 255, .3);
+    color: rgba(0, 0, 0, .8);
+    border-left: 3px solid rgba(0, 0, 0, .3);
     padding-left: 5px;
 }
 
@@ -102,10 +113,11 @@ ul, ol {
 }
 
 input, select, button {
-    background-color: rgba(255, 255, 255, .3);
+    background-color: rgba(0, 0, 0, .3);
     border: none;
     padding: 5px;
     display: inline-block;
+    color: rgba(255, 255, 255, .8);
 }
 
 input::-webkit-calendar-picker-indicator { /* hide datalist dropdown arrow */
@@ -124,7 +136,7 @@ hr {
     margin: 10px 0;
     border: none;
     height: 1px;
-    background-color: rgba(255, 255, 255, .3);
+    background-color: rgba(0, 0, 0, .3);
 }
 
 .loading {
@@ -136,6 +148,10 @@ hr {
     overflow: hidden;
 }
 
+.invisible {
+    display: none;
+}
+
 header {
     position: fixed;
     z-index: 3;
@@ -144,40 +160,61 @@ header {
     width: 100%;
     height: 100px;
     
-    background-color: rgba(51, 51, 51, .9);
+    background-color: #FF851B;
+    color: rgba(0, 0, 0, .8);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, .16), 0 3px 6px rgba(0, 0, 0, .23);
     
     padding: 10px;
 }
 
-header, .fixed-subreddit-info #subreddit-info {
-    box-shadow: 0 0 20px rgba(0, 0, 0, .5);
+.header-btn * {
+    opacity: 0;
+    cursor: inherit;
 }
 
-header button, header input, header select, #filters {
+.header-btn {
     float: right;
     display: inline-block;
-}
-
-header button {
     width: 35px;
     height: 35px;
+    margin-left: 20px;
     background-color: transparent;
     background-size: 30px;
+    cursor: pointer;
+    overflow: hidden;
 }
 
-#filters, header button {
-    margin-left: 20px;
-}
-
-.refresh {
+.header-btn.refresh {
     background-image: url(/img/ui/refresh.svg);
 }
 
+.header-btn.sort {
+    background-image: url(/img/ui/sort.svg);
+}
+
+#sort-container {
+    padding: 10px;
+    background-color: #FF851B;
+}
+
+#sort-container select {
+    background-color: rgba(255, 255, 255, .3);
+}
+
+#sort-container select:not(:first-child) {
+    margin-top: 10px;
+}
+
+#sort-container select.visible {
+    display: block;
+}
+
 #stream {
-    padding: 0 40px;
+    padding: 20px 40px;
     padding-bottom: 60px;
     margin: 0 auto;
     margin-bottom: 30px;
+    overflow-x: hidden;
 }
 
 #stream.loading {
@@ -187,9 +224,17 @@ header button {
 .post {
     display: block;
     padding: 20px;
-    margin: 10px 0;
+    margin: 25px 0;
     width: 480px;
-    background-color: #111;
+    background-color: #FFF;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .12), 0 1px 2px rgba(0, 0, 0, .24);
+    
+    transition-property: box-shadow;
+}
+
+.post:hover {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, .16), 0 3px 6px rgba(0, 0, 0, .23);
 }
 
 .post.stickied h3:before {
@@ -220,9 +265,11 @@ header button {
 
 .post h3 {
     font-size: 1.5em;
-    font-weight: 600;
+    font-weight: 400;
     display: inline;
     position: relative;
+    
+    transition-property: color;
 }
 
 .vote-container, .preview, .post-info {
@@ -231,7 +278,7 @@ header button {
 
 .post-info, .comment-info {
     font-weight: 300;
-    color: rgba(255, 255, 255, .8);
+    color: rgba(0, 0, 0, .8);
 }
 
 .post-info a, .comment-info a, .comment-info span {
@@ -240,10 +287,6 @@ header button {
     color: inherit;
     
     transition-property: color;
-}
-
-.post-info a:hover, .comment-info a:hover {
-    color: #fff;
 }
 
 .preview {
@@ -303,7 +346,7 @@ header button {
 }
 
 #time-input.visible {
-    display: initial;
+    display: block;
 }
 
 #subreddit-list-container {
@@ -317,11 +360,16 @@ header button {
     -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, .3), #000 10px, #000 calc(100% - 10px), rgba(0, 0, 0, .3));
 }
 
+#subreddit-list-container::-webkit-scrollbar {
+    display: none;
+}
+
 #subreddit-list {
     white-space: nowrap;
 }
 
 #subreddit-list.loading {
+    background-image: url(/img/ui/loading-white.svg);
     background-size: 20px;
     background-position: 115px center;
 }
@@ -330,9 +378,10 @@ header button {
     display: inline-block;
     cursor: pointer;
     padding: 10px;
+    color: #FFF;
     box-shadow: inset 0 0 transparent;
     
-    transition-property: box-shadow, color;
+    transition-property: box-shadow, background;
 }
 
 #subreddit-list li:first-child {
@@ -343,21 +392,20 @@ header button {
     margin-right: 10px;
 }
 
-#subreddit-list li:hover {
-    box-shadow: inset 0 -2px #01FF70;
+#subreddit-list li:hover, #subreddit-list li.current {
+    background-color: rgba(255, 255, 255, .3);
 }
 
 #subreddit-list li.current {
-    box-shadow: inset 0 -40px #01FF70;
-    color: #000;
+    box-shadow: inset 0 -2px #FFF;
 }
 
 .vote {
     transition-property: opacity;
 }
 
-.vote.up, .vote.down {
-    opacity: .5;
+.vote.up, .vote.down, .post:hover .vote.save {
+    opacity: .3;
 }
 
 .vote.up:hover, .vote.down:hover, .vote.save:hover {
@@ -417,10 +465,6 @@ header button {
     opacity: 0;
 }
 
-.post:hover .vote.save {
-    opacity: .5;
-}
-
 .post-score {
     padding: 7px 0;
     vertical-align: 2px;
@@ -428,11 +472,12 @@ header button {
 
 #subreddit-info {
     width: 100%;
-    height: 93px;
+    min-height: 93px;
     padding: 30px;
-    background-color: #222;
+    background-color: #FFF;
     text-align: center;
-    color: #fff;
+    color: #333;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .12), 0 1px 2px rgba(0, 0, 0, .24);
 }
 
 #subreddit-info.loading * {
@@ -446,7 +491,7 @@ header button {
 #subreddit-info h2 {
     margin-left: 50px;
     font-size: 1.5em;
-    font-weight: 600;
+    font-weight: 400;
     display: inline-block;
 }
 
@@ -515,7 +560,7 @@ header button {
 }
 
 #goto-subreddit:focus::-webkit-input-placeholder {
-    color: rgba(255, 255, 255, .5);
+    color: rgba(0, 0, 0, .5);
 }
 
 .comments-container {
@@ -552,7 +597,7 @@ header button {
 
 .comment-container .comment-container {
     padding-left: 20px;
-    border-left: 2px solid rgba(1, 255, 112, .5);
+    border-left: 2px solid rgba(255, 133, 27, .5);
 }
 
 .comment-body-container {
@@ -591,6 +636,7 @@ header button {
     cursor: pointer;
     background-color: transparent;
     font-size: 1.5em;
+    color: #FF851B;
 }
 
 .close-post:before {
@@ -600,4 +646,68 @@ header button {
 
 .expanded .close-post {
     display: block;
+}
+
+/* dropdown stuff */
+.dropdown {
+    position: absolute;
+    background-color: rgba(0, 0, 0, .8);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, .16), 0 3px 6px rgba(0, 0, 0, .23);
+    z-index: 4;
+    
+    opacity: 0;
+    pointer-events: none;
+    margin-right: -10px;
+    
+    transition-property: opacity, margin;
+}
+
+.dropdown.visible {
+    opacity: 1;
+    pointer-events: auto;
+    margin-right: 0;
+}
+
+@media only screen and (max-width: 720px) {
+    #stream {
+        padding: 0 20px;
+        width: 100% !important;
+    }
+    
+    .post {
+        width: 100%;
+        position: relative !important;
+        left: auto !important;
+        top: auto !important;
+        padding: 0;
+        padding-bottom: 20px;
+    }
+    
+    .post.expanded {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+    
+    .post h3 {
+        font-size: 1.3em;
+    }
+    
+    #subreddit-info {
+        white-space: nowrap;
+        padding: 10px;
+        overflow-x: auto;
+        min-height: 56px;
+        position: relative;
+        text-align: left;
+    }
+    
+    #subreddit-info h2 {
+        font-weight: 300;
+    }
+    
+    #subscribe-btn {
+        position: absolute;
+        left: 0;
+        margin-left: 15px;
+    }
 }

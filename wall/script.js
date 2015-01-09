@@ -145,9 +145,9 @@ var errorFunc = function(){
 
 function layoutMasonry(){
     streamMasonry = new Masonry(document.querySelector("#stream"), {
-        columnWidth: 480,
+        /*columnWidth: 480,*/
         itemSelector: ".post",
-        gutter: 40,
+        gutter: 50,
         isFitWidth: true,
         transitionDuration: 0,
         isResizeBound: false
@@ -201,9 +201,7 @@ function getMore() {
 <div class='vote-container'>\
 <button class='vote up'></button><span class='post-score'>" + post.data.score + "</span><button class='vote down'></button><button class='vote save'></button>\
 </div>\
-<div class='comments-container'>\
-<h4>Comments</h4>\
-</div>\
+<div class='comments-container'></div>\
 <button class='close-post'></button>";
                 
                 postElem.innerHTML = postElemHtml;
@@ -369,6 +367,12 @@ function getMore() {
                     
                     postElem.dataset.preview = "self";
                     previewElem.classList.add("visible");
+                    
+                    setTimeout(function(){
+                        if (previewElem.querySelector(".md").offsetHeight > previewElem.querySelector(".selftext-container").offsetHeight) {
+                            postElem.querySelector(".selftext-container").classList.add("overflow");
+                        }
+                    });
                 }
                 
                 if (postElem.dataset.preview === "self" || postElem.dataset.preview === "image" || postElem.dataset.preview === "imgur" || postElem.dataset.preview === "gifv" || postElem.dataset.preview === "gfycat") {
@@ -379,9 +383,6 @@ function getMore() {
 
                 streamElem.appendChild(postElem);
                 
-                if (postElem.dataset.preview === "self" && previewElem.querySelector(".md").offsetHeight > previewElem.querySelector(".selftext-container").offsetHeight) {
-                    document.querySelector(".selftext-container").classList.add("overflow");
-                }
                 layoutMasonry();
             });
 
@@ -767,6 +768,35 @@ setInterval(function(){
         }, TEN_MINUTES);
     }
 }, 1000);
+
+/* dropdown stuff */
+(function(){
+    var dropdownElems = [].slice.call(document.querySelectorAll(".dropdown"));
+    var triggerElems = [].slice.call(document.querySelectorAll("[data-dropdown]"));
+    
+    triggerElems.forEach(function(triggerElem){
+        triggerElem.addEventListener("click", function(){
+            var targetElem = document.querySelectorAll("#" + this.dataset.dropdown)[0];
+            var clientRect = this.getClientRects()[0];
+            
+            targetElem.style.top = clientRect.top/* + clientRect.height*/ + "px";
+            targetElem.style.right = (window.innerWidth - clientRect.left - clientRect.width) + "px";
+            targetElem.classList.add("visible");
+        });
+        
+        window.addEventListener("click", function(e){
+            var clickedElem = e.toElement;
+            var trigElem = triggerElem;
+            var triggerChildren = [].slice.call(trigElem.children);
+            var dropdownElem = document.querySelectorAll("#" + trigElem.dataset.dropdown)[0];
+            var dropdownChildren = [].slice.call(dropdownElem.children);
+            
+            if (clickedElem !== trigElem && clickedElem !== dropdownElem && triggerChildren.indexOf(clickedElem) === -1 && dropdownChildren.indexOf(clickedElem) === -1) {
+                dropdownElem.classList.remove("visible");
+            }
+        });
+    });
+})();
 
 window.addEventListener("resize", layoutMasonry);
 
