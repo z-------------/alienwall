@@ -810,7 +810,9 @@ var handleHash = function(){
     
     if (hashPath[0] === "r") {
         changeSubreddit(hashPath[1]);
-        if (hashPath[1] === FRONT_PAGE) window.location.hash = "#";
+        if (hashPath[1] === FRONT_PAGE) {
+            history.pushState(null, initialTitle, window.location.pathname);
+        }
     } else {
         changeSubreddit(FRONT_PAGE);
     }
