@@ -203,7 +203,12 @@ function getMore() {
 <div class='vote-container'>\
 <button class='vote up'></button><span class='post-score'>" + post.data.score + "</span><button class='vote down'></button><button class='vote save'></button>\
 </div>\
-<div class='comments-container'></div>\
+<div class='comments-container'>\
+<div class='comment-compose-container' data-fullname='" + fullname + "'>\
+<textarea class='comment-compose' placeholder='Write a comment'></textarea>\
+<button class='comment-submit'></button>\
+</div>\
+</div>\
 <button class='close-post'></button>";
                 
                 postElem.innerHTML = postElemHtml;
@@ -218,6 +223,7 @@ function getMore() {
                 var commentsElem = postElem.querySelector(".comments-container");
                 var commentsBtn = postElem.querySelector(".post-info-comments");
                 var closeBtn = postElem.querySelector(".close-post");
+                var commentBtn = postElem.querySelector(".comment-submit");
                 
                 if (likes === true) upvoteBtn.classList.add("yes");
                 if (likes === false) downvoteBtn.classList.add("yes");
@@ -280,6 +286,21 @@ function getMore() {
                 
                 closeBtn.addEventListener("click", function(){
                     unexpandPost(this.parentElement);
+                });
+                
+                commentBtn.addEventListener("click", function(){
+                    var fullname = this.parentElement.dataset.fullname;
+                    var commentText = this.parentElement.querySelector(".comment-compose").value.split("\n").join("\n\n");
+                    
+                    if (commentText.length > 0) {
+                        reddit("api/comment", {
+                            api_type: "json",
+                            text: commentText,
+                            thing_id: fullname
+                        }, function(r){
+                            console.log(r);
+                        }, true);
+                    }
                 });
                 
                 var previewElem = postElem.querySelector(".preview");
@@ -475,18 +496,46 @@ function displayComments(node, elem, topLevel) {
 <button class='vote down'></button>\
 <span class='comment-score'>" + score + "</span>\
 <span>" + timeString + "</span>\
+<span class='comment-reply-button'>reply</span>\
 </div>\
 </div>";
             commentElem.dataset.fullname = fullname;
             
             var upvoteBtn = commentElem.querySelector(".vote.up");
             var downvoteBtn = commentElem.querySelector(".vote.down");
+            var replyBtn = commentElem.querySelector(".comment-reply-button");
             
             upvoteBtn.addEventListener("click", voteListener);
             downvoteBtn.addEventListener("click", voteListener);
             
             if (likes === true) upvoteBtn.classList.add("yes");
             if (likes === false) downvoteBtn.classList.add("yes");
+            
+            replyBtn.addEventListener("click", function(){
+                var commentComposeContainerElem = document.createElement("div");
+                
+                commentComposeContainerElem.classList.add("comment-compose-container");
+                commentComposeContainerElem.innerHTML = "<textarea class='comment-compose' placeholder='Write a comment'></textarea><button class='comment-submit'></button>";
+                commentComposeContainerElem.dataset.fullname = fullname;
+                
+                var commentBtn = commentComposeContainerElem.querySelector(".comment-submit");
+                commentBtn.addEventListener("click", function(){
+                    var fullname = this.parentElement.dataset.fullname;
+                    var commentText = this.parentElement.querySelector(".comment-compose").value.split("\n").join("\n\n");
+                    
+                    if (commentText.length > 0) {
+                        reddit("api/comment", {
+                            api_type: "json",
+                            text: commentText,
+                            thing_id: fullname
+                        }, function(r){
+                            console.log(r);
+                        }, true);
+                    }
+                });
+                
+                commentElem.querySelector(".comment-body-container").appendChild(commentComposeContainerElem);
+            });
 
             displayComments(comment, commentElem);
         } else if (comment.kind === "more") {
