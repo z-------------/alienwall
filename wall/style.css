@@ -223,6 +223,7 @@ header {
 
 .post {
     display: block;
+    overflow: hidden;
     padding: 20px;
     margin: 25px 0;
     width: 480px;
@@ -237,17 +238,27 @@ header {
     box-shadow: 0 3px 6px rgba(0, 0, 0, .16), 0 3px 6px rgba(0, 0, 0, .23);
 }
 
-.post.stickied h3:before {
+.post.stickied:before, .post.stickied:after {
     content: "";
     position: absolute;
-    display: block;
+    top: 0;
+    right: 0;
+}
+
+.post.stickied:before {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 50px 50px 0;
+    border-color: transparent #ff851b transparent transparent;
+}
+
+.post.stickied:after {
     width: 20px;
     height: 20px;
-    margin-left: -27px;
-    margin-top: 7px;
-    
-    background-size: contain;
+    margin: 4px;
     background-image: url(/img/ui/pin.png);
+    background-size: contain;
 }
 
 .post.expanded {
