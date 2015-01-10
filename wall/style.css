@@ -60,16 +60,38 @@ body {
     color: rgba(0, 0, 0, .9);
 }
 
+/*h1, h2, h3, h4, h5, h6 {
+    margin: .3em 0;
+}*/
+
+h1:first-child, h2:first-child, h3:first-child, h4:first-child, h5:first-child, h6:first-child {
+    margin-top: 0;
+}
+
 h1 {
     font-size: 2em;
     font-weight: 700;
     line-height: 1;
     float: left;
     color: #fff;
+    margin: 0;
 }
 
 h1 span {
     font-weight: 200;
+}
+
+h2, h3, h4 {
+    color: #FF851B;
+}
+
+h2 {
+    font-size: 1.7em;
+}
+
+h3 {
+    font-size: 1.5em;
+    font-weight: 400;
 }
 
 h4 {
@@ -100,7 +122,7 @@ sup {
 }
 
 blockquote {
-    color: rgba(0, 0, 0, .8);
+    color: rgba(0, 0, 0, .7);
     border-left: 3px solid rgba(0, 0, 0, .3);
     padding-left: 5px;
 }
@@ -114,11 +136,30 @@ ul, ol {
 }
 
 input, select, button, textarea {
-    background-color: rgba(0, 0, 0, .3);
     border: none;
     padding: 5px;
     display: inline-block;
-    color: rgba(255, 255, 255, .8);
+    color: rgba(0, 0, 0, .8);
+}
+
+input, select, textarea {
+    background-color: rgba(0, 0, 0, .2);
+}
+
+input.wide, select.wide, button.wide, textarea.wide {
+    width: 100%;
+}
+
+textarea {
+    resize: vertical;
+}
+
+button {
+    background-color: rgba(0, 0, 0, .3);
+}
+
+::-webkit-input-placeholder {
+    color: rgba(255, 255, 255, .7);
 }
 
 input::-webkit-calendar-picker-indicator { /* hide datalist dropdown arrow */
@@ -131,6 +172,16 @@ button {
 
 select:focus option {
     color: #000;
+}
+
+select.light {
+    background-color: rgba(255, 255, 255, .3);
+    color: #FFF;
+}
+
+label {
+    display: block;
+    margin: 10px 0;
 }
 
 hr {
@@ -201,6 +252,10 @@ header, aside.opened {
     background-image: url(/img/ui/burger.svg);
     transform: rotate(.5turn);
     
+    position: absolute;
+    left: 0;
+    margin-left: 10px;
+    
     transition-property: transform;
 }
 
@@ -209,26 +264,12 @@ header, aside.opened {
     transform: rotate(1turn);
 }
 
-#nav-burger {
-    position: absolute;
-    left: 0;
-    margin-left: 10px;
-}
-
 #sort-container {
     padding: 10px;
     background-color: #FF851B;
 }
 
-#sort-container select {
-    background-color: rgba(255, 255, 255, .3);
-}
-
-#sort-container select:not(:first-child) {
-    margin-top: 10px;
-}
-
-#sort-container select.visible {
+.dropdown select.visible {
     display: block;
 }
 
@@ -254,7 +295,7 @@ aside a {
     display: block;
     padding: 20px;
     font-weight: 300;
-    color: rgba(0, 0, 0, .5);
+    color: rgba(0, 0, 0, .7);
     
     transition-property: background, color;
 }
@@ -266,11 +307,15 @@ aside a:before {
 
 aside a:hover, aside a.current {
     color: #000;
-    background-color: rgba(0, 0, 0, .1);
+}
+
+aside a:hover {
+    background-color: rgba(0, 0, 0, .05);
 }
 
 aside a.current {
     font-weight: 400;
+    background-color: rgba(0, 0, 0, .1);
 }
 
 .floating-action {
@@ -294,10 +339,25 @@ aside a.current {
 }
 
 .content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: calc(100% - 100px);
+    margin-top: 100px;
+    
+    opacity: 0;
+    pointer-events: none;
+    
     transition-property: opacity;
 }
 
-.content.faded {
+.content.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.content.visible.faded {
     opacity: .5;
     pointer-events: none;
 }
@@ -308,18 +368,21 @@ aside a.current {
     padding-bottom: 60px;
     margin: 0 auto;
     margin-bottom: 30px;
-    overflow-x: hidden;
+    overflow: hidden;
 }
 
 #stream.loading {
     background-position: bottom center;
 }
 
-.post, #subreddit-info {
+.card {
     border-radius: 4px;
+    background-color: #FFF;
+    
+    transition-property: box-shadow;
 }
 
-.post, #subreddit-info, .floating-action {
+.card, .floating-action {
     box-shadow: 0 1px 3px rgba(0, 0, 0, .12), 0 1px 2px rgba(0, 0, 0, .24);
 }
 
@@ -329,9 +392,6 @@ aside a.current {
     padding: 20px;
     margin: 25px 0;
     width: 480px;
-    background-color: #FFF;
-    
-    transition-property: box-shadow;
 }
 
 .post:hover, .floating-action:hover {
@@ -375,11 +435,10 @@ aside a.current {
 }
 
 .post h3 {
-    font-size: 1.5em;
-    font-weight: 400;
     padding-right: 30px;
-    
     transition-property: color;
+    margin: 0;
+    color: inherit !important;
 }
 
 .vote-container, .preview, .post-info {
@@ -629,6 +688,7 @@ aside a.current {
     width: 30px;
     height: 30px;
     text-align: center;
+    color: #FFF;
 }
 
 #subscribe-btn.subscribed:hover {
@@ -753,15 +813,23 @@ aside a.current {
     position: relative;
 }
 
+.comments-container > .comment-compose-container {
+    margin-bottom: 20px;
+}
+
 .comment-compose {
     width: 100%;
     height: 100%;
-    background-color: transparent;
+    background-color: rgba(0, 0, 0, .1);
     resize: none;
     color: inherit;
     box-shadow: 0 1px 3px rgba(0, 0, 0, .12), 0 1px 2px rgba(0, 0, 0, .24);
     
     transition-property: box-shadow;
+}
+
+.comment-compose::-webkit-input-placeholder {
+    color: rgba(0, 0, 0, .3);
 }
 
 .comment-compose:focus {
@@ -778,6 +846,7 @@ aside a.current {
     right: 0;
     bottom: 0;
     background-color: #FF851B;
+    color: #FFF;
     opacity: 0;
     
     transition-property: opacity;
@@ -820,6 +889,21 @@ aside a.current {
     display: block;
 }
 
+.submit-container {
+    width: 500px;
+    max-width: 100%;
+    margin: 50px auto;
+    padding: 20px;
+}
+
+.submit-container img {
+    display: block;
+    margin: 2px 0;
+    width: 120px;
+    height: 50px;
+    background-color: #000;
+}
+
 /* dropdown stuff */
 .dropdown {
     position: absolute;
@@ -844,6 +928,11 @@ aside a.current {
     #stream {
         padding: 0 10px;
         width: 100% !important;
+    }
+    
+    #stream.loading {
+        padding-top: 20px;
+        padding-bottom: 60px;
     }
     
     .post {

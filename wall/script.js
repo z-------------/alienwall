@@ -134,8 +134,8 @@ var subInfoElem = document.querySelector("#subreddit-info");
 var gotoSubInput = document.querySelector("#goto-subreddit");
 var subsDatalist = document.querySelector("#subreddits-datalist");
 var refreshBtns = document.querySelectorAll(".refresh");
-var submitPostBtn = document.querySelector("#submit-post");
-var navBurgerBtn = document.querySelector("#nav-burger");
+var gotoSubmitBtn = document.querySelector("#submit-post");
+var navBurgerBtn = document.querySelector(".header-btn.burger");
 var sidebarElem = document.querySelector("#sidebar");
 
 var initialTitle = document.head.querySelector("title").textContent;
@@ -196,7 +196,7 @@ function getMore() {
             var posts = r.data.children;
             posts.forEach(function(post){
                 var postElem = document.createElement("li");
-                postElem.classList.add("post");
+                postElem.classList.add("post", "card");
                 
                 var hrTime = new HRTime(new Date(post.data.created_utc * 1000));
                 var timeString = hrTime.time + " " + hrTime.unit + ((Math.abs(hrTime.time) !== 1) ? "s" : "") + " ago";
@@ -729,6 +729,7 @@ function changeSubreddit(subName){
     document.title = initialTitle;
     document.body.classList.remove("scroll-locked");
     window.scrollTo(0, 0);
+    layoutMasonry();
 }
 
 function voteListener(e){
@@ -880,6 +881,100 @@ refreshBtns.addEventListener("click", function(){
     changeSubreddit(sub);
 });
 
+gotoSubmitBtn.addEventListener("click", function(){
+    window.location.hash = "#!/submit";
+});
+
+/* submit section */
+(function(){
+    var captchaImgElem = document.querySelector("#captcha-img");
+    captchaImgElem.classList.add("loading");
+    
+    /* request captcha iden */
+    reddit("api/new_captcha", {
+        api_type: "json"
+    }, function(r){
+        r = JSON.parse(r);
+        var iden = r.json.data.iden;
+        
+        var captchaImgURL = "http://www.reddit.com/captcha/" + iden;
+        
+        captchaImgElem.src = captchaImgURL;
+        captchaImgElem.classList.remove("loading");
+        
+        /* add listeners */
+        var submitFormElem = document.querySelector("#submit-form");
+        var submitTypeSelect = submitFormElem.querySelector("#submit-type");
+        var titleInput = submitFormElem.querySelector("[name='title']");
+        var textInput = submitFormElem.querySelector("[name='text']");
+        var urlInput = submitFormElem.querySelector("[name='url']");
+        var captchaInput = submitFormElem.querySelector("[name='captcha']");
+        var subredditInput = submitFormElem.querySelector("[name='sr']");
+        var textLabel = submitFormElem.querySelector("#text-label");
+        var urlLabel = submitFormElem.querySelector("#url-label");
+        var submitBtn = submitFormElem.querySelector("#submit-btn");
+        
+        var submitType = submitTypeSelect.value;
+        
+        submitTypeSelect.addEventListener("change", function(){
+            submitType = submitTypeSelect.value;
+            
+            if (submitType === "self") {
+                textInput.setAttribute("required", "true");
+                urlInput.removeAttribute("required");
+                
+                textLabel.classList.remove("invisible");
+                urlLabel.classList.add("invisible");
+            } else if (submitType === "link") {
+                urlInput.setAttribute("required", "true");
+                textInput.removeAttribute("required");
+                
+                urlLabel.classList.remove("invisible");
+                textLabel.classList.add("invisible");
+            }
+        });
+        
+        submitBtn.addEventListener("click", function(){
+            var inputElems = [].slice.call(submitFormElem.querySelectorAll("input, textarea"));
+            var valid = true;
+            valid = inputElems.every(function(inputElem){
+                return (!inputElem.checkValidity || inputElem.checkValidity());
+            });
+            
+            var subName = subredditInput.value;
+            
+            if (valid === true) {
+                var params = {
+                    api_type: "json",
+                    extension: "json",
+                    captcha: captchaInput.value,
+                    iden: iden,
+                    kind: submitType,
+                    resubmit: true,
+                    sendreplies: true,
+                    sr: subName,
+                    text: textInput.value,
+                    url: urlInput.value,
+                    then: "comments",
+                    title: titleInput.value
+                };
+                
+                reddit("api/submit", params, function(r){
+                    r = JSON.parse(r);
+                    
+                    if (r.json.errors.length === 0) {
+                        window.location.hash = "#!/r/" + subName;
+                    } else {
+                        alert(r.json.errors);
+                    }
+                }, true);
+            } else {
+                alert("Please check that you filled every text box.");
+            }
+        });
+    }, true);
+})();
+
 if (!readCookie("access_token")) {
     window.location = "/";
 }
@@ -939,6 +1034,24 @@ setInterval(function(){
 })();
 
 /* hashbang navigation */
+var changeSection = function(sectionName){
+    var targetSection = document.querySelector("#" + sectionName);
+    var sections = document.querySelectorAll(".content");
+    
+    var targetAnchor = document.querySelector("aside [data-section='" + sectionName + "']");
+    var sectionAnchors = document.querySelectorAll("aside [data-section]");
+    
+    [].slice.call(sections).forEach(function(sectionElem){
+        sectionElem.classList.remove("visible");
+    });
+    targetSection.classList.add("visible");
+    
+    [].slice.call(sectionAnchors).forEach(function(sectionAnchor){
+        sectionAnchor.classList.remove("current");
+    });
+    targetAnchor.classList.add("current");
+};
+
 var handleHash = function(){
     var hashPath = window.location.hash.substring(3).split("/");
     
@@ -946,17 +1059,24 @@ var handleHash = function(){
         var subName = hashPath[1];
         if (!subName) subName = FRONT_PAGE;
         
+        changeSection("subreddits");
         changeSubreddit(subName);
-        
-        toggleSidebar(-1);
-        document.querySelector("aside a[data-section='subreddits']").classList.add("current");
         
         if (hashPath[1] === FRONT_PAGE) {
             history.pushState(null, initialTitle, window.location.pathname);
         }
+    } else if (hashPath[0] === "submit") {
+        changeSection("submit");
+        
+        if (sub !== FRONT_PAGE && sub !== "all") {
+            document.querySelector(".submit-container [name='sr']").value = sub;
+        }
     } else {
+        changeSection("subreddits");
         changeSubreddit(FRONT_PAGE);
     }
+    
+    toggleSidebar(-1);
 };
 
 window.addEventListener("hashchange", handleHash);

@@ -14,18 +14,18 @@
     </head>
     <body>
         <header>
-            <button class="header-btn burger" id="nav-burger"></button>
+            <button class="header-btn burger"></button>
             
             <h1>Reddit<span>Wall</span></h1>
             
             <div class="dropdown" id="sort-container">
-                <select id="sort-input">
+                <select id="sort-input" class="light">
                     <option value="hot">Hot</option>
                     <option value="new">New</option>
                     <option value="controversial">Controversial</option>
                     <option value="top">Top</option>
                 </select>
-                <select id="time-input">
+                <select id="time-input" class="light">
                     <option value="all">All time</option>
                     <option value="hour">Past hour</option>
                     <option value="day">Past day</option>
@@ -50,15 +50,55 @@
         
         <aside id="sidebar">
             <a href="#" data-section="subreddits"></a>
+            <a href="#!/submit" data-section="submit"></a>
         </aside>
         
         <div class="content" id="subreddits">
-            <div id="subreddit-info">
+            <div id="subreddit-info" class="card">
                 <h2></h2>
                 <button id="subscribe-btn"></button>
             </div>
             <ol id="stream"></ol>
             <button class="floating-action" id="submit-post"></button>
+        </div>
+        
+        <div class="content" id="submit">
+            <div class="card submit-container">
+                <h2>Submit to Reddit</h2>
+                
+                <div class="form" id="submit-form">
+                    <select id="submit-type">
+                        <option value="link">Link</option>
+                        <option value="self">Text</option>
+                    </select>
+                    <label>
+                        <h3>Title</h3>
+                        <input name="title" type="text" maxlength="300" placeholder="Something awesome" class="wide" required>
+                    </label>
+                    
+                    <label id="sr-label">
+                        <h3>Subreddit</h3>
+                        <input name="sr" type="text" placeholder="somesubreddit" class="wide" required>
+                    </label>
+                    
+                    <label id="url-label">
+                        <h3>URL</h3>
+                        <input name="url" type="url" placeholder="http://www.example.com" class="wide" required>
+                    </label>
+                    <label id="text-label" class="invisible">
+                        <h3>Text</h3>
+                        <textarea name="text" placeholder="Lorem ipsum dolor sit amet..." class="wide"></textarea>
+                    </label>
+                    
+                    <label>
+                        <h3>Captcha</h3>
+                        <img id="captcha-img" class="captcha-img">
+                        <input name="captcha" type="text" placeholder="Captcha text" required>
+                    </label>
+                    
+                    <button id="submit-btn">Submit</button>
+                </div>
+            </div>
         </div>
         
         <script src="/js/hr-time-js/hr-time.js"></script>
