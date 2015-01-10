@@ -14,6 +14,8 @@
     </head>
     <body>
         <header>
+            <button class="header-btn burger" id="nav-burger"></button>
+            
             <h1>Reddit<span>Wall</span></h1>
             
             <div class="dropdown" id="sort-container">
@@ -46,12 +48,17 @@
             <input type="text" id="goto-subreddit" placeholder="Type a subreddit name" title="Go to a particular subreddit (press enter)" list="subreddits-datalist">
         </header>
         
-        <div id="content">
+        <aside id="sidebar">
+            <a href="#" data-section="subreddits"></a>
+        </aside>
+        
+        <div class="content" id="subreddits">
             <div id="subreddit-info">
                 <h2></h2>
                 <button id="subscribe-btn"></button>
             </div>
             <ol id="stream"></ol>
+            <button class="floating-action" id="submit-post"></button>
         </div>
         
         <script src="/js/hr-time-js/hr-time.js"></script>
