@@ -221,7 +221,7 @@ function getMore() {
                 var saved = post.data.saved;
                 
                 var postElemHtml = 
-"<a href='" + postURL + "'><h3>" + post.data.title + "</h3></a>\
+"<a href='" + postURL + "' target='_blank'><h3>" + post.data.title + "</h3></a>\
 <div class='preview'></div>\
 <div class='post-info'>\
 <a class='post-info-author' href='//www.reddit.com/u/" + post.data.author + "' rel='author'>" + post.data.author + "</a>\
@@ -414,6 +414,12 @@ function getMore() {
                         expandPost(this.parentElement);
                     });
                 }
+                
+                postElem.addEventListener("click", function(e){
+                    var children = [].slice.call(this.children).filter(function(child){return !child.classList.contains("close-post")});
+                    var toElem = e.toElement;
+                    if (toElem === this || children.indexOf(toElem) !== -1) expandPost(this);
+                });
 
                 streamElem.appendChild(postElem);
                 

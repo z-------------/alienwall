@@ -390,6 +390,7 @@ aside a.current {
     padding: 20px;
     margin: 25px 0;
     width: 480px;
+    cursor: pointer;
 }
 
 .post:hover, .floating-action:hover {
@@ -430,6 +431,7 @@ aside a.current {
     overflow: auto;
     padding: 50px;
     padding-top: 150px;
+    cursor: auto;
 }
 
 .post h3 {
@@ -441,6 +443,10 @@ aside a.current {
 
 .vote-container, .preview, .post-info {
     margin: 10px 0;
+}
+
+.vote-container {
+    margin-bottom: 0;
 }
 
 .post-info, .comment-info {
@@ -559,7 +565,11 @@ aside a.current {
     margin-right: 10px;
 }
 
-#subreddit-list li:hover, #subreddit-list li.current {
+#subreddit-list li:hover {
+    background-color: rgba(255, 255, 255, .2);
+}
+
+#subreddit-list li.current {
     background-color: rgba(255, 255, 255, .3);
 }
 
