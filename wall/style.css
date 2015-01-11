@@ -846,6 +846,7 @@ aside a.current {
     background-color: #FF851B;
     color: #FFF;
     opacity: 0;
+    pointer-events: none;
     
     transition-property: opacity;
 }
@@ -856,6 +857,7 @@ aside a.current {
 
 :focus ~ .comment-submit {
     opacity: 1;
+    pointer-events: auto;
 }
 
 .comment-submit:before {
