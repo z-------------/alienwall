@@ -43,6 +43,21 @@ var xhr = function(url, callback, headers) {
     oXHR.send(null); 
 };
 
+var jsonp = function(url, callback) {
+    var callbackName = "jsonpCallback"+Math.round(Math.random()*10000000);
+    window[callbackName] = callback;
+    
+    var scriptElem = document.createElement("script");
+    
+    if (url.indexOf("?") != -1) {
+        scriptElem.src = url + "&callback=" + callbackName;
+    } else {
+        scriptElem.src = url + "?callback=" + callbackName;
+    }
+    
+    document.head.appendChild(scriptElem);
+};
+
 var entity2unicode = function(entStr) {
     var div = document.createElement("div");
     div.innerHTML = entStr;
@@ -355,6 +370,21 @@ function getMore() {
                     previewElem.classList.add("visible");
                 }
                 
+                if (parseURL(postURL, "hostname") === "xkcd.com" && new RegExp("^[0-9]+$", "gi").test(parseURL(postURL, "path").replace(/\//gi, ""))) {
+                    /* xkcd */
+                    var number = parseURL(postURL, "path").replace(/\//gi, "");
+                    
+                    jsonp("http://dynamic.xkcd.com/api-0/jsonp/comic/" + number, function(r){
+                        var imgURL = r.img;
+
+                        previewElem.innerHTML = "<img src='" + imgURL + "' onload='" + onLoad + "'>";
+
+                        previewElem.classList.add("visible");
+                    });
+                    
+                    postElem.dataset.preview = "xkcd";
+                }
+                
                 if ((new RegExp("(\\.gif|\\.jpg|\\.jpeg|\\.webp|\\.png|\\.tiff)$", "gi")).test(parseURL(postURL, "path").substring(1))) {
                     /* image */
                     
@@ -379,7 +409,7 @@ function getMore() {
                     });
                 }
                 
-                if (postElem.dataset.preview === "self" || postElem.dataset.preview === "image" || postElem.dataset.preview === "imgur" || postElem.dataset.preview === "gifv" || postElem.dataset.preview === "gfycat") {
+                if (postElem.dataset.preview && postElem.dataset.preview !== "youtube") {
                     previewElem.addEventListener("click", function(){
                         expandPost(this.parentElement);
                     });
