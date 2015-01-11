@@ -865,7 +865,7 @@ aside a.current {
     cursor: pointer;
 }
 
-:focus ~ .comment-submit {
+:focus ~ .comment-submit, .comment-submit:focus {
     opacity: 1;
     pointer-events: auto;
 }

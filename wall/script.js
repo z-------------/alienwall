@@ -44,6 +44,7 @@ var xhr = function(url, callback, headers) {
 };
 
 var jsonp = function(url, callback) {
+    console.log("JSONP request for " + url);
     var callbackName = "jsonpCallback"+Math.round(Math.random()*10000000);
     window[callbackName] = callback;
     
@@ -80,6 +81,8 @@ var reddit = function(endpoint, params, callback, post) {
         paramsStr += paramsArray.join("&");
 
         if (post) {
+            console.log("XHR request for " + endpoint);
+            
             var req = new XMLHttpRequest();
             req.open("POST", endpoint, true);
 
@@ -178,6 +181,7 @@ function layoutMasonry(){
     streamMasonry = new Masonry(document.querySelector("#stream"), {
         /*columnWidth: 480,*/
         itemSelector: ".post",
+        columnWidth: 480,
         gutter: 50,
         isFitWidth: true,
         transitionDuration: 0,
