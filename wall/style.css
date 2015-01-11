@@ -346,14 +346,12 @@ aside a.current {
     height: calc(100% - 100px);
     margin-top: 100px;
     
-    opacity: 0;
+    display: none;
     pointer-events: none;
-    
-    transition-property: opacity;
 }
 
 .content.visible {
-    opacity: 1;
+    display: block;
     pointer-events: auto;
 }
 
@@ -438,7 +436,7 @@ aside a.current {
     padding-right: 30px;
     transition-property: color;
     margin: 0;
-    color: inherit !important;
+    color: inherit;
 }
 
 .vote-container, .preview, .post-info {
