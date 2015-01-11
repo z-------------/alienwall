@@ -295,15 +295,18 @@ function getMore() {
                 var onLoad = "streamMasonry.layout()";
                 
                 /* make media previews */
+                var urlHostname = parseURL(postURL, "hostname");
+                var urlPath = parseURL(postURL, "path");
+                var urlParams = parseURL(postURL, "params");
                 
-                if ((parseURL(postURL, "hostname") === "www.youtube.com" && parseURL(postURL, "path") === "/watch" && parseURL(postURL, "params").v) || (parseURL(postURL, "hostname") === "youtu.be" && parseURL(postURL, "path").length > 1)) {
+                if ((urlHostname === "www.youtube.com" && urlPath === "/watch" && urlParams.v) || (urlHostname === "youtu.be" && urlPath.length > 1)) {
                     /* youtube video */
                     
                     var id;
-                    if (parseURL(postURL, "hostname") === "www.youtube.com") {
-                        id = parseURL(postURL, "params").v;
-                    } else if ((parseURL(postURL, "hostname") === "youtu.be")) {
-                        id = parseURL(postURL, "path").substring(1);
+                    if (urlHostname === "www.youtube.com") {
+                        id = urlParams.v;
+                    } else if ((urlHostname === "youtu.be")) {
+                        id = urlPath.substring(1);
                     }
                     
                     var width = streamMasonry.columnWidth - streamMasonry.gutter;
@@ -315,10 +318,10 @@ function getMore() {
                     previewElem.classList.add("visible");
                 }
                 
-                if (parseURL(postURL, "hostname") === "gfycat.com" || parseURL(postURL, "hostname") === "www.gfycat.com") {
+                if (urlHostname === "gfycat.com" || urlHostname === "www.gfycat.com") {
                     /* gfycat gfy */
                     
-                    var id = parseURL(postURL, "path").substring(1);
+                    var id = urlPath.substring(1);
                     
                     var prefixes = ["giant", "fat", "zippy"];
                     var fileTypes = ["webm", "mp4"];
@@ -336,11 +339,10 @@ function getMore() {
                     previewElem.classList.add("visible");
                 }
                 
-                if (parseURL(postURL, "hostname") === "i.imgur.com" && (new RegExp("\\.gifv$", "gi")).test(postURL)) {
+                if (urlHostname === "i.imgur.com" && (new RegExp("\\.gifv$", "gi")).test(postURL)) {
                     /* imgur gifv */
 
-                    var path = parseURL(postURL, "path");
-                    var id = path.substring(0, path.lastIndexOf(".gifv"));
+                    var id = urlPath.substring(0, urlPath.lastIndexOf(".gifv"));
                     var webmURL = "http://i.imgur.com" + id + ".webm";
                     var mp4URL = "http://i.imgur.com" + id + ".mp4";
                     
@@ -350,10 +352,11 @@ function getMore() {
                     previewElem.classList.add("visible");
                 }
                 
-                if ((parseURL(postURL, "hostname") === "imgur.com" || parseURL(postURL, "hostname") === "m.imgur.com") && parseURL(postURL, "path").substring(1).length === 7 && new RegExp("^[a-z0-9]+$", "i").test(parseURL(postURL, "path").substring(1))) {
+                if ((urlHostname === "imgur.com" || urlHostname === "m.imgur.com") && urlPath.substring(1).length <= 7 && new RegExp("^[a-z0-9]+$", "i").test(urlPath.substring(1)) &&
+                   urlPath.indexOf("gallery") === -1 && urlPath.indexOf("blog") === -1) {
                     /* imgur */
                     
-                    var id = parseURL(postURL, "path").substring(1);
+                    var id = urlPath.substring(1);
                     var imgURL = "http://i.imgur.com/" + id + ".jpg";
                     
                     previewElem.innerHTML = "<img src='" + imgURL + "' onload='" + onLoad + "'>";
@@ -362,10 +365,10 @@ function getMore() {
                     previewElem.classList.add("visible");
                 }
                 
-                if (parseURL(postURL, "hostname") === "gyazo.com" && parseURL(postURL, "path").length === 33) {
+                if (urlHostname === "gyazo.com" && urlPath.length === 33) {
                     /* gyazo */
 
-                    var id = parseURL(postURL, "path").substring(1);
+                    var id = urlPath.substring(1);
                     var imgURL = "http://i.gyazo.com/" + id + ".png";
                     
                     previewElem.innerHTML = "<img src='" + imgURL + "' onload='" + onLoad + "'>";
@@ -374,9 +377,9 @@ function getMore() {
                     previewElem.classList.add("visible");
                 }
                 
-                if (parseURL(postURL, "hostname") === "xkcd.com" && new RegExp("^[0-9]+$", "gi").test(parseURL(postURL, "path").replace(/\//gi, ""))) {
+                if (urlHostname === "xkcd.com" && new RegExp("^[0-9]+$", "gi").test(urlPath.replace(/\//gi, ""))) {
                     /* xkcd */
-                    var number = parseURL(postURL, "path").replace(/\//gi, "");
+                    var number = urlPath.replace(/\//gi, "");
                     
                     jsonp("http://dynamic.xkcd.com/api-0/jsonp/comic/" + number, function(r){
                         var imgURL = r.img;
@@ -389,7 +392,7 @@ function getMore() {
                     postElem.dataset.preview = "xkcd";
                 }
                 
-                if ((new RegExp("(\\.gif|\\.jpg|\\.jpeg|\\.webp|\\.png|\\.tiff)$", "gi")).test(parseURL(postURL, "path").substring(1))) {
+                if ((new RegExp("(\\.gif|\\.jpg|\\.jpeg|\\.webp|\\.png|\\.tiff)$", "gi")).test(urlPath.substring(1))) {
                     /* image */
                     
                     previewElem.innerHTML = "<img src='" + postURL + "' onload='" + onLoad + "'>";
@@ -1042,7 +1045,7 @@ setInterval(function(){
     eligVidElems.forEach(function(vidElem){
         var topY = vidElem.offsetTop + vidElem.parentElement.parentElement.offsetTop + 100;
         var bottomY = vidElem.offsetTop + vidElem.offsetHeight + vidElem.parentElement.parentElement.offsetTop + 100;
-        if (bottomY >= document.body.scrollTop && topY <= document.body.scrollTop + window.innerHeight) {
+        if (bottomY >= document.body.scrollTop && topY <= document.body.scrollTop + window.innerHeight || vidElem.parentElement.parentElement.classList.contains("expanded")) {
             vidElem.play();
         } else if (!vidElem.paused) {
             vidElem.pause();
