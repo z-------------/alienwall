@@ -343,6 +343,18 @@ function getMore() {
                     previewElem.classList.add("visible");
                 }
                 
+                if (parseURL(postURL, "hostname") === "gyazo.com" && parseURL(postURL, "path").length === 33) {
+                    /* gyazo */
+
+                    var id = parseURL(postURL, "path").substring(1);
+                    var imgURL = "http://i.gyazo.com/" + id + ".png";
+                    
+                    previewElem.innerHTML = "<img src='" + imgURL + "' onload='" + onLoad + "'>";
+                    
+                    postElem.dataset.preview = "gyazo";
+                    previewElem.classList.add("visible");
+                }
+                
                 if ((new RegExp("(\\.gif|\\.jpg|\\.jpeg|\\.webp|\\.png|\\.tiff)$", "gi")).test(parseURL(postURL, "path").substring(1))) {
                     /* image */
                     
