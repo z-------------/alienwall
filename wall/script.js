@@ -330,7 +330,7 @@ function getMore() {
                         });
                     });
                     
-                    previewElem.innerHTML = "<video controls loop muted onloadeddata='" + onLoad + "'>" + sourcesHTML + "</video>";
+                    previewElem.innerHTML = "<video loop muted onloadeddata='" + onLoad + "'>" + sourcesHTML + "</video>";
                     
                     postElem.dataset.preview = "gfycat";
                     previewElem.classList.add("visible");
@@ -344,7 +344,7 @@ function getMore() {
                     var webmURL = "http://i.imgur.com" + id + ".webm";
                     var mp4URL = "http://i.imgur.com" + id + ".mp4";
                     
-                    previewElem.innerHTML = "<video controls loop muted onloadeddata='" + onLoad + "'><source src='" + webmURL + "' type='video/webm'><source src='" + mp4URL + "' type='video/mp4'></video>";
+                    previewElem.innerHTML = "<video loop muted onloadeddata='" + onLoad + "'><source src='" + webmURL + "' type='video/webm'><source src='" + mp4URL + "' type='video/mp4'></video>";
                     
                     postElem.dataset.preview = "gifv";
                     previewElem.classList.add("visible");
@@ -627,7 +627,7 @@ function getSubredditInfo(subName) {
         document.title = title + " (/r/" + displayName + ") - " + initialTitle;
         
         var subscribeBtn = subInfoElem.querySelector("#subscribe-btn");
-        if (data.user_is_subscriber === true || subName === FRONT_PAGE || subName.toLowerCase() === "all") {
+        if (data.user_is_subscriber === true) {
             document.querySelector("#subreddits").classList.remove("fixed-subreddit-info");
             subscribeBtn.classList.add("subscribed");
         } else {
@@ -776,6 +776,10 @@ function changeSubreddit(subName){
         if (currentSubListItem.offsetLeft < subsListContainer.scrollLeft || currentSubListItem.offsetLeft > subsListContainer.scrollLeft + subsListContainer.offsetWidth) {
             subsListElem.parentElement.scrollLeft = currentSubListItem.offsetLeft - 100;
         }
+    }
+    
+    if (sub === FRONT_PAGE || sub.toLowerCase() === "all") {
+        document.querySelector("#subreddits").classList.remove("fixed-subreddit-info");
     }
     
     document.title = initialTitle;
@@ -1030,6 +1034,21 @@ gotoSubmitBtn.addEventListener("click", function(){
 if (!readCookie("access_token")) {
     window.location = "/";
 }
+
+/* auto play/pause gfycat and gifv */
+setInterval(function(){
+    var eligVidElems = [].slice.call(document.querySelectorAll("[data-preview='gifv'] .preview video, [data-preview='gfycat'] .preview video"));
+    
+    eligVidElems.forEach(function(vidElem){
+        var topY = vidElem.offsetTop + vidElem.parentElement.parentElement.offsetTop + 100;
+        var bottomY = vidElem.offsetTop + vidElem.offsetHeight + vidElem.parentElement.parentElement.offsetTop + 100;
+        if (bottomY >= document.body.scrollTop && topY <= document.body.scrollTop + window.innerHeight) {
+            vidElem.play();
+        } else if (!vidElem.paused) {
+            vidElem.pause();
+        }
+    });
+}, 100);
 
 var alreadyRequestedNewAccessToken = false;
 
