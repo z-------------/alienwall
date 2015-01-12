@@ -262,8 +262,8 @@ function getMore() {
                 if (likes === false) downvoteBtn.classList.add("yes");
                 if (saved === true) saveBtn.classList.add("yes");
                 
-                upvoteBtn.addEventListener("click", voteListener);
-                downvoteBtn.addEventListener("click", voteListener);
+                upvoteBtn.addEventListener("click", postVoteListener);
+                downvoteBtn.addEventListener("click", postVoteListener);
                 
                 saveBtn.addEventListener("click", function(){
                     var endpoint = "api/save";
@@ -453,66 +453,20 @@ function getMore() {
     streamElem.classList.add("loading");
 }
 
-function displayComments(node, elem, topLevel) {
-    var comments = [];
-    if (topLevel) {
-        comments = node.data.children;
-    } else if (node.kind === "t1" && node.data.replies.data && (node.data.replies.data.children.length !== 0)) {
-        comments = node.data.replies.data.children;
-    }
+function makeCommentElem(info) {
+    var commentElem = document.createElement("div");
     
-    var expandedPostElem = document.querySelector("#stream .post.expanded");
-    var op = expandedPostElem.querySelector(".post-info-author").textContent;
+    var body = info.body_html;
+    var author = info.author;
+    var op = info.op;
+    var fullname = "t1_" + info.id;
+
+    var hrTime = new HRTime(new Date(info.created_utc * 1000));
+    var timeString = hrTime.time + " " + hrTime.unit + ((Math.abs(hrTime.time) !== 1) ? "s" : "");
+    var likes = info.likes;
+    var score = (info.score_hidden ? "[score hidden]" : info.score + " points");
     
-    var voteListener = function(e){
-        e.preventDefault();
-        e.stopPropagation();
-
-        var dir;
-        var cList = this.classList;
-        var scoreElem = this.parentElement.querySelector(".comment-score");
-        
-        var scoreUnit = " points";
-
-        if (cList.contains("up") && cList.contains("yes")) {
-            dir = 0;
-            scoreElem.textContent = parseInt(scoreElem.textContent) - 1 + scoreUnit;
-        } else if (cList.contains("down") && cList.contains("yes")) {
-            dir = 0;
-            scoreElem.textContent = parseInt(scoreElem.textContent) + 1 + scoreUnit;
-        } else if (cList.contains("up")) {
-            dir = 1;
-            scoreElem.textContent = parseInt(scoreElem.textContent) + 1 + scoreUnit;
-        } else if (cList.contains("down")) {
-            dir = -1;
-            scoreElem.textContent = parseInt(scoreElem.textContent) - 1 + scoreUnit;
-        }
-
-        reddit("api/vote", {
-            dir: dir,
-            id: this.parentElement.parentElement.parentElement.dataset.fullname
-        }, function(r){
-            console.log(r);
-        }, true);
-
-        this.classList.toggle("yes");
-    };
-
-    comments.forEach(function(comment){
-        var commentElem = document.createElement("div");
-        commentElem.classList.add("comment-container");
-        
-        if (comment.kind === "t1") {
-            var body = comment.data.body_html;
-            var author = comment.data.author;
-            var fullname = "t1_" + comment.data.id;
-
-            var hrTime = new HRTime(new Date(comment.data.created_utc * 1000));
-            var timeString = hrTime.time + " " + hrTime.unit + ((Math.abs(hrTime.time) !== 1) ? "s" : "");
-            var likes = comment.data.likes;
-            var score = (comment.data.score_hidden ? "[score hidden]" : comment.data.score + " points");
-
-            commentElem.innerHTML = "<div class='comment-body-container'>\
+    commentElem.innerHTML = "<div class='comment-body-container'>\
 <div class='comment-body'>" + entity2unicode(body) + "</div>\
 <div class='comment-info'>\
 <a class='comment-info-author " + (author == op ? "op" : "") + "' href='http://www.reddit.com/u/" + author + "'>" + author + "</a>\
@@ -526,27 +480,61 @@ function displayComments(node, elem, topLevel) {
 <div class='comment-compose-container' data-fullname='" + fullname + "'>\
 <textarea class='comment-compose' placeholder='Write a reply'></textarea><button class='comment-submit'></button>\
 </div>";
-            commentElem.dataset.fullname = fullname;
-            
-            var upvoteBtn = commentElem.querySelector(".vote.up");
-            var downvoteBtn = commentElem.querySelector(".vote.down");
-            var replyBtn = commentElem.querySelector(".comment-reply-button");
-            var commentBtn = commentElem.querySelector(".comment-submit");
-            
-            upvoteBtn.addEventListener("click", voteListener);
-            downvoteBtn.addEventListener("click", voteListener);
-            
-            if (likes === true) upvoteBtn.classList.add("yes");
-            if (likes === false) downvoteBtn.classList.add("yes");
-            
-            commentBtn.addEventListener("click", commentListener);
-            
-            replyBtn.addEventListener("click", function(){
-                commentElem.querySelector(".comment-compose-container").classList.toggle("visible");
+    
+    commentElem.dataset.fullname = fullname;
+    
+    var upvoteBtn = commentElem.querySelector(".vote.up");
+    var downvoteBtn = commentElem.querySelector(".vote.down");
+    var replyBtn = commentElem.querySelector(".comment-reply-button");
+    var commentBtn = commentElem.querySelector(".comment-submit");
+
+    upvoteBtn.addEventListener("click", commentVoteListener);
+    downvoteBtn.addEventListener("click", commentVoteListener);
+
+    if (likes === true) upvoteBtn.classList.add("yes");
+    if (likes === false) downvoteBtn.classList.add("yes");
+
+    commentBtn.addEventListener("click", commentListener);
+
+    replyBtn.addEventListener("click", function(){
+        commentElem.querySelector(".comment-compose-container").classList.toggle("visible");
+    });
+    
+    return commentElem;
+}
+
+function displayComments(node, elem, topLevel) {
+    var comments = [];
+    if (topLevel) {
+        comments = node.data.children;
+    } else if (node.kind === "t1" && node.data.replies.data && (node.data.replies.data.children.length !== 0)) {
+        comments = node.data.replies.data.children;
+    }
+    
+    var expandedPostElem = document.querySelector("#stream .post.expanded");
+    var op = expandedPostElem.querySelector(".post-info-author").textContent;
+
+    comments.forEach(function(comment){
+        var data = comment.data;
+        
+        var commentElem;
+        
+        if (comment.kind === "t1") {
+            commentElem = makeCommentElem({
+                body_html: data.body_html,
+                author: data.author,
+                id: data.id,
+                created_utc: data.created_utc,
+                likes: data.likes,
+                score_hidden: data.scrore_hidden,
+                score: data.score,
+                op: op
             });
 
             displayComments(comment, commentElem);
         } else if (comment.kind === "more") {
+            commentElem = document.createElement("div");
+            
             var parentId = comment.data.id;
             
             commentElem.innerHTML = "<a>continue this thread...</a>";
@@ -578,6 +566,7 @@ function displayComments(node, elem, topLevel) {
             });
         }
         
+        commentElem.classList.add("comment-container");
         elem.appendChild(commentElem);
     });
 }
@@ -791,13 +780,15 @@ function changeSubreddit(subName){
     layoutMasonry();
 }
 
-function voteListener(e){
+var postVoteListener = function(e){
     e.preventDefault();
     e.stopPropagation();
 
     var dir;
     var cList = this.classList;
     var scoreElem = this.parentElement.querySelector(".post-score");
+    
+    console.log(this, this.parentElement);
 
     if (cList.contains("up") && cList.contains("yes")) {
         dir = 0;
@@ -822,7 +813,40 @@ function voteListener(e){
 
     this.classList.toggle("yes");
 }
-                
+
+var commentVoteListener = function(e){
+        e.preventDefault();
+        e.stopPropagation();
+
+        var dir;
+        var cList = this.classList;
+        var scoreElem = this.parentElement.querySelector(".comment-score");
+        
+        var scoreUnit = " points";
+
+        if (cList.contains("up") && cList.contains("yes")) {
+            dir = 0;
+            scoreElem.textContent = parseInt(scoreElem.textContent) - 1 + scoreUnit;
+        } else if (cList.contains("down") && cList.contains("yes")) {
+            dir = 0;
+            scoreElem.textContent = parseInt(scoreElem.textContent) + 1 + scoreUnit;
+        } else if (cList.contains("up")) {
+            dir = 1;
+            scoreElem.textContent = parseInt(scoreElem.textContent) + 1 + scoreUnit;
+        } else if (cList.contains("down")) {
+            dir = -1;
+            scoreElem.textContent = parseInt(scoreElem.textContent) - 1 + scoreUnit;
+        }
+
+        reddit("api/vote", {
+            dir: dir,
+            id: this.parentElement.parentElement.parentElement.dataset.fullname
+        }, function(r){
+            console.log(r);
+        }, true);
+
+        this.classList.toggle("yes");
+    };
 
 function commentListener(){
     var fullname = this.parentElement.dataset.fullname;
@@ -840,63 +864,30 @@ function commentListener(){
             r = JSON.parse(r);
             console.log(r);
             var comment = r.json.data.things[0];
+            var data = comment.data;
             
             textarea.value = "";
             textarea.classList.remove("loading");
             that.parentElement.classList.remove("visible");
             
-            var commentElem = document.createElement("div");
+            var expandedPostElem = document.querySelector("#stream .post.expanded");
+            
+            var commentElem = makeCommentElem({
+                body_html: data.body_html,
+                op: expandedPostElem.querySelector(".post-info-author").textContent,
+                author: data.author,
+                id: data.id,
+                created_utc: data.created_utc,
+                likes: data.likes,
+                score_hidden: data.score_hidden,
+                score: data.score
+            });
             commentElem.classList.add("comment-container");
             
-            var expandedPostElem = document.querySelector("#stream .post.expanded");
-            var op = expandedPostElem.querySelector(".post-info-author").textContent;
-            
-            var body = comment.data.body_html;
-            var author = comment.data.author;
-            var fullname = "t1_" + comment.data.id;
-
-            var hrTime = new HRTime(new Date(comment.data.created_utc * 1000));
-            var timeString = hrTime.time + " " + hrTime.unit + ((Math.abs(hrTime.time) !== 1) ? "s" : "");
-            var likes = comment.data.likes;
-            var score = (comment.data.score_hidden ? "[score hidden]" : comment.data.score + " points");
-
-            commentElem.innerHTML = "<div class='comment-body-container'>\
-<div class='comment-body'>" + entity2unicode(body) + "</div>\
-<div class='comment-info'>\
-<a class='comment-info-author " + (author == op ? "op" : "") + "' href='http://www.reddit.com/u/" + author + "'>" + author + "</a>\
-<button class='vote up'></button>\
-<button class='vote down'></button>\
-<span class='comment-score'>" + score + "</span>\
-<span>" + timeString + "</span>\
-<span class='comment-reply-button'>reply</span>\
-</div>\
-</div>\
-<div class='comment-compose-container' data-fullname='" + fullname + "'>\
-<textarea class='comment-compose' placeholder='Write a reply'></textarea><button class='comment-submit'></button>\
-</div>";
-            commentElem.dataset.fullname = fullname;
-            
-            var upvoteBtn = commentElem.querySelector(".vote.up");
-            var downvoteBtn = commentElem.querySelector(".vote.down");
-            var replyBtn = commentElem.querySelector(".comment-reply-button");
-            var commentBtn = commentElem.querySelector(".comment-submit");
-            
-            upvoteBtn.addEventListener("click", voteListener);
-            downvoteBtn.addEventListener("click", voteListener);
-            
-            if (likes === true) upvoteBtn.classList.add("yes");
-            if (likes === false) downvoteBtn.classList.add("yes");
-            
-            commentBtn.addEventListener("click", commentListener);
-            
-            replyBtn.addEventListener("click", function(){
-                commentElem.querySelector(".comment-compose-container").classList.toggle("visible");
-            });
-            
             var parentElem = document.querySelector(".comment-container[data-fullname='" + comment.data.parent_id + "']");
-            if (parentElem) { // reply
+            if (parentElem) { // it's a reply
                 parentElem.insertAfter(commentElem, parentElem.querySelector(".comment-body-container"));
-            } else { // top level comment
+            } else { // it's a top level comment
                 var commentsContainerElem = expandedPostElem.querySelector(".comments-container");
                 commentsContainerElem.insertBefore(commentElem, expandedPostElem.querySelector(".comment-container"));
             }
