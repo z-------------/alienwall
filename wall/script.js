@@ -945,7 +945,7 @@ gotoSubmitBtn.addEventListener("click", function(){
 });
 
 /* submit section */
-(function(){
+function initSubmitSection(){
     var captchaImgElem = document.querySelector("#captcha-img");
     captchaImgElem.classList.add("loading");
     
@@ -963,15 +963,24 @@ gotoSubmitBtn.addEventListener("click", function(){
         
         /* add listeners */
         var submitFormElem = document.querySelector("#submit-form");
+        
         var submitTypeSelect = submitFormElem.querySelector("#submit-type");
+        
         var titleInput = submitFormElem.querySelector("[name='title']");
         var textInput = submitFormElem.querySelector("[name='text']");
         var urlInput = submitFormElem.querySelector("[name='url']");
         var captchaInput = submitFormElem.querySelector("[name='captcha']");
         var subredditInput = submitFormElem.querySelector("[name='sr']");
+        
         var textLabel = submitFormElem.querySelector("#text-label");
         var urlLabel = submitFormElem.querySelector("#url-label");
+        
         var submitBtn = submitFormElem.querySelector("#submit-btn");
+        
+        titleInput.value = "";
+        textInput.value = "";
+        urlInput.value = "";
+        captchaInput.value = "";
         
         var submitType = submitTypeSelect.value;
         
@@ -1023,6 +1032,7 @@ gotoSubmitBtn.addEventListener("click", function(){
                     
                     if (r.json.errors.length === 0) {
                         window.location.hash = "#!/r/" + subName;
+                        initSubmitSection();
                     } else {
                         alert(r.json.errors);
                     }
@@ -1032,7 +1042,7 @@ gotoSubmitBtn.addEventListener("click", function(){
             }
         });
     }, true);
-})();
+}
 
 if (!readCookie("access_token")) {
     window.location = "/";
@@ -1159,5 +1169,6 @@ window.addEventListener("resize", layoutMasonry);
 
 getUserSubreddits();
 handleHash();
+initSubmitSection();
 
 console.log("%cReddit Wall by z-------------\n", "font-size: 2em; font-family: 'Source Sans Pro', sans-serif", "https://github.com/z-------------/reddit-wall\n\n");
