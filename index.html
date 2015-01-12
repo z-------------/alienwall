@@ -5,6 +5,76 @@
         
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
+        
+        <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,900,200italic,300italic,400italic,600italic,700italic,900italic' rel='stylesheet' type='text/css'>
+        <style>
+            html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+            }
+            
+            body {
+                font-family: "Source Sans Pro", sans-serif;
+                background-color: #FF851B;
+                font-size: 20px;
+                text-align: center;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            body.loading {
+                background-image: url(/img/ui/loading-white.svg);
+                background-position: center;
+                background-repeat: no-repeat;
+                background-size: 30px;
+            }
+            
+            body.loading > * {
+                display: none;
+            }
+            
+            h1 {
+                color: #fff;
+                font-size: 4em;
+                font-weight: 700;
+                margin-top: 0;
+            }
+            
+            h1 span {
+                font-weight: 200;
+            }
+            
+            a {
+                display: inline-block;
+                color: rgba(0, 0, 0, .8);
+                background-color: #fff;
+                padding: 15px 20px;
+                text-decoration: none;
+                line-height: 1;
+                border-radius: 4px;
+                
+                box-shadow: 0 1px 3px rgba(0, 0, 0, .12), 0 1px 2px rgba(0, 0, 0, .24);
+                
+                transition-duration: .3s;
+                transition-property: box-shadow, color;
+            }
+            
+            a:hover {
+                color: #000;
+                box-shadow: 0 3px 6px rgba(0, 0, 0, .16), 0 3px 6px rgba(0, 0, 0, .23);
+            }
+        </style>
+    </head>
+    <body>
+        <img style="display: none" src="img/ui/loading-white.svg">
+        
+        <div class="center">
+            <h1>Reddit<span>Wall</span></h1>
+            <a href="https://www.reddit.com/api/v1/authorize?client_id=jQ9e-THHchxOZg&response_type=code&state=testingtesting&redirect_uri=http://123.203.189.150:8000/py/auth_callback&duration=permanent&scope=identity,read,mysubreddits,vote,subscribe,save,submit" target="_self">Log in with Reddit</a>
+        </div>
+        
         <script>
             var xhr = function(url, callback, headers) {
                 console.log("XHR request for " + url);
@@ -55,6 +125,8 @@
             
             /* request an access token if we have a refresh token */
             if (readCookie("refresh_token")) {
+                document.body.classList.add("loading");
+                
                 xhr("/py/refresh_auth?refresh_token=" + readCookie("refresh_token"), function(r){
                     r = r.replace(/[^A-Z]/ig, "");
                     if (r === "OK") window.location = "/wall/";
@@ -66,57 +138,5 @@
                 window.location = "/wall/";
             }
         </script>
-        <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,900,200italic,300italic,400italic,600italic,700italic,900italic' rel='stylesheet' type='text/css'>
-        <style>
-            html, body {
-                width: 100%;
-                height: 100%;
-                margin: 0;
-            }
-            
-            body {
-                font-family: "Source Sans Pro", sans-serif;
-                background-color: #333;
-                font-size: 20px;
-                text-align: center;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            
-            h1 {
-                color: #fff;
-                font-size: 4em;
-                font-weight: 700;
-                margin-top: 0;
-            }
-            
-            h1 span {
-                font-weight: 200;
-            }
-            
-            a {
-                display: inline-block;
-                color: #01FF70;
-                padding: 15px 20px;
-                text-decoration: none;
-                border: solid 2px #01FF70;
-                line-height: 1;
-                
-                transition-duration: .3s;
-                transition-property: background, color;
-            }
-            
-            a:hover {
-                background-color: #01FF70;
-                color: #000;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="center">
-            <h1>Reddit<span>Wall</span></h1>
-            <a href="https://www.reddit.com/api/v1/authorize?client_id=jQ9e-THHchxOZg&response_type=code&state=testingtesting&redirect_uri=http://123.203.189.150:8000/py/auth_callback&duration=permanent&scope=identity,read,mysubreddits,vote,subscribe,save,submit" target="_self">Log in with Reddit</a>
-        </div>
     </body>
 </html>
