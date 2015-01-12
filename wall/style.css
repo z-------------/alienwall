@@ -133,6 +133,7 @@ blockquote p {
 
 code {
     font-family: monospace;
+    font-size: .9em;
 }
 
 ul, ol {
