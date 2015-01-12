@@ -131,6 +131,10 @@ blockquote p {
     color: inherit !important;
 }
 
+code {
+    font-family: monospace;
+}
+
 ul, ol {
     list-style: none;
 }
