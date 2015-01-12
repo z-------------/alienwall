@@ -148,8 +148,31 @@ input, select, button, textarea {
     color: rgba(0, 0, 0, .8);
 }
 
-input, select, textarea {
-    background-color: rgba(0, 0, 0, .2);
+input, textarea {
+    border-bottom: 2px solid #FF851B;
+    padding: 7px 0;
+    
+    transition-property: background, padding;
+}
+
+input:focus, textarea:focus {
+    background-color: rgba(0, 0, 0, .1);
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+select {
+    background-color: rgba(0, 0, 0, .1);
+}
+
+button {
+    padding: 7px;
+    color: #FFF;
+    background-color: #FF851B;
+}
+
+::-webkit-input-placeholder {
+    color: rgba(0, 0, 0, .3);
 }
 
 input.wide, select.wide, button.wide, textarea.wide {
@@ -158,14 +181,6 @@ input.wide, select.wide, button.wide, textarea.wide {
 
 textarea {
     resize: vertical;
-}
-
-button {
-    background-color: rgba(0, 0, 0, .3);
-}
-
-::-webkit-input-placeholder {
-    color: rgba(255, 255, 255, .7);
 }
 
 input::-webkit-calendar-picker-indicator { /* hide datalist dropdown arrow */
@@ -706,6 +721,8 @@ aside a.current {
     height: 30px;
     text-align: center;
     color: #FFF;
+    background-color: rgba(0, 0, 0, .3);
+    line-height: 1;
 }
 
 #subscribe-btn.subscribed:hover {
@@ -733,6 +750,7 @@ aside a.current {
     padding: 0 10px;
     cursor: pointer;
     color: transparent;
+    border: none;
     
     background-color: transparent;
     background-image: url(/img/ui/input.svg);
@@ -828,6 +846,7 @@ aside a.current {
     width: 100%;
     height: 75px;
     position: relative;
+    border-radius: 4px;
 }
 
 .comments-container > .comment-compose-container {
@@ -841,6 +860,7 @@ aside a.current {
     resize: none;
     color: inherit;
     box-shadow: 0 1px 3px rgba(0, 0, 0, .12), 0 1px 2px rgba(0, 0, 0, .24);
+    padding: 10px;
     
     transition-property: box-shadow;
 }
@@ -862,8 +882,6 @@ aside a.current {
     position: absolute;
     right: 0;
     bottom: 0;
-    background-color: #FF851B;
-    color: #FFF;
     opacity: 0;
     pointer-events: none;
     
@@ -909,7 +927,7 @@ aside a.current {
 }
 
 .submit-container {
-    width: 500px;
+    width: 700px;
     max-width: 100%;
     margin: 50px auto;
     padding: 20px;

@@ -1,4 +1,5 @@
 var ONE_SECOND = 1000;
+var FIVE_MINUTES = 300000;
 var TEN_MINUTES = 600000;
 var ONE_HOUR = 3600000;
 
@@ -942,16 +943,15 @@ refreshBtns.addEventListener("click", function(){
     changeSubreddit(sub);
 });
 
+/* submit section */
 gotoSubmitBtn.addEventListener("click", function(){
     window.location.hash = "#!/submit";
 });
 
-/* submit section */
-function initSubmitSection(){
+function requestCaptcha(){
     var captchaImgElem = document.querySelector("#captcha-img");
     captchaImgElem.classList.add("loading");
     
-    /* request captcha iden */
     reddit("api/new_captcha", {
         api_type: "json"
     }, function(r){
@@ -962,88 +962,95 @@ function initSubmitSection(){
         
         captchaImgElem.src = captchaImgURL;
         captchaImgElem.classList.remove("loading");
-        
-        /* add listeners */
-        var submitFormElem = document.querySelector("#submit-form");
-        
-        var submitTypeSelect = submitFormElem.querySelector("#submit-type");
-        
-        var titleInput = submitFormElem.querySelector("[name='title']");
-        var textInput = submitFormElem.querySelector("[name='text']");
-        var urlInput = submitFormElem.querySelector("[name='url']");
-        var captchaInput = submitFormElem.querySelector("[name='captcha']");
-        var subredditInput = submitFormElem.querySelector("[name='sr']");
-        
-        var textLabel = submitFormElem.querySelector("#text-label");
-        var urlLabel = submitFormElem.querySelector("#url-label");
-        
-        var submitBtn = submitFormElem.querySelector("#submit-btn");
-        
-        titleInput.value = "";
-        textInput.value = "";
-        urlInput.value = "";
-        captchaInput.value = "";
-        
-        var submitType = submitTypeSelect.value;
-        
-        submitTypeSelect.addEventListener("change", function(){
-            submitType = submitTypeSelect.value;
-            
-            if (submitType === "self") {
-                textInput.setAttribute("required", "true");
-                urlInput.removeAttribute("required");
-                
-                textLabel.classList.remove("invisible");
-                urlLabel.classList.add("invisible");
-            } else if (submitType === "link") {
-                urlInput.setAttribute("required", "true");
-                textInput.removeAttribute("required");
-                
-                urlLabel.classList.remove("invisible");
-                textLabel.classList.add("invisible");
-            }
-        });
-        
-        submitBtn.addEventListener("click", function(){
-            var inputElems = [].slice.call(submitFormElem.querySelectorAll("input, textarea"));
-            var valid = true;
-            valid = inputElems.every(function(inputElem){
-                return (!inputElem.checkValidity || inputElem.checkValidity());
-            });
-            
-            var subName = subredditInput.value;
-            
-            if (valid === true) {
-                var params = {
-                    api_type: "json",
-                    extension: "json",
-                    captcha: captchaInput.value,
-                    iden: iden,
-                    kind: submitType,
-                    resubmit: true,
-                    sendreplies: true,
-                    sr: subName,
-                    text: textInput.value,
-                    url: urlInput.value,
-                    then: "comments",
-                    title: titleInput.value
-                };
-                
-                reddit("api/submit", params, function(r){
-                    r = JSON.parse(r);
-                    
-                    if (r.json.errors.length === 0) {
-                        window.location.hash = "#!/r/" + subName;
-                        initSubmitSection();
-                    } else {
-                        alert(r.json.errors);
-                    }
-                }, true);
-            } else {
-                alert("Please check that you filled every text box.");
-            }
-        });
+        captchaImgElem.dataset.iden = iden;
     }, true);
+}
+
+function initSubmitSection(){
+    requestCaptcha();
+    
+    /* add listeners */
+    var submitFormElem = document.querySelector("#submit-form");
+
+    var submitTypeSelect = submitFormElem.querySelector("#submit-type");
+
+    var titleInput = submitFormElem.querySelector("[name='title']");
+    var textInput = submitFormElem.querySelector("[name='text']");
+    var urlInput = submitFormElem.querySelector("[name='url']");
+    var captchaInput = submitFormElem.querySelector("[name='captcha']");
+    var subredditInput = submitFormElem.querySelector("[name='sr']");
+
+    var textLabel = submitFormElem.querySelector("#text-label");
+    var urlLabel = submitFormElem.querySelector("#url-label");
+    
+    var captchaImgElem = document.querySelector("#captcha-img");
+
+    var submitBtn = submitFormElem.querySelector("#submit-btn");
+
+    titleInput.value = "";
+    textInput.value = "";
+    urlInput.value = "";
+    captchaInput.value = "";
+
+    var submitType = submitTypeSelect.value;
+
+    submitTypeSelect.addEventListener("change", function(){
+        submitType = submitTypeSelect.value;
+
+        if (submitType === "self") {
+            textInput.setAttribute("required", "true");
+            urlInput.removeAttribute("required");
+
+            textLabel.classList.remove("invisible");
+            urlLabel.classList.add("invisible");
+        } else if (submitType === "link") {
+            urlInput.setAttribute("required", "true");
+            textInput.removeAttribute("required");
+
+            urlLabel.classList.remove("invisible");
+            textLabel.classList.add("invisible");
+        }
+    });
+
+    submitBtn.addEventListener("click", function(){
+        var inputElems = [].slice.call(submitFormElem.querySelectorAll("input, textarea"));
+        var valid = true;
+        valid = inputElems.every(function(inputElem){
+            return (!inputElem.checkValidity || inputElem.checkValidity());
+        });
+
+        var subName = subredditInput.value;
+
+        if (valid && captchaImgElem.dataset.iden) {
+            var params = {
+                api_type: "json",
+                extension: "json",
+                captcha: captchaInput.value,
+                iden: captchaImgElem.dataset.iden,
+                kind: submitType,
+                resubmit: true,
+                sendreplies: true,
+                sr: subName,
+                text: textInput.value,
+                url: urlInput.value,
+                then: "comments",
+                title: titleInput.value
+            };
+
+            reddit("api/submit", params, function(r){
+                r = JSON.parse(r);
+
+                if (r.json.errors.length === 0) {
+                    window.location.hash = "#!/r/" + subName;
+                    initSubmitSection();
+                } else {
+                    alert(r.json.errors);
+                }
+            }, true);
+        } else {
+            alert("Please check that you filled every text box.");
+        }
+    });
 }
 
 if (!readCookie("access_token")) {
@@ -1068,6 +1075,7 @@ setInterval(function(){
 var alreadyRequestedNewAccessToken = false;
 
 setInterval(function(){
+    /* go to login page if no access token */
     if (!readCookie("access_token")) {
         alert("Your session has expired. Please sign in again.");
         window.location = "/";
@@ -1089,6 +1097,11 @@ setInterval(function(){
         }, TEN_MINUTES);
     }
 }, 1000);
+
+setInterval(function(){
+    /* refresh captcha (just in case. from experience, captcha iden's seem to expire after a while idk) */
+    requestCaptcha();
+}, FIVE_MINUTES);
 
 /* dropdown stuff */
 (function(){
@@ -1152,6 +1165,7 @@ var handleHash = function(){
             history.pushState(null, initialTitle, window.location.pathname);
         }
     } else if (hashPath[0] === "submit") {
+        requestCaptcha();
         changeSection("submit");
         
         if (sub !== FRONT_PAGE && sub !== "all") {
