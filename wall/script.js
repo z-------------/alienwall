@@ -1159,3 +1159,5 @@ window.addEventListener("resize", layoutMasonry);
 
 getUserSubreddits();
 handleHash();
+
+console.log("%cReddit Wall by z-------------\n", "font-size: 2em; font-family: 'Source Sans Pro', sans-serif", "https://github.com/z-------------/reddit-wall\n\n");
