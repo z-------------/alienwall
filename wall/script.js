@@ -286,7 +286,7 @@ function getMore() {
                 });
                 
                 closeBtn.addEventListener("click", function(){
-                    unexpandPost(this.parentElement);
+                    expandPost(this.parentElement, -1);
                 });
                 
                 commentBtn.addEventListener("click", commentListener);
@@ -571,33 +571,44 @@ function displayComments(node, elem, topLevel) {
     });
 }
 
-function expandPost(elem) {
-    var subreddit = elem.querySelector(".post-info-subreddit").textContent;
-    var commentsElem = elem.querySelector(".comments-container");
-    var fullname = elem.dataset.fullname;
-    
-    if (commentsElem.dataset.loaded !== "true") {
-        reddit("r/" + subreddit + "/comments/" + fullname.substring(fullname.indexOf("_") + 1) + ".json", {
-            limit: 50
-        }, function(r){
-            r = JSON.parse(r);
-            displayComments(r[1], commentsElem, true);
-            commentsElem.dataset.loaded = "true";
+function expandPost(elem, dir) {
+    if (dir === -1) {
+        document.body.classList.remove("scroll-locked");
+        elem.classList.remove("expanded");
+    } else {
+        var subreddit = elem.querySelector(".post-info-subreddit").textContent;
+        var commentsElem = elem.querySelector(".comments-container");
+        var fullname = elem.dataset.fullname;
 
-            commentsElem.classList.remove("loading");
-            layoutMasonry();
-        });
+        if (commentsElem.dataset.loaded !== "true") {
+            reddit("r/" + subreddit + "/comments/" + fullname.substring(fullname.indexOf("_") + 1) + ".json", {
+                limit: 50
+            }, function(r){
+                r = JSON.parse(r);
+                displayComments(r[1], commentsElem, true);
+                commentsElem.dataset.loaded = "true";
 
-        commentsElem.classList.add("loading");
+                commentsElem.classList.remove("loading");
+                layoutMasonry();
+            });
+
+            commentsElem.classList.add("loading");
+        }
+
+        document.body.classList.add("scroll-locked");
+        elem.classList.add("expanded");
     }
     
-    document.body.classList.add("scroll-locked");
-    elem.classList.add("expanded");
-}
-
-function unexpandPost(elem) {
-    document.body.classList.remove("scroll-locked");
-    elem.classList.remove("expanded");
+    if (elem.dataset.preview == "youtube") {
+        var ytIframe = elem.querySelector(".preview iframe");
+        
+        var width = elem.offsetWidth;
+        var height = width * 9/16;
+        
+        ytIframe.setAttribute("width", width);
+        ytIframe.setAttribute("height", height);
+    }
+    
     layoutMasonry();
 }
 
