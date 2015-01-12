@@ -122,8 +122,9 @@ sup {
 }
 
 blockquote {
-    color: rgba(0, 0, 0, .7);
     border-left: 3px solid rgba(0, 0, 0, .3);
+    background-color: rgba(0, 0, 0, .1);
+    padding: 1px 0;
     padding-left: 10px;
 }
 
