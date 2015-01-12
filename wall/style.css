@@ -124,7 +124,7 @@ sup {
 blockquote {
     color: rgba(0, 0, 0, .7);
     border-left: 3px solid rgba(0, 0, 0, .3);
-    padding-left: 5px;
+    padding-left: 10px;
 }
 
 blockquote p {
