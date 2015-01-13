@@ -239,7 +239,7 @@ function getMore() {
 </div>\
 <div class='comments-container'>\
 <div class='comment-compose-container' data-fullname='" + fullname + "'>\
-<textarea class='comment-compose' placeholder='Write a comment'></textarea>\
+<textarea class='comment-compose autosize' placeholder='Write a comment'></textarea>\
 <button class='comment-submit'></button>\
 </div>\
 </div>\
@@ -479,7 +479,7 @@ function makeCommentElem(info) {
 </div>\
 </div>\
 <div class='comment-compose-container' data-fullname='" + fullname + "'>\
-<textarea class='comment-compose' placeholder='Write a reply'></textarea><button class='comment-submit'></button>\
+<textarea class='comment-compose autosize' placeholder='Write a reply'></textarea><button class='comment-submit'></button>\
 </div>";
     
     commentElem.dataset.fullname = fullname;
@@ -1179,9 +1179,16 @@ var handleHash = function(){
     toggleSidebar(-1);
 };
 
-window.addEventListener("hashchange", handleHash);
+var resizeTextarea = function(txtElem){
+    txtElem.setAttribute("rows", txtElem.value.split("\n").length);
+};
 
+window.addEventListener("hashchange", handleHash);
 window.addEventListener("resize", layoutMasonry);
+window.addEventListener("input", function(e){
+    if (e.target.tagName.toLowerCase() === "textarea");
+    resizeTextarea(e.target);
+});
 
 getUserSubreddits();
 handleHash();
