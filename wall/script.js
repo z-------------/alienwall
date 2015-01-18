@@ -121,8 +121,7 @@ var parseURL = function(url, target) {
         case "path":
             return parser.pathname; break;
         case "patharray":
-            var _pathstring = parser.pathname.substring(1,this.length-1); // cut off leading and ending slashes (/)
-            return _pathstring.split("/"); break;
+            return parser.pathname.substring(1).split("/"); break;
         case "paramsstring":
             return parser.search; break;
         case "params":
@@ -198,6 +197,13 @@ function fixLinks(html){
         aElem.setAttribute("target", "_blank");
         if (aElem.getAttribute("href")[0] === "/") {
             aElem.setAttribute("href", "http://www.reddit.com" + aElem.getAttribute("href"));
+        }
+        
+        var urlPath = parseURL(aElem.href, "patharray");
+        var urlHostname = parseURL(aElem.href, "hostname");
+        if ((urlHostname === "www.reddit.com" || urlHostname === "np.reddit.com" || urlHostname === "reddit.com") && urlPath[0] === "r" && urlPath.length === 2) {
+            aElem.setAttribute("href", "#!/r/" + urlPath[1]);
+            aElem.setAttribute("target", "_self");
         }
     });
     
