@@ -246,6 +246,7 @@ function getMore() {
 <button class='close-post'></button>";
                 
                 postElem.innerHTML = postElemHtml;
+                
                 postElem.href = postURL;
                 postElem.dataset.fullname = fullname;
                 
@@ -406,6 +407,9 @@ function getMore() {
                     /* self */
                     
                     previewElem.innerHTML = "<div class='selftext-container'>" + entity2unicode(post.data.selftext_html) + "</div>";
+                    [].slice.call(previewElem.querySelectorAll("a")).forEach(function(aElem){
+                        aElem.setAttribute("target", "_blank");
+                    });
                     
                     postElem.dataset.preview = "self";
                     previewElem.classList.add("visible");
@@ -483,6 +487,10 @@ function makeCommentElem(info) {
 </div>";
     
     commentElem.dataset.fullname = fullname;
+    
+    [].slice.call(commentElem.querySelectorAll(".comment-body a")).forEach(function(aElem){
+        aElem.setAttribute("target", "_blank");
+    });
     
     var upvoteBtn = commentElem.querySelector(".vote.up");
     var downvoteBtn = commentElem.querySelector(".vote.down");
