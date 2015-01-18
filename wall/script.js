@@ -190,6 +190,20 @@ function layoutMasonry(){
     });
 }
 
+function fixLinks(html){
+    var div = document.createElement("div");
+    div.innerHTML = html;
+    
+    [].slice.call(div.querySelectorAll("a")).forEach(function(aElem){
+        aElem.setAttribute("target", "_blank");
+        if (aElem.getAttribute("href")[0] === "/") {
+            aElem.setAttribute("href", "http://www.reddit.com" + aElem.getAttribute("href"));
+        }
+    });
+    
+    return div.innerHTML;
+}
+
 function getMore() {
     clearInterval(scrollLoadInterval);
     
@@ -406,10 +420,7 @@ function getMore() {
                 if (post.data.is_self && post.data.selftext_html) {
                     /* self */
                     
-                    previewElem.innerHTML = "<div class='selftext-container'>" + entity2unicode(post.data.selftext_html) + "</div>";
-                    [].slice.call(previewElem.querySelectorAll("a")).forEach(function(aElem){
-                        aElem.setAttribute("target", "_blank");
-                    });
+                    previewElem.innerHTML = "<div class='selftext-container'>" + fixLinks(entity2unicode(post.data.selftext_html)) + "</div>";
                     
                     postElem.dataset.preview = "self";
                     previewElem.classList.add("visible");
@@ -472,7 +483,7 @@ function makeCommentElem(info) {
     var score = (info.score_hidden ? "[score hidden]" : info.score + " points");
     
     commentElem.innerHTML = "<div class='comment-body-container'>\
-<div class='comment-body'>" + entity2unicode(body) + "</div>\
+<div class='comment-body'>" + fixLinks(entity2unicode(body)) + "</div>\
 <div class='comment-info'>\
 <a class='comment-info-author " + (author == op ? "op" : "") + "' href='http://www.reddit.com/u/" + author + "'>" + author + "</a>\
 <button class='vote up'></button>\
@@ -487,10 +498,6 @@ function makeCommentElem(info) {
 </div>";
     
     commentElem.dataset.fullname = fullname;
-    
-    [].slice.call(commentElem.querySelectorAll(".comment-body a")).forEach(function(aElem){
-        aElem.setAttribute("target", "_blank");
-    });
     
     var upvoteBtn = commentElem.querySelector(".vote.up");
     var downvoteBtn = commentElem.querySelector(".vote.down");
