@@ -359,8 +359,8 @@ aside a.current {
     transition-property: box-shadow;
 }
 
-.floating-action:before {
-    content: "\2B";
+.floating-action.submit {
+    background-image: url(/img/ui/edit.svg);
 }
 
 .content {

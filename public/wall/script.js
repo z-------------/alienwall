@@ -1169,7 +1169,7 @@ var changeSection = function(sectionName){
     [].slice.call(sectionAnchors).forEach(function(sectionAnchor){
         sectionAnchor.classList.remove("current");
     });
-    targetAnchor.classList.add("current");
+    if (targetAnchor) targetAnchor.classList.add("current");
 };
 
 var handleHash = function(){
@@ -1192,6 +1192,8 @@ var handleHash = function(){
         if (sub !== FRONT_PAGE && sub !== "all") {
             document.querySelector(".submit-container [name='sr']").value = sub;
         }
+    } else if (hashPath[0] === "u") {
+        changeSection("user");
     } else {
         changeSection("subreddits");
         changeSubreddit(FRONT_PAGE);
