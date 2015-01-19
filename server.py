@@ -1,5 +1,8 @@
 import sys
 from http.server import CGIHTTPRequestHandler, HTTPServer
+import os
+
+os.chdir("public")
  
 port = 8000
 if len(sys.argv) > 1:

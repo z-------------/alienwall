@@ -19,7 +19,7 @@ values = {
     "redirect_uri": "http://123.203.189.150:8000/py/auth_callback"
 }
 
-password_str = base64.b64encode(str.encode(open("clientinfo").read()))
+password_str = base64.b64encode(str.encode(open("../clientinfo").read()))
 
 headers = {
     "Content-Type" : "application/x-www-form-urlencoded",
