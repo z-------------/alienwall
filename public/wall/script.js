@@ -177,6 +177,17 @@ var errorFunc = function(){
     layoutMasonry();
 }
 
+function isImgurImage(url){
+    var path = parseURL(url, "patharray");
+    var hostname = parseURL(url, "hostname");
+    
+    var lastInPath = path[path.length - 1];
+    
+    var isHost = (hostname === "imgur.com" || hostname === "m.imgur.com");
+    
+    return (isHost && path[0].length <= 7 && path.indexOf("gallery") === -1 && path.indexOf("blog") === -1);
+}
+
 function layoutMasonry(){
     streamMasonry = new Masonry(document.querySelector("#stream"), {
         /*columnWidth: 480,*/
@@ -374,8 +385,7 @@ function getMore() {
                     previewElem.classList.add("visible");
                 }
                 
-                if ((urlHostname === "imgur.com" || urlHostname === "m.imgur.com") && urlPath.substring(1).length <= 7 && new RegExp("^[a-z0-9]+$", "i").test(urlPath.substring(1)) &&
-                   urlPath.indexOf("gallery") === -1 && urlPath.indexOf("blog") === -1) {
+                if (isImgurImage(postURL)) {
                     /* imgur */
                     
                     var id = urlPath.substring(1);
