@@ -212,8 +212,12 @@ function fixLinks(html){
         
         var urlPath = parseURL(aElem.href, "patharray");
         var urlHostname = parseURL(aElem.href, "hostname");
-        if ((urlHostname === "www.reddit.com" || urlHostname === "np.reddit.com" || urlHostname === "reddit.com") && urlPath[0] === "r" && urlPath.length === 2) {
-            aElem.setAttribute("href", "#!/r/" + urlPath[1]);
+        if (urlHostname === "www.reddit.com" || urlHostname === "np.reddit.com" || urlHostname === "reddit.com") {
+            if (urlPath[0] === "r" && urlPath.length === 2) {
+                aElem.setAttribute("href", "#!/r/" + urlPath[1]);
+            } else if (urlPath[0] === "u" && urlPath.length === 2) {
+                aElem.setAttribute("href", "#!/u/" + urlPath[1]);
+            }
             aElem.setAttribute("target", "_self");
         }
     });
@@ -1189,24 +1193,41 @@ var handleHash = function(){
         var subName = hashPath[1];
         if (!subName) subName = FRONT_PAGE;
         
-        changeSection("subreddits");
         changeSubreddit(subName);
+        changeSection("subreddits");
         
         if (hashPath[1] === FRONT_PAGE) {
             history.pushState(null, initialTitle, window.location.pathname);
         }
     } else if (hashPath[0] === "submit") {
         requestCaptcha();
-        changeSection("submit");
         
         if (sub !== FRONT_PAGE && sub !== "all") {
             document.querySelector(".submit-container [name='sr']").value = sub;
         }
-    } else if (hashPath[0] === "u") {
+        
+        changeSection("submit");
+    } else if (hashPath[0] === "u" && hashPath.length === 2) {
+        var username = hashPath[1];
+        
+        reddit("user/" + encodeURIComponent(username) + "/about.json", {}, function(r){
+            r = JSON.parse(r);
+            var data = r.data;
+            
+            var usernameElem = document.querySelector("#user-name");
+            var karmaLinkElem = document.querySelector("#user-karma-link");
+            var karmaCommentElem = document.querySelector("#user-karma-comment");
+            
+            usernameElem.textContent = username;
+            karmaLinkElem.textContent = data.link_karma;
+            karmaCommentElem.textContent = data.comment_karma;
+        });
+        
         changeSection("user");
     } else {
         changeSection("subreddits");
         changeSubreddit(FRONT_PAGE);
+        history.pushState(null, initialTitle, window.location.pathname);
     }
     
     toggleSidebar(-1);
