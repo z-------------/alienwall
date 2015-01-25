@@ -185,7 +185,7 @@ function isImgurImage(url){
     
     var isHost = (hostname === "imgur.com" || hostname === "m.imgur.com");
     
-    return (isHost && path[0].length <= 7 && path.indexOf("gallery") === -1 && path.indexOf("blog") === -1);
+    return (isHost && path[0].length <= 7 && path[0] !== "gallery" && path[0] !== "blog" && path[0] !== "a");
 }
 
 function layoutMasonry(){
