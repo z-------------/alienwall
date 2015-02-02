@@ -16,7 +16,7 @@ url = "https://www.reddit.com/api/v1/access_token"
 values = {
     "grant_type": "authorization_code",
     "code": code,
-    "redirect_uri": "http://123.203.189.150:8000/py/auth_callback"
+    "redirect_uri": "http://localhost:8000/py/auth_callback"
 }
 
 password_str = base64.b64encode(str.encode(open("../clientinfo").read()))
