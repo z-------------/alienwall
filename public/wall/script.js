@@ -1213,16 +1213,17 @@ var handleHash = function(){
         changeSection("submit");
     } else if (hashPath[0] === "u" && hashPath.length === 2) {
         var username = hashPath[1];
+        var usernameElem = document.querySelector("#user-name");
+        usernameElem.textContent = username;
         
         reddit("user/" + encodeURIComponent(username) + "/about.json", {}, function(r){
             r = JSON.parse(r);
             var data = r.data;
             
-            var usernameElem = document.querySelector("#user-name");
             var karmaLinkElem = document.querySelector("#user-karma-link");
             var karmaCommentElem = document.querySelector("#user-karma-comment");
             
-            usernameElem.textContent = username;
+            usernameElem.textContent = data.name;
             karmaLinkElem.textContent = data.link_karma;
             karmaCommentElem.textContent = data.comment_karma;
         });
