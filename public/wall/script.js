@@ -264,7 +264,7 @@ function getMore() {
 "<a href='" + postURL + "' target='_blank'><h3>" + post.data.title + "</h3></a>\
 <div class='preview'></div>\
 <div class='post-info'>\
-<a class='post-info-author' href='//www.reddit.com/u/" + post.data.author + "' rel='author'>" + post.data.author + "</a>\
+<a class='post-info-author' href='#!/u/" + post.data.author + "' rel='author'>" + post.data.author + "</a>\
 <a class='post-info-subreddit' href='#!/r/" + post.data.subreddit + "'>" + post.data.subreddit + "</a>\
 <a class='post-info-permalink post-info-date' title='permalink' href='//www.reddit.com" + post.data.permalink + "'>" + timeString + "</a>\
 <a class='post-info-comments'>" + post.data.num_comments + " comments</a>\
@@ -505,7 +505,7 @@ function makeCommentElem(info) {
     commentElem.innerHTML = "<div class='comment-body-container'>\
 <div class='comment-body'>" + fixLinks(entity2unicode(body)) + "</div>\
 <div class='comment-info'>\
-<a class='comment-info-author " + (author == op ? "op" : "") + "' href='http://www.reddit.com/u/" + author + "'>" + author + "</a>\
+<a class='comment-info-author " + (author == op ? "op" : "") + "' href='#!/u/" + author + "'>" + author + "</a>\
 <button class='vote up'></button>\
 <button class='vote down'></button>\
 <span class='comment-score'>" + score + "</span>\
@@ -792,6 +792,8 @@ function getUserSubreddits(){
 }
 
 function changeSubreddit(subName){
+    clearInterval(scrollLoadInterval);
+    
     sub = subName;
     
     prepareGetMore();
@@ -1169,6 +1171,8 @@ setInterval(function(){
 
 /* hashbang navigation */
 var changeSection = function(sectionName){
+    clearInterval(scrollLoadInterval);
+    
     var targetSection = document.querySelector("#" + sectionName);
     var sections = document.querySelectorAll(".content");
     
