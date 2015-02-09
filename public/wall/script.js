@@ -349,7 +349,7 @@ function getMore() {
                     var width = streamMasonry.columnWidth - streamMasonry.gutter;
                     var height = width * 9/16;
                     
-                    previewElem.innerHTML = "<iframe type='text/html' width='" + width + "' height='" + height + "' src='https://www.youtube.com/embed/" + id + "' frameborder='0'/>";
+                    previewElem.innerHTML = "<iframe type='text/html' width='" + width + "' height='" + height + "' src='https://www.youtube.com/embed/" + id + "?modestbranding=1&theme=light&rel=0&controls=2' frameborder='0'/>";
                     
                     postElem.dataset.preview = "youtube";
                     previewElem.classList.add("visible");
