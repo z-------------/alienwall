@@ -349,8 +349,8 @@ aside a.current {
     bottom: 0;
     margin: 20px;
     
-    width: 50px;
-    height: 50px;
+    width: 55px;
+    height: 55px;
     border-radius: 50%;
     background-color: #FF4136;
     color: #FFF;
@@ -467,6 +467,12 @@ aside a.current {
     transition-property: color;
     margin: 0;
     color: inherit;
+}
+
+.post.expanded h3 {
+    color: #FF851B;
+    font-size: 1.7em;
+    font-weight: 600;
 }
 
 .vote-container, .preview, .post-info {
