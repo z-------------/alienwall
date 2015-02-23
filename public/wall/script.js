@@ -225,6 +225,224 @@ function fixLinks(html){
     return div.innerHTML;
 }
 
+function makePostElem(data) {
+    var postElem = document.createElement("li");
+    postElem.classList.add("post", "card");
+
+    var hrTime = new HRTime(new Date(data.created_utc * 1000));
+    var timeString = hrTime.time + " " + hrTime.unit + ((Math.abs(hrTime.time) !== 1) ? "s" : "") + " ago";
+    var fullname = data.kind + "_" + data.id;
+    var postURL = data.url;
+    var likes = data.likes;
+    var saved = data.saved;
+
+    var postElemHtml = 
+"<a href='" + postURL + "' target='_blank'><h3>" + data.title + "</h3></a>\
+<div class='preview'></div>\
+<div class='post-info'>\
+<a class='post-info-author' href='#!/u/" + data.author + "' rel='author'>" + data.author + "</a>\
+<a class='post-info-subreddit' href='#!/r/" + data.subreddit + "'>" + data.subreddit + "</a>\
+<a class='post-info-permalink post-info-date' title='permalink' href='//www.reddit.com" + data.permalink + "'>" + timeString + "</a>\
+<a class='post-info-comments'>" + data.num_comments + " comments</a>\
+</div>\
+<div class='vote-container'>\
+<button class='vote up'></button><span class='post-score'>" + data.score + "</span><button class='vote down'></button><button class='vote save'></button>\
+</div>\
+<div class='comments-container'>\
+<div class='comment-compose-container' data-fullname='" + fullname + "'>\
+<textarea class='comment-compose autosize' placeholder='Write a comment'></textarea>\
+<button class='comment-submit'></button>\
+</div>\
+</div>\
+<button class='close-post'></button>";
+
+    postElem.innerHTML = postElemHtml;
+
+    postElem.href = postURL;
+    postElem.dataset.fullname = fullname;
+
+    if (data.stickied === true) postElem.classList.add("stickied");
+
+    var upvoteBtn = postElem.querySelector(".vote.up");
+    var downvoteBtn = postElem.querySelector(".vote.down");
+    var saveBtn = postElem.querySelector(".vote.save");
+    var commentsElem = postElem.querySelector(".comments-container");
+    var commentsBtn = postElem.querySelector(".post-info-comments");
+    var closeBtn = postElem.querySelector(".close-post");
+    var commentBtn = postElem.querySelector(".comment-submit");
+
+    if (likes === true) upvoteBtn.classList.add("yes");
+    if (likes === false) downvoteBtn.classList.add("yes");
+    if (saved === true) saveBtn.classList.add("yes");
+
+    upvoteBtn.addEventListener("click", postVoteListener);
+    downvoteBtn.addEventListener("click", postVoteListener);
+
+    saveBtn.addEventListener("click", function(){
+        var endpoint = "api/save";
+        if (this.classList.contains("yes")) endpoint = "api/unsave";
+
+        reddit(endpoint, {
+            category: "redditwall",
+            id: this.parentElement.parentElement.dataset.fullname
+        }, function(r){
+            console.log(r);
+        }, true);
+
+        this.classList.toggle("yes");
+    });
+
+    commentsBtn.addEventListener("click", function(){
+        var parentElem = this.parentElement.parentElement
+        expandPost(parentElem);
+        parentElem.scrollTop = parentElem.querySelector(".comments-container").offsetTop - document.querySelector("header").offsetHeight;
+    });
+
+    closeBtn.addEventListener("click", function(){
+        expandPost(this.parentElement, -1);
+    });
+
+    commentBtn.addEventListener("click", commentListener);
+
+    var previewElem = postElem.querySelector(".preview");
+    var onLoad = "streamMasonry.layout()";
+
+    /* make media previews */
+    var urlHostname = parseURL(postURL, "hostname");
+    var urlPath = parseURL(postURL, "path");
+    var urlParams = parseURL(postURL, "params");
+
+    if ((urlHostname === "www.youtube.com" && urlPath === "/watch" && urlParams.v) || (urlHostname === "youtu.be" && urlPath.length > 1)) {
+        /* youtube video */
+
+        var id;
+        if (urlHostname === "www.youtube.com") {
+            id = urlParams.v;
+        } else if ((urlHostname === "youtu.be")) {
+            id = urlPath.substring(1);
+        }
+
+        var width = streamMasonry.columnWidth - streamMasonry.gutter;
+        var height = width * 9/16;
+
+        previewElem.innerHTML = "<iframe type='text/html' width='" + width + "' height='" + height + "' src='https://www.youtube.com/embed/" + id + "?modestbranding=1&theme=light&rel=0&controls=2' frameborder='0'/>";
+
+        postElem.dataset.preview = "youtube";
+        previewElem.classList.add("visible");
+    }
+
+    if (urlHostname === "gfycat.com" || urlHostname === "www.gfycat.com") {
+        /* gfycat gfy */
+
+        var id = urlPath.substring(1);
+
+        var prefixes = ["giant", "fat", "zippy"];
+        var fileTypes = ["webm", "mp4"];
+
+        var sourcesHTML = "";
+        prefixes.forEach(function(prefix){
+            fileTypes.forEach(function(fileType){
+                sourcesHTML += "<source type='video/" + fileType + "' src='http://" + prefix + ".gfycat.com/" + id + "." + fileType + "'>";
+            });
+        });
+
+        previewElem.innerHTML = "<video loop muted onloadeddata='" + onLoad + "'>" + sourcesHTML + "</video>";
+
+        postElem.dataset.preview = "gfycat";
+        previewElem.classList.add("visible");
+    }
+
+    if (urlHostname === "i.imgur.com" && (new RegExp("\\.gifv$", "gi")).test(postURL)) {
+        /* imgur gifv */
+
+        var id = urlPath.substring(0, urlPath.lastIndexOf(".gifv"));
+        var webmURL = "http://i.imgur.com" + id + ".webm";
+        var mp4URL = "http://i.imgur.com" + id + ".mp4";
+
+        previewElem.innerHTML = "<video loop muted onloadeddata='" + onLoad + "'><source src='" + webmURL + "' type='video/webm'><source src='" + mp4URL + "' type='video/mp4'></video>";
+
+        postElem.dataset.preview = "gifv";
+        previewElem.classList.add("visible");
+    }
+
+    if (isImgurImage(postURL)) {
+        /* imgur */
+
+        var id = urlPath.substring(1);
+        var imgURL = "http://i.imgur.com/" + id + ".jpg";
+
+        previewElem.innerHTML = "<img src='" + imgURL + "' onload='" + onLoad + "'>";
+
+        postElem.dataset.preview = "imgur";
+        previewElem.classList.add("visible");
+    }
+
+    if (urlHostname === "gyazo.com" && urlPath.length === 33) {
+        /* gyazo */
+
+        var id = urlPath.substring(1);
+        var imgURL = "http://i.gyazo.com/" + id + ".png";
+
+        previewElem.innerHTML = "<img src='" + imgURL + "' onload='" + onLoad + "'>";
+
+        postElem.dataset.preview = "gyazo";
+        previewElem.classList.add("visible");
+    }
+
+    if (urlHostname === "xkcd.com" && new RegExp("^[0-9]+$", "gi").test(urlPath.replace(/\//gi, ""))) {
+        /* xkcd */
+        var number = urlPath.replace(/\//gi, "");
+
+        jsonp("http://dynamic.xkcd.com/api-0/jsonp/comic/" + number, function(r){
+            var imgURL = r.img;
+
+            previewElem.innerHTML = "<img src='" + imgURL + "' onload='" + onLoad + "'>";
+
+            previewElem.classList.add("visible");
+        });
+
+        postElem.dataset.preview = "xkcd";
+    }
+
+    if ((new RegExp("(\\.gif|\\.jpg|\\.jpeg|\\.webp|\\.png|\\.tiff)$", "gi")).test(urlPath.substring(1))) {
+        /* image */
+
+        previewElem.innerHTML = "<img src='" + postURL + "' onload='" + onLoad + "'>";
+
+        postElem.dataset.preview = "image";
+        previewElem.classList.add("visible");
+    }
+
+    if (data.is_self && data.selftext_html) {
+        /* self */
+
+        previewElem.innerHTML = "<div class='selftext-container'>" + fixLinks(entity2unicode(data.selftext_html)) + "</div>";
+
+        postElem.dataset.preview = "self";
+        previewElem.classList.add("visible");
+
+        setTimeout(function(){
+            if (previewElem.querySelector(".md").offsetHeight > previewElem.querySelector(".selftext-container").offsetHeight) {
+                postElem.querySelector(".selftext-container").classList.add("overflow");
+            }
+        });
+    }
+
+    if (postElem.dataset.preview && postElem.dataset.preview !== "youtube") {
+        previewElem.addEventListener("click", function(){
+            expandPost(this.parentElement);
+        });
+    }
+
+    postElem.addEventListener("click", function(e){
+        var children = [].slice.call(this.children).filter(function(child){return !child.classList.contains("close-post")});
+        var toElem = e.toElement;
+        if (toElem === this || children.indexOf(toElem) !== -1) expandPost(this);
+    });
+    
+    return postElem;
+}
+
 function getMore() {
     clearInterval(scrollLoadInterval);
     
@@ -250,220 +468,23 @@ function getMore() {
         if (r && r.data.children && r.data.children.length !== 0) {
             var posts = r.data.children;
             posts.forEach(function(post){
-                var postElem = document.createElement("li");
-                postElem.classList.add("post", "card");
-                
-                var hrTime = new HRTime(new Date(post.data.created_utc * 1000));
-                var timeString = hrTime.time + " " + hrTime.unit + ((Math.abs(hrTime.time) !== 1) ? "s" : "") + " ago";
-                var fullname = post.kind + "_" + post.data.id;
-                var postURL = post.data.url;
-                var likes = post.data.likes;
-                var saved = post.data.saved;
-                
-                var postElemHtml = 
-"<a href='" + postURL + "' target='_blank'><h3>" + post.data.title + "</h3></a>\
-<div class='preview'></div>\
-<div class='post-info'>\
-<a class='post-info-author' href='#!/u/" + post.data.author + "' rel='author'>" + post.data.author + "</a>\
-<a class='post-info-subreddit' href='#!/r/" + post.data.subreddit + "'>" + post.data.subreddit + "</a>\
-<a class='post-info-permalink post-info-date' title='permalink' href='//www.reddit.com" + post.data.permalink + "'>" + timeString + "</a>\
-<a class='post-info-comments'>" + post.data.num_comments + " comments</a>\
-</div>\
-<div class='vote-container'>\
-<button class='vote up'></button><span class='post-score'>" + post.data.score + "</span><button class='vote down'></button><button class='vote save'></button>\
-</div>\
-<div class='comments-container'>\
-<div class='comment-compose-container' data-fullname='" + fullname + "'>\
-<textarea class='comment-compose autosize' placeholder='Write a comment'></textarea>\
-<button class='comment-submit'></button>\
-</div>\
-</div>\
-<button class='close-post'></button>";
-                
-                postElem.innerHTML = postElemHtml;
-                
-                postElem.href = postURL;
-                postElem.dataset.fullname = fullname;
-                
-                if (post.data.stickied === true) postElem.classList.add("stickied");
-                
-                var upvoteBtn = postElem.querySelector(".vote.up");
-                var downvoteBtn = postElem.querySelector(".vote.down");
-                var saveBtn = postElem.querySelector(".vote.save");
-                var commentsElem = postElem.querySelector(".comments-container");
-                var commentsBtn = postElem.querySelector(".post-info-comments");
-                var closeBtn = postElem.querySelector(".close-post");
-                var commentBtn = postElem.querySelector(".comment-submit");
-                
-                if (likes === true) upvoteBtn.classList.add("yes");
-                if (likes === false) downvoteBtn.classList.add("yes");
-                if (saved === true) saveBtn.classList.add("yes");
-                
-                upvoteBtn.addEventListener("click", postVoteListener);
-                downvoteBtn.addEventListener("click", postVoteListener);
-                
-                saveBtn.addEventListener("click", function(){
-                    var endpoint = "api/save";
-                    if (this.classList.contains("yes")) endpoint = "api/unsave";
-                    
-                    reddit(endpoint, {
-                        category: "redditwall",
-                        id: this.parentElement.parentElement.dataset.fullname
-                    }, function(r){
-                        console.log(r);
-                    }, true);
-                    
-                    this.classList.toggle("yes");
+                var postElem = makePostElem({
+                    created_utc: post.data.created_utc,
+                    kind: post.kind,
+                    id: post.data.id,
+                    url: post.data.url,
+                    likes: post.data.likes,
+                    saved: post.data.saved,
+                    title: post.data.title,
+                    author: post.data.author,
+                    subreddit: post.data.subreddit,
+                    permalink: post.data.permalink,
+                    num_comments: post.data.num_comments,
+                    score: post.data.score,
+                    is_self: post.data.is_self,
+                    selftext_html: post.data.selftext_html
                 });
                 
-                commentsBtn.addEventListener("click", function(){
-                    var parentElem = this.parentElement.parentElement
-                    expandPost(parentElem);
-                    parentElem.scrollTop = parentElem.querySelector(".comments-container").offsetTop - document.querySelector("header").offsetHeight;
-                });
-                
-                closeBtn.addEventListener("click", function(){
-                    expandPost(this.parentElement, -1);
-                });
-                
-                commentBtn.addEventListener("click", commentListener);
-                
-                var previewElem = postElem.querySelector(".preview");
-                var onLoad = "streamMasonry.layout()";
-                
-                /* make media previews */
-                var urlHostname = parseURL(postURL, "hostname");
-                var urlPath = parseURL(postURL, "path");
-                var urlParams = parseURL(postURL, "params");
-                
-                if ((urlHostname === "www.youtube.com" && urlPath === "/watch" && urlParams.v) || (urlHostname === "youtu.be" && urlPath.length > 1)) {
-                    /* youtube video */
-                    
-                    var id;
-                    if (urlHostname === "www.youtube.com") {
-                        id = urlParams.v;
-                    } else if ((urlHostname === "youtu.be")) {
-                        id = urlPath.substring(1);
-                    }
-                    
-                    var width = streamMasonry.columnWidth - streamMasonry.gutter;
-                    var height = width * 9/16;
-                    
-                    previewElem.innerHTML = "<iframe type='text/html' width='" + width + "' height='" + height + "' src='https://www.youtube.com/embed/" + id + "?modestbranding=1&theme=light&rel=0&controls=2' frameborder='0'/>";
-                    
-                    postElem.dataset.preview = "youtube";
-                    previewElem.classList.add("visible");
-                }
-                
-                if (urlHostname === "gfycat.com" || urlHostname === "www.gfycat.com") {
-                    /* gfycat gfy */
-                    
-                    var id = urlPath.substring(1);
-                    
-                    var prefixes = ["giant", "fat", "zippy"];
-                    var fileTypes = ["webm", "mp4"];
-                    
-                    var sourcesHTML = "";
-                    prefixes.forEach(function(prefix){
-                        fileTypes.forEach(function(fileType){
-                            sourcesHTML += "<source type='video/" + fileType + "' src='http://" + prefix + ".gfycat.com/" + id + "." + fileType + "'>";
-                        });
-                    });
-                    
-                    previewElem.innerHTML = "<video loop muted onloadeddata='" + onLoad + "'>" + sourcesHTML + "</video>";
-                    
-                    postElem.dataset.preview = "gfycat";
-                    previewElem.classList.add("visible");
-                }
-                
-                if (urlHostname === "i.imgur.com" && (new RegExp("\\.gifv$", "gi")).test(postURL)) {
-                    /* imgur gifv */
-
-                    var id = urlPath.substring(0, urlPath.lastIndexOf(".gifv"));
-                    var webmURL = "http://i.imgur.com" + id + ".webm";
-                    var mp4URL = "http://i.imgur.com" + id + ".mp4";
-                    
-                    previewElem.innerHTML = "<video loop muted onloadeddata='" + onLoad + "'><source src='" + webmURL + "' type='video/webm'><source src='" + mp4URL + "' type='video/mp4'></video>";
-                    
-                    postElem.dataset.preview = "gifv";
-                    previewElem.classList.add("visible");
-                }
-                
-                if (isImgurImage(postURL)) {
-                    /* imgur */
-                    
-                    var id = urlPath.substring(1);
-                    var imgURL = "http://i.imgur.com/" + id + ".jpg";
-                    
-                    previewElem.innerHTML = "<img src='" + imgURL + "' onload='" + onLoad + "'>";
-                    
-                    postElem.dataset.preview = "imgur";
-                    previewElem.classList.add("visible");
-                }
-                
-                if (urlHostname === "gyazo.com" && urlPath.length === 33) {
-                    /* gyazo */
-
-                    var id = urlPath.substring(1);
-                    var imgURL = "http://i.gyazo.com/" + id + ".png";
-                    
-                    previewElem.innerHTML = "<img src='" + imgURL + "' onload='" + onLoad + "'>";
-                    
-                    postElem.dataset.preview = "gyazo";
-                    previewElem.classList.add("visible");
-                }
-                
-                if (urlHostname === "xkcd.com" && new RegExp("^[0-9]+$", "gi").test(urlPath.replace(/\//gi, ""))) {
-                    /* xkcd */
-                    var number = urlPath.replace(/\//gi, "");
-                    
-                    jsonp("http://dynamic.xkcd.com/api-0/jsonp/comic/" + number, function(r){
-                        var imgURL = r.img;
-
-                        previewElem.innerHTML = "<img src='" + imgURL + "' onload='" + onLoad + "'>";
-
-                        previewElem.classList.add("visible");
-                    });
-                    
-                    postElem.dataset.preview = "xkcd";
-                }
-                
-                if ((new RegExp("(\\.gif|\\.jpg|\\.jpeg|\\.webp|\\.png|\\.tiff)$", "gi")).test(urlPath.substring(1))) {
-                    /* image */
-                    
-                    previewElem.innerHTML = "<img src='" + postURL + "' onload='" + onLoad + "'>";
-                    
-                    postElem.dataset.preview = "image";
-                    previewElem.classList.add("visible");
-                }
-                
-                if (post.data.is_self && post.data.selftext_html) {
-                    /* self */
-                    
-                    previewElem.innerHTML = "<div class='selftext-container'>" + fixLinks(entity2unicode(post.data.selftext_html)) + "</div>";
-                    
-                    postElem.dataset.preview = "self";
-                    previewElem.classList.add("visible");
-                    
-                    setTimeout(function(){
-                        if (previewElem.querySelector(".md").offsetHeight > previewElem.querySelector(".selftext-container").offsetHeight) {
-                            postElem.querySelector(".selftext-container").classList.add("overflow");
-                        }
-                    });
-                }
-                
-                if (postElem.dataset.preview && postElem.dataset.preview !== "youtube") {
-                    previewElem.addEventListener("click", function(){
-                        expandPost(this.parentElement);
-                    });
-                }
-                
-                postElem.addEventListener("click", function(e){
-                    var children = [].slice.call(this.children).filter(function(child){return !child.classList.contains("close-post")});
-                    var toElem = e.toElement;
-                    if (toElem === this || children.indexOf(toElem) !== -1) expandPost(this);
-                });
-
                 streamElem.appendChild(postElem);
                 
                 layoutMasonry();
