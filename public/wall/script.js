@@ -648,6 +648,10 @@ function expandPost(elem, dir) {
     layoutMasonry();
 }
 
+function changeDocTitle(title) {
+    document.title = title + " - " + initialTitle;
+}
+
 function getSubredditInfo(subName) {
     var endpoint = "r/" + encodeURIComponent(subName) + "/about.json";
     
@@ -663,7 +667,7 @@ function getSubredditInfo(subName) {
         subInfoElem.dataset.fullname = r.kind + "_" + data.id;
         subInfoElem.querySelector("h2").innerHTML = title;
         
-        document.title = title + " (/r/" + displayName + ") - " + initialTitle;
+        changeDocTitle(title + " (/r/" + displayName + ") - ");
         
         var subscribeBtn = subInfoElem.querySelector("#subscribe-btn");
         if (data.user_is_subscriber === true) {
@@ -1226,6 +1230,13 @@ var handleHash = function(){
             usernameElem.textContent = data.name;
             karmaLinkElem.textContent = data.link_karma;
             karmaCommentElem.textContent = data.comment_karma;
+            
+            reddit("user/" + encodeURIComponent(data.name) + "/submitted", {}, function(r){
+                r = JSON.parse(r);
+                console.log(r);
+            });
+            
+            changeDocTitle("/u/" + data.name);
         });
         
         changeSection("user");

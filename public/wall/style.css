@@ -385,7 +385,7 @@ aside a.current {
     pointer-events: none;
 }
 
-#stream {
+.stream {
     width: 100%;
     padding: 20px 40px;
     padding-bottom: 60px;
@@ -394,7 +394,7 @@ aside a.current {
     overflow: hidden;
 }
 
-#stream.loading {
+.stream.loading {
     background-position: bottom center;
 }
 
