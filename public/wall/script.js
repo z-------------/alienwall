@@ -174,6 +174,8 @@ var sortOrder;
 var afterID = null;
 var sub = subsListElem.querySelectorAll("li")[0].dataset.subreddit;
 
+var previousScrollY = 0;
+
 var allSubs = [];
 
 var scrollLoadInterval;
@@ -1312,6 +1314,15 @@ window.addEventListener("input", function(e){
     if (e.target.tagName.toLowerCase() === "textarea");
     resizeTextarea(e.target);
 });
+
+setInterval(function(){
+    if (window.scrollY > 0 && window.scrollY > previousScrollY) {
+        document.body.classList.add("compact-header");
+    } else if (window.scrollY !== previousScrollY) {
+        document.body.classList.remove("compact-header");
+    }
+    previousScrollY = window.scrollY;
+}, 500);
 
 getUserSubreddits();
 handleHash();

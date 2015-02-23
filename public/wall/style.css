@@ -243,6 +243,17 @@ header {
     
     padding: 10px;
     padding-left: 55px;
+    
+    transition-property: height;
+}
+
+.compact-header header {
+    height: 55px;
+}
+
+.compact-header #subreddit-list-container, .compact-header #goto-subreddit {
+    opacity: 0;
+    pointer-events: none;
 }
 
 header, aside.opened {
@@ -556,6 +567,10 @@ aside a.current {
 
 #time-input.visible {
     display: block;
+}
+
+#subreddit-list-container, #goto-subreddit {
+    transition-property: opacity;
 }
 
 #subreddit-list-container {
