@@ -158,7 +158,16 @@ var sidebarElem = document.querySelector("#sidebar");
 
 var initialTitle = document.head.querySelector("title").textContent;
 
-var streamMasonry;
+var streamMasonry, userMasonry;
+var masonryOptions = {
+    /*columnWidth: 480,*/
+    itemSelector: ".post",
+    columnWidth: 480,
+    gutter: 50,
+    isFitWidth: true,
+    transitionDuration: 0,
+    isResizeBound: false
+};
 
 var timeFilter;
 var sortOrder;
@@ -189,15 +198,11 @@ function isImgurImage(url){
 }
 
 function layoutMasonry(){
-    streamMasonry = new Masonry(document.querySelector("#stream"), {
-        /*columnWidth: 480,*/
-        itemSelector: ".post",
-        columnWidth: 480,
-        gutter: 50,
-        isFitWidth: true,
-        transitionDuration: 0,
-        isResizeBound: false
-    });
+    streamMasonry = new Masonry(document.querySelector("#stream"), masonryOptions);
+}
+
+function layoutUserMasonry(){
+    userMasonry = new Masonry(document.querySelector("#user-stream"), masonryOptions);
 }
 
 function fixLinks(html){
@@ -322,7 +327,7 @@ function makePostElem(data) {
             id = urlPath.substring(1);
         }
 
-        var width = streamMasonry.columnWidth - streamMasonry.gutter;
+        var width = masonryOptions.columnWidth - masonryOptions.gutter;
         var height = width * 9/16;
 
         previewElem.innerHTML = "<iframe type='text/html' width='" + width + "' height='" + height + "' src='https://www.youtube.com/embed/" + id + "?modestbranding=1&theme=light&rel=0&controls=2' frameborder='0'/>";
@@ -486,9 +491,9 @@ function getMore() {
                 });
                 
                 streamElem.appendChild(postElem);
-                
-                layoutMasonry();
             });
+            
+            layoutMasonry();
 
             var lastPost = posts[posts.length - 1];
             afterID = lastPost.kind + "_" + lastPost.data.id;
@@ -1252,9 +1257,36 @@ var handleHash = function(){
             karmaLinkElem.textContent = data.link_karma;
             karmaCommentElem.textContent = data.comment_karma;
             
-            reddit("user/" + encodeURIComponent(data.name) + "/submitted", {}, function(r){
+            reddit("user/" + encodeURIComponent(data.name) + "/submitted", {
+                limit: 25
+            }, function(r){
                 r = JSON.parse(r);
                 console.log(r);
+                
+                document.querySelector("#user-stream").innerHTML = "";
+                
+                r.data.children.forEach(function(post){
+                    var postElem = makePostElem({
+                        created_utc: post.data.created_utc,
+                        kind: post.kind,
+                        id: post.data.id,
+                        url: post.data.url,
+                        likes: post.data.likes,
+                        saved: post.data.saved,
+                        title: post.data.title,
+                        author: post.data.author,
+                        subreddit: post.data.subreddit,
+                        permalink: post.data.permalink,
+                        num_comments: post.data.num_comments,
+                        score: post.data.score,
+                        is_self: post.data.is_self,
+                        selftext_html: post.data.selftext_html
+                    });
+                    
+                    document.querySelector("#user-stream").appendChild(postElem);
+                });
+
+                layoutUserMasonry();
             });
             
             changeDocTitle("/u/" + data.name);
