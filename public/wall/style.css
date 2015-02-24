@@ -125,8 +125,7 @@ sup {
 blockquote {
     border-left: 3px solid rgba(0, 0, 0, .3);
     background-color: rgba(0, 0, 0, .1);
-    padding: 1px 0;
-    padding-left: 10px;
+    padding: 1px 10px;
 }
 
 blockquote p {
@@ -484,7 +483,7 @@ aside a.current {
 .post.expanded h3 {
     color: #FF851B;
     font-size: 1.7em;
-    font-weight: 600;
+    font-weight: 500;
 }
 
 .vote-container, .preview, .post-info {
@@ -503,7 +502,7 @@ aside a.current {
 
 .post-info a, .comment-info a, .comment-info span {
     display: inline-block;
-    margin: 0 5px;
+    margin: 2px 5px;
     color: inherit;
     
     transition-property: color;
@@ -539,13 +538,17 @@ aside a.current {
     margin-top: 5px;
 }
 
-.preview ul, .preview ol {
+.preview ul, .preview ol, .comment-body ul, .comment-body ol {
     margin-left: 20px;
     list-style: disc;
 }
 
 .preview .selftext-container {
     max-height: 300px;
+}
+
+.preview .selftext-container, .comment-body {
+    line-height: 1.3;
 }
 
 .preview .selftext-container.overflow {
