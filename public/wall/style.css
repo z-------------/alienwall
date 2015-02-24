@@ -616,7 +616,7 @@ aside a.current {
     display: inline-block;
     cursor: pointer;
     padding: 13px;
-    color: rgba(255, 255, 255, .9);
+    color: rgba(255, 255, 255, .7);
     box-shadow: inset 0 0 transparent;
     flex-shrink: 0;
     
@@ -632,12 +632,10 @@ aside a.current {
 }
 
 #subreddit-list li:hover {
-    background-color: rgba(255, 255, 255, .2);
     color: #FFF;
 }
 
 #subreddit-list li.current {
-    background-color: rgba(255, 255, 255, .3);
     color: #FFF;
     box-shadow: inset 0 -2px #FFF;
 }
