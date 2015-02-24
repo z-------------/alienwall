@@ -327,6 +327,11 @@ aside.opened {
     left: 0;
 }
 
+.compact-header aside {
+    height: calc(100% - 55px);
+    top: 55px;
+}
+
 aside a {
     display: block;
     padding: 20px;
