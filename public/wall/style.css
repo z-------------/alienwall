@@ -798,7 +798,7 @@ aside a.current {
     cursor: pointer;
     color: transparent;
     border: none;
-    opacity: .7;
+    opacity: .9;
     
     background-color: transparent;
     background-image: url(/img/ui/input.svg);
@@ -810,7 +810,7 @@ aside a.current {
     color: transparent;
 }
 
-#goto-subreddit:hover {
+#goto-subreddit:hover, #goto-subreddit:focus {
     opacity: 1;
 }
 
