@@ -312,7 +312,7 @@ function makePostElem(data) {
     commentBtn.addEventListener("click", commentListener);
 
     var previewElem = postElem.querySelector(".preview");
-    var onLoad = "streamMasonry.layout()";
+    var onLoad = "layoutMasonry(); layoutUserMasonry()";
 
     /* make media previews */
     var urlHostname = parseURL(postURL, "hostname");
@@ -575,7 +575,7 @@ function displayComments(node, elem, topLevel) {
         comments = node.data.replies.data.children;
     }
     
-    var expandedPostElem = document.querySelector("#stream .post.expanded");
+    var expandedPostElem = document.querySelector(".stream .post.expanded");
     var op = expandedPostElem.querySelector(".post-info-author").textContent;
 
     comments.forEach(function(comment){
@@ -1309,7 +1309,9 @@ var resizeTextarea = function(txtElem){
 };
 
 window.addEventListener("hashchange", handleHash);
-window.addEventListener("resize", layoutMasonry);
+window.addEventListener("resize", function(){
+    layoutMasonry(); layoutUserMasonry();
+});
 window.addEventListener("input", function(e){
     if (e.target.tagName.toLowerCase() === "textarea");
     resizeTextarea(e.target);
@@ -1322,7 +1324,7 @@ setInterval(function(){
         document.body.classList.remove("compact-header");
     }
     previousScrollY = window.scrollY;
-}, 500);
+}, 100);
 
 getUserSubreddits();
 handleHash();
