@@ -1,0 +1,43 @@
+<?php
+$code = $_GET["code"];
+
+$url = "https://www.reddit.com/api/v1/access_token";
+
+$values = array(
+    "grant_type" => "authorization_code",
+    "code" => $code,
+    "redirect_uri" => "http://localhost:8000/py/auth_callback"
+);
+
+$pwdFile = fopen("../clientinfo", "r");
+$pwdStr = fread($myfile, filesize("../clientinfo"));
+fclose($pwdFile);
+$pwdStr = base64_encode($pwdStr);
+
+$headers = ["Content-Type: application/x-www-form-urlencoded",
+    "Authorization: Basic " . $pwdStr,
+    "User-Agent: RedditWall/0.1 by thedonkeypie"];
+
+$options = array(
+    "http" => array(
+        "header" => $headers,
+        "method" => "POST",
+        "content" => http_build_query($values),
+    ),
+);
+$context  = stream_context_create($options);
+$response = file_get_contents($url, false, $context);
+
+$responseJSON = json_decode($response);
+$accessToken = $responseJSON["access_token"];
+$refreshRoken = $responseJSON["refresh_token"];
+
+$foreverDate = 315569260; //10 years
+
+setcookie("access_token", $accessToken, $foreverDate, "/");
+setcookie("refresh_token", $refreshRoken, $foreverDate, "/");
+setcookie("authdate", time() * 1000, $foreverDate, "/");
+
+header("Content-Type: text/html");
+header("Location: /wall/");
+?>
