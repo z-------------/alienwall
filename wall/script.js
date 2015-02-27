@@ -1156,7 +1156,7 @@ setInterval(function(){
     var delta = expiryDate - nowDate;
     
     if (delta < TEN_MINUTES && !alreadyRequestedNewAccessToken) {
-        xhr("/py/refresh_auth?refresh_token=" + readCookie("refresh_token"), function(r){
+        xhr("/auth/refresh_auth.php?refresh_token=" + readCookie("refresh_token"), function(r){
             console.log(r);
         });
         
