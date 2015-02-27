@@ -8,13 +8,14 @@ $values = array(
     "refresh_token" => $refreshToken
 );
 
-$pwdFile = fopen("../clientinfo", "r");
-$pwdStr = fread($myfile, filesize("../clientinfo"));
+$pwdFilePath = $_SERVER["DOCUMENT_ROOT"] . "/clientinfo";
+$pwdFile = fopen($pwdFilePath, "r");
+$pwdStr = fread($pwdFile, filesize($pwdFilePath));
 fclose($pwdFile);
-$pwdStr = base64_encode($pwdStr);
+$pwdB64 = base64_encode($pwdStr);
 
 $headers = ["Content-Type: application/x-www-form-urlencoded",
-    "Authorization: Basic " . $pwdStr,
+    "Authorization: Basic " . $pwdB64,
     "User-Agent: RedditWall/0.1 by thedonkeypie"];
 
 $options = array(
@@ -28,12 +29,14 @@ $context  = stream_context_create($options);
 $response = file_get_contents($url, false, $context);
 
 $responseJSON = json_decode($response);
-$accessToken = $responseJSON["access_token"];
+$accessToken = get_object_vars($responseJSON)["access_token"];
 
-$foreverDate = 315569260; //10 years
+$tenYears = 315569260; //10 years
+$tenYearsFromNow = time() + $tenYears;
 
-setcookie("access_token", $accessToken, $foreverDate, "/");
-setcookie("authdate", time() * 1000, $foreverDate, "/");
+setcookie("access_token", $accessToken, $tenYearsFromNow, "/");
+setcookie("refresh_token", $refreshRoken, $tenYearsFromNow, "/");
+setcookie("authdate", time() * 1000, $tenYearsFromNow, "/");
 
 header("Content-Type: text/plain");
 echo("OK");
