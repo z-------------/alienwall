@@ -127,7 +127,7 @@
             if (readCookie("refresh_token")) {
                 document.body.classList.add("loading");
                 
-                xhr("/py/refresh_auth?refresh_token=" + readCookie("refresh_token"), function(r){
+                xhr("/auth/refresh_auth.php?refresh_token=" + readCookie("refresh_token"), function(r){
                     r = r.replace(/[^A-Z]/ig, "");
                     if (r === "OK") window.location = "/wall/";
                 });

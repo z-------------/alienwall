@@ -30,13 +30,15 @@ $context  = stream_context_create($options);
 $response = file_get_contents($url, false, $context);
 
 $responseJSON = json_decode($response);
-$accessToken = get_object_vars($responseJSON)["access_token"];
-$refreshRoken = get_object_vars($responseJSON)["refresh_token"];
+$responseData = get_object_vars($responseJSON);
+$accessToken = $responseData["access_token"];
+$tokenExpiry = (int)$responseData["expires_in"];
+$refreshRoken = $responseData["refresh_token"];
 
 $tenYears = 315569260; //10 years
 $tenYearsFromNow = time() + $tenYears;
 
-setcookie("access_token", $accessToken, $tenYearsFromNow, "/");
+setcookie("access_token", $accessToken, time() + $tokenExpiry, "/");
 setcookie("refresh_token", $refreshRoken, $tenYearsFromNow, "/");
 setcookie("authdate", time() * 1000, $tenYearsFromNow, "/");
 
