@@ -344,9 +344,12 @@ aside a {
     display: block;
     padding: 20px;
     font-weight: 300;
-    color: rgba(0, 0, 0, .7);
+    background-position: 20px;
+    padding-left: 55px;
+    color: #000 !important;
+    opacity: .7;
     
-    transition-property: background, color;
+    transition-property: background, opacity;
 }
 
 aside a:before {
@@ -355,7 +358,7 @@ aside a:before {
 }
 
 aside a:hover, aside a.current {
-    color: #000;
+    opacity: 1;
 }
 
 aside a:hover {
@@ -365,6 +368,14 @@ aside a:hover {
 aside a.current {
     font-weight: 400;
     background-color: rgba(0, 0, 0, .1);
+}
+
+aside a[data-section="subreddits"] {
+    background-image: url(/img/ui/subreddits.svg);
+}
+
+aside a[data-section="submit"] {
+    background-image: url(/img/ui/edit-dark.svg);
 }
 
 .floating-action {
