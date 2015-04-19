@@ -1288,6 +1288,8 @@ var handleHash = function(){
                     
                     document.querySelector("#user-stream").appendChild(postElem);
                 });
+                
+                layoutMasonry();
             });
             
             changeDocTitle("/u/" + data.name);
