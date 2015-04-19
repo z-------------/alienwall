@@ -350,8 +350,7 @@ aside a {
 }
 
 aside a:before {
-    content: attr(data-section);
-    text-transform: capitalize;
+    content: attr(data-section-display);
 }
 
 aside a:hover, aside a.current {
