@@ -199,11 +199,12 @@ function isImgurImage(url){
 }
 
 function layoutMasonry(){
-    streamMasonry = new Masonry(document.querySelector("#stream"), masonryOptions);
-}
-
-function layoutUserMasonry(){
-    userMasonry = new Masonry(document.querySelector("#user-stream"), masonryOptions);
+    var masonryContainers = ["subreddits", "user"];
+    var contentElem = document.querySelector(".content.visible") || document.querySelector(".content");
+    if (contentElem && masonryContainers.indexOf(contentElem.getAttribute("id")) !== -1) {
+        streamMasonry = new Masonry(contentElem.querySelector(".stream"), masonryOptions);
+    }
+    console.log(contentElem);
 }
 
 function fixLinks(html){
@@ -311,7 +312,7 @@ function makePostElem(data) {
     commentBtn.addEventListener("click", commentListener);
 
     var previewElem = postElem.querySelector(".preview");
-    var onLoad = "layoutMasonry(); layoutUserMasonry()";
+    var onLoad = "layoutMasonry()";
 
     /* make media previews */
     var urlHostname = parseURL(postURL, "hostname");
@@ -1287,8 +1288,6 @@ var handleHash = function(){
                     
                     document.querySelector("#user-stream").appendChild(postElem);
                 });
-
-                layoutUserMasonry();
             });
             
             changeDocTitle("/u/" + data.name);
@@ -1310,7 +1309,7 @@ var resizeTextarea = function(txtElem){
 
 window.addEventListener("hashchange", handleHash);
 window.addEventListener("resize", function(){
-    layoutMasonry(); layoutUserMasonry();
+    layoutMasonry();
 });
 window.addEventListener("input", function(e){
     if (e.target.tagName.toLowerCase() === "textarea");
