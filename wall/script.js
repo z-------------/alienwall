@@ -1215,6 +1215,10 @@ var changeSection = function(sectionName){
         sectionAnchor.classList.remove("current");
     });
     if (targetAnchor) targetAnchor.classList.add("current");
+    
+    if (sectionName !== "subreddits" && document.querySelector("#subreddit-list li.current")) {
+        document.querySelector("#subreddit-list li.current").classList.remove("current");
+    }
 };
 
 var handleHash = function(){
