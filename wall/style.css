@@ -375,6 +375,10 @@ aside a[data-section="submit"] {
     background-image: url(/img/ui/edit-dark.svg);
 }
 
+aside a[data-section="user"] {
+    background-image: url(/img/ui/person.svg);
+}
+
 .floating-action {
     position: fixed;
     right: 0;

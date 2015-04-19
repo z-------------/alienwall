@@ -173,6 +173,8 @@ var sortOrder;
 var afterID = null;
 var sub = subsListElem.querySelectorAll("li")[0].dataset.subreddit;
 
+var USERNAME;
+
 var previousScrollY = 0;
 
 var allSubs = [];
@@ -204,7 +206,6 @@ function layoutMasonry(){
     if (contentElem && masonryContainers.indexOf(contentElem.getAttribute("id")) !== -1) {
         streamMasonry = new Masonry(contentElem.querySelector(".stream"), masonryOptions);
     }
-    console.log(contentElem);
 }
 
 function fixLinks(html){
@@ -1243,8 +1244,8 @@ var handleHash = function(){
         }
         
         changeSection("submit");
-    } else if (hashPath[0] === "u" && hashPath.length === 2) {
-        var username = hashPath[1];
+    } else if (hashPath[0] === "u" && USERNAME) {
+        var username = (hashPath[1] && hashPath[1].length > 0 ? hashPath[1] : USERNAME);
         var usernameElem = document.querySelector("#user-name");
         usernameElem.textContent = username;
         
@@ -1330,5 +1331,10 @@ setInterval(function(){
 getUserSubreddits();
 handleHash();
 initSubmitSection();
+
+reddit("api/v1/me", {}, function(r){
+    r = JSON.parse(r);
+    USERNAME = r.name;
+});
 
 console.log("%cReddit Wall by z-------------\n", "font-size: 2em; font-family: 'Source Sans Pro', sans-serif", "https://github.com/z-------------/reddit-wall\n\n");
