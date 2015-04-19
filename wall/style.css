@@ -734,39 +734,19 @@ aside a[data-section="submit"] {
     transition-property: margin;
 }
 
-#subreddit-info.loading * {
+.infocard.loading * {
+    display: none !important;
+}
+
+.infocard.hidden {
     display: none;
 }
 
-#subreddit-info.hidden {
-    display: none;
-}
-
-#subreddit-info h2 {
+#subreddits .infocard h2 {
     margin-left: 50px;
     font-size: 1.5em;
     font-weight: 400;
     display: inline-block;
-}
-
-.fixed-subreddit-info {
-    padding-top: 93px;
-}
-
-.fixed-subreddit-info #subreddit-info {
-    position: fixed;
-    top: 0;
-    left: 50%;
-    margin-left: -505px;
-    margin-top: 100px;
-    z-index: 1;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, .16), 0 3px 6px rgba(0, 0, 0, .23);
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-}
-
-.compact-header .fixed-subreddit-info #subreddit-info {
-    margin-top: 55px;
 }
 
 #subscribe-btn {
