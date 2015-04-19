@@ -160,10 +160,9 @@ var initialTitle = document.head.querySelector("title").textContent;
 
 var streamMasonry, userMasonry;
 var masonryOptions = {
-    /*columnWidth: 480,*/
     itemSelector: ".post",
-    columnWidth: 480,
-    gutter: 50,
+    columnWidth: 400,
+    gutter: 20,
     isFitWidth: true,
     transitionDuration: 0,
     isResizeBound: false
