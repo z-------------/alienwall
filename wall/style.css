@@ -417,7 +417,7 @@ aside a[data-section="submit"] {
 
 .stream {
     width: 100%;
-    padding: 20px 40px;
+    padding: 20px 0;
     padding-bottom: 60px;
     margin: 0 auto;
     margin-bottom: 30px;
@@ -486,6 +486,8 @@ aside a[data-section="submit"] {
     padding: 50px;
     padding-top: 150px;
     cursor: auto;
+    
+    transition-property: none;
 }
 
 .post h3 {

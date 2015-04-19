@@ -452,7 +452,7 @@ function makePostElem(data) {
 function getMore() {
     clearInterval(scrollLoadInterval);
     
-    var limit = 25;
+    var limit = 20;
     
     var endpoint = "r/" + encodeURIComponent(sub) + "/" + encodeURIComponent(sortOrder) + ".json";
     if (sub === FRONT_PAGE) {
