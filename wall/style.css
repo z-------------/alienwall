@@ -575,6 +575,11 @@ aside a[data-section="submit"] {
     display: block;
 }
 
+[data-preview]:not([data-preview="self"]) .preview {
+    width: calc(100% + 40px);
+    margin-left: -20px;
+}
+
 .expanded .preview .selftext-container {
     max-height: none;
     -webkit-mask-image: none;
