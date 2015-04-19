@@ -721,7 +721,7 @@ aside a[data-section="submit"] {
     vertical-align: 2px;
 }
 
-#subreddit-info {
+.infocard {
     width: 1010px;
     margin: 0 auto;
     margin-top: 50px;
