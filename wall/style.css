@@ -106,7 +106,7 @@ a {
     cursor: pointer;
 }
 
-a:hover, .post:hover h3 {
+a:hover {
     color: #FF851B;
 }
 
@@ -444,7 +444,7 @@ aside a[data-section="submit"] {
 }
 
 .post:not(.expanded):hover {
-    background-color: rgba(255, 133, 27, 0.1);
+    background-color: #ffe3cc;
 }
 
 .post.stickied h3 {
