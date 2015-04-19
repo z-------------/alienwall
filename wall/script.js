@@ -489,7 +489,8 @@ function getMore() {
                     num_comments: post.data.num_comments,
                     score: post.data.score,
                     is_self: post.data.is_self,
-                    selftext_html: post.data.selftext_html
+                    selftext_html: post.data.selftext_html,
+                    stickied: post.data.stickied
                 });
                 
                 streamElem.appendChild(postElem);
@@ -1282,7 +1283,8 @@ var handleHash = function(){
                         num_comments: post.data.num_comments,
                         score: post.data.score,
                         is_self: post.data.is_self,
-                        selftext_html: post.data.selftext_html
+                        selftext_html: post.data.selftext_html,
+                        stickied: post.data.stickied
                     });
                     
                     document.querySelector("#user-stream").appendChild(postElem);
