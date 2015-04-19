@@ -699,13 +699,6 @@ function getSubredditInfo(subName) {
         changeDocTitle(title + " (/r/" + displayName + ") - ");
         
         var subscribeBtn = subInfoElem.querySelector("#subscribe-btn");
-        if (data.user_is_subscriber === true) {
-            document.querySelector("#subreddits").classList.remove("fixed-subreddit-info");
-            subscribeBtn.classList.add("subscribed");
-        } else {
-            document.querySelector("#subreddits").classList.add("fixed-subreddit-info");
-            subscribeBtn.classList.remove("subscribed");
-        }
         
         subscribeBtn.addEventListener("click", function(){
             var endpoint = "api/subscribe";
