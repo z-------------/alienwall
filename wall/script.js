@@ -699,6 +699,12 @@ function getSubredditInfo(subName) {
         
         var subscribeBtn = subInfoElem.querySelector("#subscribe-btn");
         
+        if (data.user_is_subscriber) {
+            subscribeBtn.classList.add("subscribed");
+        } else {
+            subscribeBtn.classList.remove("subscribed");
+        }
+        
         subscribeBtn.addEventListener("click", function(){
             var endpoint = "api/subscribe";
             
@@ -824,7 +830,6 @@ function changeSubreddit(subName){
     prepareGetMore();
     getMore();
 
-    console.log(subName.toLowerCase() !== FRONT_PAGE.toLowerCase() && subName.toLowerCase() !== "all");
     if (subName.toLowerCase() !== FRONT_PAGE.toLowerCase() && subName.toLowerCase() !== "all") {
         getSubredditInfo(subName);
         subInfoElem.classList.remove("hidden");
