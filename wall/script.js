@@ -1328,6 +1328,8 @@ var handleHash = function(){
         changeSection("user");
     } else if (hashPath[0] === "settings") {
         changeSection("settings");
+    } else if (hashPath[0] === "inbox") {
+        changeSection("mail");
     } else {
         changeSection("subreddits");
         changeSubreddit(FRONT_PAGE);

@@ -238,13 +238,16 @@ header {
     height: 100px;
     
     background-color: #FF851B;
-    box-shadow: 0 0 10px rgba(0, 0, 0, .3);
     color: rgba(0, 0, 0, .8);
     
     padding: 10px;
     padding-left: 55px;
     
     transition-property: height;
+}
+
+header, aside, .floating-action {
+    box-shadow: 0 0 10px rgba(0, 0, 0, .3);
 }
 
 .compact-header header {
@@ -389,6 +392,10 @@ aside [data-section="settings"] {
 
 aside [data-section="logout"] {
     background-image: url(/img/ui/exit.svg);
+}
+
+aside [data-section="mail"] {
+    background-image: url(/img/ui/mail.svg);
 }
 
 .floating-action {
