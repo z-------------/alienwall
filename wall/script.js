@@ -1119,6 +1119,35 @@ function initSubmitSection(){
     });
 }
 
+function initSidebar() {
+    var elems = [].slice.call(sidebarElem.querySelectorAll("[data-action]"));
+    elems.forEach(function(elem){
+        elem.onclick = function(){
+            var dataAction = elem.dataset.action;
+            var method = dataAction.substring(0, dataAction.indexOf(":"));
+            var action = dataAction.substring(dataAction.indexOf(":") + 1);
+            
+            switch (method) {
+                case "goto":
+                    location.hash = action;
+                    break;
+                case "do":
+                    switch (action) {
+                        case "logout":
+                            eraseCookie("access_token");
+                            eraseCookie("refresh_token");
+                            eraseCookie("authdate");
+                            window.location = "/";
+                            break;
+                    }
+                default:
+                    location.hash = "#";
+                    break;
+            }
+        };
+    });
+}
+
 if (!readCookie("access_token")) {
     window.location = "/";
 }
@@ -1297,6 +1326,8 @@ var handleHash = function(){
         });
         
         changeSection("user");
+    } else if (hashPath[0] === "settings") {
+        changeSection("settings");
     } else {
         changeSection("subreddits");
         changeSubreddit(FRONT_PAGE);
@@ -1331,6 +1362,7 @@ setInterval(function(){
 getUserSubreddits();
 handleHash();
 initSubmitSection();
+initSidebar();
 
 reddit("api/v1/me", {}, function(r){
     r = JSON.parse(r);

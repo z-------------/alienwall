@@ -337,45 +337,58 @@ aside.opened {
     top: 55px;
 }
 
-aside a {
+aside button {
     display: block;
     padding: 20px;
+    width: 100%;
     font-weight: 300;
     background-position: 20px;
+    background-color: #fff;
     padding-left: 55px;
     color: #000 !important;
     opacity: .7;
+    text-align: left;
     
     transition-property: background, opacity;
 }
 
-aside a:before {
-    content: attr(data-section-display);
-}
-
-aside a:hover, aside a.current {
+aside button:hover, aside button.current {
     opacity: 1;
 }
 
-aside a:hover {
+aside button:hover {
     background-color: rgba(0, 0, 0, .05);
 }
 
-aside a.current {
+aside button.current {
     font-weight: 400;
     background-color: rgba(0, 0, 0, .1);
 }
 
-aside a[data-section="subreddits"] {
+.sidebar-small button {
+    font-size: .7em;
+    padding-top: 14px;
+    padding-bottom: 14px;
+}
+
+aside [data-section="subreddits"] {
     background-image: url(/img/ui/subreddits.svg);
 }
 
-aside a[data-section="submit"] {
+aside [data-section="submit"] {
     background-image: url(/img/ui/edit-dark.svg);
 }
 
-aside a[data-section="user"] {
+aside [data-section="user"] {
     background-image: url(/img/ui/person.svg);
+}
+
+aside [data-section="settings"] {
+    background-image: url(/img/ui/settings.svg);
+}
+
+aside [data-section="logout"] {
+    background-image: url(/img/ui/exit.svg);
 }
 
 .floating-action {

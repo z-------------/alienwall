@@ -49,9 +49,15 @@
         </header>
         
         <aside id="sidebar">
-            <a href="#" data-section="subreddits" data-section-display="Stream"></a>
-            <a href="#!/submit" data-section="submit" data-section-display="Submit"></a>
-            <a href="#!/u" data-section="user" data-section-display="User"></a>
+            <div class="sidebar-big">
+                <button data-action="goto:#" data-section="subreddits">Stream</button>
+                <button data-action="goto:#!/submit" data-section="submit">Submit</button>
+                <button data-action="goto:#!/u" data-section="user">User</button>
+            </div>
+            <div class="sidebar-small">
+                <button data-action="goto:#!/settings" data-section="settings">Settings</button>
+                <button data-action="do:logout" data-section="logout">Log out</button>
+            </div>
         </aside>
         
         <div class="content" id="subreddits">
@@ -118,6 +124,10 @@
                 </table>
             </div>
             <ol class="stream" id="user-stream"></ol>
+        </div>
+        
+        <div class="content" id="settings">
+            <h2>Settings</h2>
         </div>
         
         <script src="/js/hr-time-js/hr-time.js"></script>
