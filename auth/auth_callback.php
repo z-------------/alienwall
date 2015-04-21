@@ -6,7 +6,7 @@ $url = "https://www.reddit.com/api/v1/access_token";
 $values = array(
     "grant_type" => "authorization_code",
     "code" => $code,
-    "redirect_uri" => "http://localhost:8000/auth/auth_callback.php"
+    "redirect_uri" => "https://alienwall-guardo.rhcloud.com/auth/auth_callback.php"
 );
 
 $pwdFilePath = $_SERVER["DOCUMENT_ROOT"] . "/clientinfo";
