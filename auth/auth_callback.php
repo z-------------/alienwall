@@ -9,7 +9,7 @@ $values = array(
     "redirect_uri" => "https://alienwall-guardo.rhcloud.com/auth/auth_callback.php"
 );
 
-$pwdFileDir = "";
+$pwdFileDir = "idek";
 if (!empty($_ENV["OPENSHIFT_DATA_DIR"])) {
   $dir = $_ENV["OPENSHIFT_DATA_DIR"];
 } else if (!empty($_SERVER["DOCUMENT_ROOT"])) {
