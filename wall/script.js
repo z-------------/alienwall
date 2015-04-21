@@ -1371,4 +1371,4 @@ reddit("api/v1/me", {}, function(r){
     USERNAME = r.name;
 });
 
-console.log("%cReddit Wall by z-------------\n", "font-size: 2em; font-family: 'Source Sans Pro', sans-serif", "https://github.com/z-------------/reddit-wall\n\n");
+console.log("%cAlien Wall by z-------------\n", "font-size: 2em; font-family: 'Source Sans Pro', sans-serif", "https://github.com/z-------------/reddit-wall\n\n");
