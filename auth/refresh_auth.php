@@ -16,7 +16,7 @@ $pwdB64 = base64_encode($pwdStr);
 
 $headers = ["Content-Type: application/x-www-form-urlencoded",
     "Authorization: Basic " . $pwdB64,
-    "User-Agent: web:alienwall:v0.0.1 (by /u/thedonkeypie)"];
+    "User-Agent: web alienwall v0.0.1 (by /u/thedonkeypie)"];
 
 $options = array(
     "http" => array(
