@@ -21,7 +21,13 @@ $pwdStr = fread($pwdFile, filesize($pwdFilePath));
 fclose($pwdFile);
 $pwdB64 = base64_encode($pwdStr);
 
-$headers = ["Content-Type: application/x-www-form-urlencoded",
+header("Content-Type: text/plain");
+
+echo($pwdFilePath);
+echo($pwdStr);
+echo($pwdB64);
+
+/*$headers = ["Content-Type: application/x-www-form-urlencoded",
     "Authorization: Basic " . $pwdB64,
     "User-Agent: web alienwall v0.0.1 (by /u/thedonkeypie)"];
 
@@ -49,5 +55,5 @@ setcookie("refresh_token", $refreshRoken, $tenYearsFromNow, "/");
 setcookie("authdate", time() * 1000, $tenYearsFromNow, "/");
 
 header("Content-Type: text/html");
-header("Location: /wall/");
+header("Location: /wall/");*/
 ?>
