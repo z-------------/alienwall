@@ -350,7 +350,7 @@ function makePostElem(data) {
         var sourcesHTML = "";
         prefixes.forEach(function(prefix){
             fileTypes.forEach(function(fileType){
-                sourcesHTML += "<source type='video/" + fileType + "' src='http://" + prefix + ".gfycat.com/" + id + "." + fileType + "'>";
+                sourcesHTML += "<source type='video/" + fileType + "' src='https://" + prefix + ".gfycat.com/" + id + "." + fileType + "'>";
             });
         });
 
@@ -364,8 +364,8 @@ function makePostElem(data) {
         /* imgur gifv */
 
         var id = urlPath.substring(0, urlPath.lastIndexOf(".gifv"));
-        var webmURL = "http://i.imgur.com" + id + ".webm";
-        var mp4URL = "http://i.imgur.com" + id + ".mp4";
+        var webmURL = "https://i.imgur.com" + id + ".webm";
+        var mp4URL = "https://i.imgur.com" + id + ".mp4";
 
         previewElem.innerHTML = "<video loop muted onloadeddata='" + onLoad + "'><source src='" + webmURL + "' type='video/webm'><source src='" + mp4URL + "' type='video/mp4'></video>";
 
@@ -377,7 +377,7 @@ function makePostElem(data) {
         /* imgur */
 
         var id = urlPath.substring(1);
-        var imgURL = "http://i.imgur.com/" + id + ".jpg";
+        var imgURL = "https://i.imgur.com/" + id + ".jpg";
 
         previewElem.innerHTML = "<img src='" + imgURL + "' onload='" + onLoad + "'>";
 
