@@ -9,7 +9,13 @@ $values = array(
     "redirect_uri" => "https://alienwall-guardo.rhcloud.com/auth/auth_callback.php"
 );
 
-$pwdFilePath = $_SERVER["DOCUMENT_ROOT"] . "/clientinfo";
+$pwdFileDir = "";
+if (!empty($_SERVER["OPENSHIFT_DATA_DIR"])) {
+  $dir = $_SERVER["OPENSHIFT_DATA_DIR"];
+} else if (!empty($_SERVER["DOCUMENT_ROOT"])) {
+  $dir = $_SERVER["DOCUMENT_ROOT"];
+}
+$pwdFilePath = $pwdFileDir . "/clientinfo";
 $pwdFile = fopen($pwdFilePath, "r");
 $pwdStr = fread($pwdFile, filesize($pwdFilePath));
 fclose($pwdFile);
