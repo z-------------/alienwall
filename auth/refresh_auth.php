@@ -9,10 +9,10 @@ $values = array(
 );
 
 $pwdFileDir = "";
-if (!empty($_SERVER["OPENSHIFT_DATA_DIR"])) {
-  $dir = $_SERVER["OPENSHIFT_DATA_DIR"];
+if (!empty($_ENV["OPENSHIFT_DATA_DIR"])) {
+  $pwdFileDir = $_ENV["OPENSHIFT_DATA_DIR"];
 } else if (!empty($_SERVER["DOCUMENT_ROOT"])) {
-  $dir = $_SERVER["DOCUMENT_ROOT"];
+  $pwdFileDir = $_SERVER["DOCUMENT_ROOT"];
 }
 $pwdFilePath = $pwdFileDir . "/clientinfo";
 $pwdFile = fopen($pwdFilePath, "r");
