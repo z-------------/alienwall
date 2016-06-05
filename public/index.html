@@ -2,10 +2,10 @@
 <html>
     <head>
         <title>Alien Wall</title>
-        
+
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
-        
+
         <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,900,200italic,300italic,400italic,600italic,700italic,900italic' rel='stylesheet' type='text/css'>
         <style>
             html, body {
@@ -13,7 +13,7 @@
                 height: 100%;
                 margin: 0;
             }
-            
+
             body {
                 font-family: "Source Sans Pro", sans-serif;
                 background-color: #FF851B;
@@ -23,29 +23,29 @@
                 align-items: center;
                 justify-content: center;
             }
-            
+
             body.loading {
                 background-image: url(/img/ui/loading-white.svg);
                 background-position: center;
                 background-repeat: no-repeat;
                 background-size: 30px;
             }
-            
+
             body.loading > * {
                 display: none;
             }
-            
+
             h1 {
                 color: #fff;
                 font-size: 4em;
                 font-weight: 700;
                 margin-top: 0;
             }
-            
+
             h1 span {
                 font-weight: 200;
             }
-            
+
             a {
                 display: inline-block;
                 color: rgba(0, 0, 0, .8);
@@ -54,13 +54,13 @@
                 text-decoration: none;
                 line-height: 1;
                 border-radius: 4px;
-                
+
                 box-shadow: 0 1px 3px rgba(0, 0, 0, .12), 0 1px 2px rgba(0, 0, 0, .24);
-                
+
                 transition-duration: .3s;
                 transition-property: box-shadow, color;
             }
-            
+
             a:hover {
                 color: #000;
                 box-shadow: 0 3px 6px rgba(0, 0, 0, .16), 0 3px 6px rgba(0, 0, 0, .23);
@@ -69,25 +69,25 @@
     </head>
     <body>
         <img style="display: none" src="img/ui/loading-white.svg">
-        
+
         <div class="center">
             <h1>Alien<span>Wall</span></h1>
-            <a href="https://www.reddit.com/api/v1/authorize?client_id=jQ9e-THHchxOZg&response_type=code&state=testingtesting&redirect_uri=https://alienwall-guardo.rhcloud.com/auth/auth_callback.php&duration=permanent&scope=identity,read,mysubreddits,vote,subscribe,save,submit,history,privatemessages" target="_self">Log in with Reddit</a>
+            <a href="https://www.reddit.com/api/v1/authorize?client_id=jQ9e-THHchxOZg&response_type=code&state=testingtesting&redirect_uri=http://localhost:3000/auth/auth_callback&duration=permanent&scope=identity,read,mysubreddits,vote,subscribe,save,submit,history,privatemessages" target="_self">Log in with Reddit</a>
         </div>
-        
+
         <script>
             var xhr = function(url, callback, headers) {
                 console.log("XHR request for " + url);
-                var oXHR = new XMLHttpRequest();  
-                oXHR.open("GET", url, true);  
+                var oXHR = new XMLHttpRequest();
+                oXHR.open("GET", url, true);
                 oXHR.onreadystatechange = function (oEvent) {
-                    if (oXHR.readyState === 4) {  
+                    if (oXHR.readyState === 4) {
                         if (oXHR.status === 200) {
-                            callback(oXHR.responseText)  
-                        } else {  
+                            callback(oXHR.responseText)
+                        } else {
                             callback(false);
-                        }  
-                    }  
+                        }
+                    }
                 };
                 if (headers) {
                     var headerKeys = Object.keys(headers);
@@ -95,9 +95,9 @@
                         oXHR.setRequestHeader(headerKey, headers[headerKey]);
                     });
                 }
-                oXHR.send(null); 
+                oXHR.send(null);
             };
-            
+
             function createCookie(name, value, days) {
                 if (days) {
                     var date = new Date();
@@ -122,17 +122,17 @@
             function eraseCookie(name) {
                 createCookie(name,"",-1);
             }
-            
+
             /* request an access token if we have a refresh token */
             if (readCookie("refresh_token")) {
                 document.body.classList.add("loading");
-                
-                xhr("/auth/refresh_auth.php?refresh_token=" + readCookie("refresh_token"), function(r){
+
+                xhr("/auth/refresh_auth?refresh_token=" + readCookie("refresh_token"), function(r){
                     r = r.replace(/[^A-Z]/ig, "");
                     if (r === "OK") window.location = "/wall/";
                 });
             }
-            
+
             /* redirect to /wall/ if access token not expired */
             if (readCookie("access_token")) {
                 window.location = "/wall/";
