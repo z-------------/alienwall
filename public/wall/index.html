@@ -2,22 +2,22 @@
 <html>
     <head>
         <title>Alien Wall</title>
-        
+
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
         <meta name="mobile-web-app-capable" content="yes">
-        
+
         <link rel="stylesheet" href="style.css">
         <link href='https://fonts.googleapis.com/css?family=Roboto:400,500,700,300,300italic,400italic,500italic,700italic' rel='stylesheet' type='text/css'>
-        
+
         <datalist id="subreddits-datalist"></datalist>
     </head>
     <body>
         <header>
             <button class="header-btn burger"></button>
-            
+
             <h1>Alien<span>Wall</span></h1>
-            
+
             <div class="dropdown" id="sort-container">
                 <select id="sort-input" class="light">
                     <option value="hot">Hot</option>
@@ -34,20 +34,20 @@
                     <option value="year">Past year</option>
                 </select>
             </div>
-            
+
             <button class="header-btn sort" data-dropdown="sort-container"></button>
             <button class="header-btn refresh"></button>
-            
+
             <div id="subreddit-list-container">
                 <ol id="subreddit-list">
                     <li data-subreddit="*front page">front</li>
                     <li data-subreddit="all">all</li>
                 </ol>
             </div>
-            
+
             <input type="text" id="goto-subreddit" placeholder="Type a subreddit name" title="Go to a particular subreddit (press enter)" list="subreddits-datalist">
         </header>
-        
+
         <aside id="sidebar">
             <div class="sidebar-big">
                 <button data-action="goto:#" data-section="subreddits">Stream</button>
@@ -60,7 +60,7 @@
                 <button data-action="do:logout" data-section="logout">Log out</button>
             </div>
         </aside>
-        
+
         <div class="content" id="subreddits">
             <div class="card infocard">
                 <h2></h2>
@@ -69,7 +69,7 @@
             <ol class="stream" id="stream"></ol>
             <button class="floating-action submit" id="submit-post"></button>
         </div>
-        
+
         <div class="content" id="submit">
             <div class="card submit-container">
                 <div class="form" id="submit-form">
@@ -84,12 +84,12 @@
                         <h3>Title</h3>
                         <input name="title" type="text" maxlength="300" placeholder="Something awesome" class="wide" required>
                     </label>
-                    
+
                     <label id="sr-label">
                         <h3>Subreddit</h3>
                         <input list="subreddits-datalist" name="sr" type="text" placeholder="somesubreddit" class="wide" required>
                     </label>
-                    
+
                     <label id="url-label">
                         <h3>URL</h3>
                         <input name="url" type="url" placeholder="http://www.example.com" class="wide" required>
@@ -98,22 +98,22 @@
                         <h3>Text</h3>
                         <textarea name="text" placeholder="Lorem ipsum dolor sit amet..." class="wide"></textarea>
                     </label>
-                    
-                    <label>
+
+                    <!-- <label>
                         <h3>Captcha</h3>
                         <img id="captcha-img" class="captcha-img">
                         <input name="captcha" type="text" placeholder="Captcha text" required>
-                    </label>
-                    
+                    </label> -->
+
                     <button id="submit-btn">Submit</button>
                 </div>
             </div>
         </div>
-        
+
         <div class="content" id="mail">
             <h2>Mail</h2>
         </div>
-        
+
         <div class="content" id="user">
             <div class="card infocard">
                 <h2 id="user-name"></h2>
@@ -130,14 +130,14 @@
             </div>
             <ol class="stream" id="user-stream"></ol>
         </div>
-        
+
         <div class="content" id="settings">
             <h2>Settings</h2>
         </div>
-        
+
         <script src="/js/hr-time-js/hr-time.js"></script>
         <script src="/js/masonry/masonry.pkgd.min.js"></script>
-        
+
         <script src="script.js"></script>
     </body>
 </html>

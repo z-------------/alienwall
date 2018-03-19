@@ -1033,7 +1033,7 @@ function requestCaptcha(){
 }
 
 function initSubmitSection(){
-    requestCaptcha();
+    // requestCaptcha();
 
     /* add listeners */
     var submitFormElem = document.querySelector("#submit-form");
@@ -1043,20 +1043,20 @@ function initSubmitSection(){
     var titleInput = submitFormElem.querySelector("[name='title']");
     var textInput = submitFormElem.querySelector("[name='text']");
     var urlInput = submitFormElem.querySelector("[name='url']");
-    var captchaInput = submitFormElem.querySelector("[name='captcha']");
+    // var captchaInput = submitFormElem.querySelector("[name='captcha']");
     var subredditInput = submitFormElem.querySelector("[name='sr']");
 
     var textLabel = submitFormElem.querySelector("#text-label");
     var urlLabel = submitFormElem.querySelector("#url-label");
 
-    var captchaImgElem = document.querySelector("#captcha-img");
+    // var captchaImgElem = document.querySelector("#captcha-img");
 
     var submitBtn = submitFormElem.querySelector("#submit-btn");
 
     titleInput.value = "";
     textInput.value = "";
     urlInput.value = "";
-    captchaInput.value = "";
+    // captchaInput.value = "";
 
     var submitType = submitTypeSelect.value;
 
@@ -1087,12 +1087,12 @@ function initSubmitSection(){
 
         var subName = subredditInput.value;
 
-        if (valid && captchaImgElem.dataset.iden) {
+        if (valid/* && captchaImgElem.dataset.iden*/) {
             var params = {
                 api_type: "json",
                 extension: "json",
-                captcha: captchaInput.value,
-                iden: captchaImgElem.dataset.iden,
+                // captcha: captchaInput.value,
+                // iden: captchaImgElem.dataset.iden,
                 kind: submitType,
                 resubmit: true,
                 sendreplies: true,
@@ -1193,10 +1193,10 @@ setInterval(function(){
     }
 }, 1000);
 
-setInterval(function(){
-    /* refresh captcha (just in case. from experience, captcha iden's seem to expire after a while idk) */
-    requestCaptcha();
-}, FIVE_MINUTES);
+// setInterval(function(){
+//     /* refresh captcha (just in case. from experience, captcha iden's seem to expire after a while idk) */
+//     requestCaptcha();
+// }, FIVE_MINUTES);
 
 /* dropdown stuff */
 (function(){
@@ -1266,7 +1266,7 @@ var handleHash = function(){
             history.pushState(null, initialTitle, window.location.pathname);
         }
     } else if (hashPath[0] === "submit") {
-        requestCaptcha();
+        // requestCaptcha();
 
         if (sub !== FRONT_PAGE && sub !== "all") {
             document.querySelector(".submit-container [name='sr']").value = sub;
